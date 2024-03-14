@@ -1,0 +1,13 @@
+.{
+  .name = "X11.zig",
+  .version = "1.8.7",
+  .minimum_zig_version = "0.11.0",
+  .paths = .{
+    "build.zig",
+    "build.zig.zon",
+    "GL",
+    "X11",
+    "xcb",
+    "xkbcommon",
+  },
+}
