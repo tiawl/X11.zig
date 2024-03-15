@@ -5,6 +5,7 @@
   .paths = .{
     "build.zig",
     "build.zig.zon",
+    "toolbox",
     "GL",
     "X11",
     "xcb",
