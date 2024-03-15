@@ -1,5 +1,5 @@
 const std = @import ("std");
-const toolbox = @import ("toolbox").toolbox;
+const toolbox = @import ("toolbox");
 const pkg = .{
                .name = "X11.zig",
                .version = .{
@@ -32,8 +32,8 @@ const Paths = struct
 
 fn update_xkbcommon (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://github.com/xkbcommon/libxkbcommon.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "xkbcommon-" ++ pkg.version.xkbcommon, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://github.com/xkbcommon/libxkbcommon.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "xkbcommon-" ++ pkg.version.xkbcommon, }, });
 
   const include_path = try std.fs.path.join (builder.allocator, &.{ path.tmp, "include", "xkbcommon" });
   var include_dir = try std.fs.openDirAbsolute (include_path, .{ .iterate = true, });
@@ -58,8 +58,8 @@ fn update_xkbcommon (builder: *std.Build, path: *const Paths) !void
 
 fn update_X11 (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libx11.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libX11-" ++ pkg.version.X11, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libx11.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libX11-" ++ pkg.version.X11, }, });
 
   const include_path = try std.fs.path.join (builder.allocator, &.{ path.tmp, "include", "X11", });
   var include_dir = try std.fs.openDirAbsolute (include_path, .{ .iterate = true, });
@@ -114,8 +114,8 @@ fn update_Xcursor (builder: *std.Build, path: *const Paths) !void
 {
   const xcursor_path = try std.fs.path.join (builder.allocator, &.{ path.X11, "Xcursor", });
 
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxcursor.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXcursor-" ++ pkg.version.Xcursor, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxcursor.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXcursor-" ++ pkg.version.Xcursor, }, });
 
   const include_path = try std.fs.path.join (builder.allocator, &.{ path.tmp, "include", "X11", "Xcursor", });
   var include_dir = try std.fs.openDirAbsolute (include_path, .{ .iterate = true, });
@@ -141,8 +141,8 @@ fn update_Xcursor (builder: *std.Build, path: *const Paths) !void
 
 fn update_Xrandr (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxrandr.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXrandr-" ++ pkg.version.Xrandr, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxrandr.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXrandr-" ++ pkg.version.Xrandr, }, });
 
   try toolbox.copy (
     try std.fs.path.join (builder.allocator, &.{ path.tmp, "include", "X11", "extensions", "Xrandr.h", }),
@@ -153,8 +153,8 @@ fn update_Xrandr (builder: *std.Build, path: *const Paths) !void
 
 fn update_Xfixes (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxfixes.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXfixes-" ++ pkg.version.Xfixes, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxfixes.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXfixes-" ++ pkg.version.Xfixes, }, });
 
   try toolbox.copy (
     try std.fs.path.join (builder.allocator, &.{ path.tmp, "include", "X11", "extensions", "Xfixes.h", }),
@@ -165,8 +165,8 @@ fn update_Xfixes (builder: *std.Build, path: *const Paths) !void
 
 fn update_Xrender (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxrender.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXrender-" ++ pkg.version.Xrender, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxrender.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXrender-" ++ pkg.version.Xrender, }, });
 
   try toolbox.copy (
     try std.fs.path.join (builder.allocator, &.{ path.tmp, "include", "X11", "extensions", "Xrender.h", }),
@@ -177,8 +177,8 @@ fn update_Xrender (builder: *std.Build, path: *const Paths) !void
 
 fn update_Xinerama (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxinerama.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXinerama-" ++ pkg.version.Xinerama, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxinerama.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXinerama-" ++ pkg.version.Xinerama, }, });
 
   for ([_][] const u8 { "Xinerama.h", "panoramiXext.h", }) |file|
   {
@@ -192,8 +192,8 @@ fn update_Xinerama (builder: *std.Build, path: *const Paths) !void
 
 fn update_Xi (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxi.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXi-" ++ pkg.version.Xi, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxi.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXi-" ++ pkg.version.Xi, }, });
 
   for ([_][] const u8 { "XInput.h", "XInput2.h", }) |file|
   {
@@ -207,8 +207,8 @@ fn update_Xi (builder: *std.Build, path: *const Paths) !void
 
 fn update_XScrnSaver (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXScrnSaver-" ++ pkg.version.XScrnSaver, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXScrnSaver-" ++ pkg.version.XScrnSaver, }, });
 
   try toolbox.copy (
     try std.fs.path.join (builder.allocator, &.{ path.tmp, "include", "X11", "extensions", "scrnsaver.h", }),
@@ -219,8 +219,8 @@ fn update_XScrnSaver (builder: *std.Build, path: *const Paths) !void
 
 fn update_Xext (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxext.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXext-" ++ pkg.version.Xext, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxext.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libXext-" ++ pkg.version.Xext, }, });
 
   const include_path = try std.fs.path.join (builder.allocator, &.{ path.tmp, "include", "X11", "extensions", });
   var include_dir = try std.fs.openDirAbsolute (include_path, .{ .iterate = true, });
@@ -243,8 +243,8 @@ fn update_Xext (builder: *std.Build, path: *const Paths) !void
 
 fn update_xorgproto (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/proto/xorgproto.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "xorgproto-" ++ pkg.version.xorgproto, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/proto/xorgproto.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "xorgproto-" ++ pkg.version.xorgproto, }, });
 
   var include_path: [] const u8 = undefined;
   var include_dir: std.fs.Dir = undefined;
@@ -287,18 +287,18 @@ fn update_xorgproto (builder: *std.Build, path: *const Paths) !void
 
 fn update_xcb (builder: *std.Build, path: *const Paths) !void
 {
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxcb.git", path.tmp, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libxcb-" ++ pkg.version.xcb, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/lib/libxcb.git", path.tmp, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp, "checkout", "libxcb-" ++ pkg.version.xcb, }, });
 
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/proto/xcbproto.git", path.tmp2, }, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp2, "checkout", "xcb-proto-" ++ pkg.version.xcbproto, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "clone", "https://gitlab.freedesktop.org/xorg/proto/xcbproto.git", path.tmp2, }, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "git", "-C", path.tmp2, "checkout", "xcb-proto-" ++ pkg.version.xcbproto, }, });
 
   try toolbox.make (path.xcb);
 
   const out_path = try std.fs.path.join (builder.allocator, &.{ path.tmp2, "out", });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "./autogen.sh", }, .cwd = path.tmp2, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "make", }, .cwd = path.tmp2, });
-  try toolbox.exec (builder, .{ .argv = &[_][] const u8 { "make",
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "./autogen.sh", }, .cwd = path.tmp2, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "make", }, .cwd = path.tmp2, });
+  try toolbox.run (builder, .{ .argv = &[_][] const u8 { "make",
     try std.fmt.allocPrint (builder.allocator, "DESTDIR=\"{s}\"", .{ out_path, }),
     "install", }, .cwd = path.tmp2, });
 
@@ -341,7 +341,7 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
     const xml = try std.fs.path.join (builder.allocator, &.{ xcbproto_xml_path, entry.name, });
     switch (entry.kind)
     {
-      .file => if (std.mem.endsWith (u8, entry.name, ".xml")) try toolbox.exec (builder, .{
+      .file => if (std.mem.endsWith (u8, entry.name, ".xml")) try toolbox.run (builder, .{
                  .argv = &.{ "python3", c_client_py_path, "-c", "_", "-l", "_", "-s", "_", xml, },
                  .cwd = c_client_out_path, .env = &env, }),
       else => {},
