@@ -1,5 +1,5 @@
 const std = @import ("std");
-const toolbox = @import ("toolbox/toolbox.zig");
+const toolbox = @import ("toolbox").toolbox;
 const pkg = .{
                .name = "X11.zig",
                .version = .{
