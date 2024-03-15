@@ -29,9 +29,9 @@
  */
 
 /* Threading support? */
-#def XTHREADS 1
+#define XTHREADS 1
 
 /* Use multi-threaded libc functions? */
-#def XUSE_MTSAFE_API 1
+#define XUSE_MTSAFE_API 1
 
 #endif /* _XLIBCONF_H_ */

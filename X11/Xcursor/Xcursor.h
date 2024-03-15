@@ -74,9 +74,9 @@ typedef XcursorUInt	XcursorPixel;
  * from the version in the libXcursor configure.ac file.
  */
 
-#def XCURSOR_LIB_MAJOR 1
-#def XCURSOR_LIB_MINOR 2
-#def XCURSOR_LIB_REVISION 2
+#define XCURSOR_LIB_MAJOR 1
+#define XCURSOR_LIB_MINOR 2
+#define XCURSOR_LIB_REVISION 2
 #define XCURSOR_LIB_VERSION	((XCURSOR_LIB_MAJOR * 10000) + \
 				 (XCURSOR_LIB_MINOR * 100) + \
 				 (XCURSOR_LIB_REVISION))

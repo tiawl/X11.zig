@@ -98,8 +98,8 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   var xlib_conf_h = try include_dir.readFileAlloc (builder.allocator, "XlibConf.h.in", std.math.maxInt (usize));
 
   for ([_] struct { match: [] const u8, replace: [] const u8, } {
-        .{ .match = "#undef XTHREADS", .replace = "#def XTHREADS 1", },
-        .{ .match = "#undef XUSE_MTSAFE_API", .replace = "#def XUSE_MTSAFE_API 1", },
+        .{ .match = "#undef XTHREADS", .replace = "#define XTHREADS 1", },
+        .{ .match = "#undef XUSE_MTSAFE_API", .replace = "#define XUSE_MTSAFE_API 1", },
       }) |search_and_replace|
   {
     xlib_conf_h = try std.mem.replaceOwned (u8, builder.allocator, xlib_conf_h, search_and_replace.match, search_and_replace.replace);
@@ -125,7 +125,7 @@ fn update_Xcursor (builder: *std.Build, path: *const Paths) !void
 
   var tokit = std.mem.tokenizeScalar (u8, pkg.version.Xcursor, '.');
   const match = [_][] const u8 { "#undef XCURSOR_LIB_MAJOR", "#undef XCURSOR_LIB_MINOR", "#undef XCURSOR_LIB_REVISION", };
-  const replace = [_][] const u8 { "#def XCURSOR_LIB_MAJOR", "#def XCURSOR_LIB_MINOR", "#def XCURSOR_LIB_REVISION", };
+  const replace = [_][] const u8 { "#define XCURSOR_LIB_MAJOR", "#define XCURSOR_LIB_MINOR", "#define XCURSOR_LIB_REVISION", };
   var index: usize = 0;
   while (tokit.next ()) |*token|
   {
