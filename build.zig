@@ -46,7 +46,7 @@ fn update_xkbcommon (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (std.mem.endsWith (u8, entry.name, ".h")) try toolbox.copy (
+      .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
                  try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
                  try std.fs.path.join (builder.allocator, &.{ path.xkbcommon, entry.name, })),
       else => {},
@@ -71,7 +71,7 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (std.mem.endsWith (u8, entry.name, ".h")) try toolbox.copy (
+      .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
                  try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
                  try std.fs.path.join (builder.allocator, &.{ path.X11, entry.name, })),
       else => {},
@@ -88,7 +88,7 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (std.mem.endsWith (u8, entry.name, ".h")) try toolbox.copy (
+      .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
                  try std.fs.path.join (builder.allocator, &.{ include_ext_path, entry.name, }),
                  try std.fs.path.join (builder.allocator, &.{ path.ext, entry.name, })),
       else => {},
@@ -231,7 +231,7 @@ fn update_Xext (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (std.mem.endsWith (u8, entry.name, ".h")) try toolbox.copy (
+      .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
                  try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
                  try std.fs.path.join (builder.allocator, &.{ path.ext, entry.name, })),
       else => {},
@@ -266,7 +266,7 @@ fn update_xorgproto (builder: *std.Build, path: *const Paths) !void
       const dest = try std.fs.path.join (builder.allocator, &.{ @field (path, component), entry.path, });
       switch (entry.kind)
       {
-        .file => if (std.mem.endsWith (u8, entry.basename, ".h")) try toolbox.copy (
+        .file => if (toolbox.is_header_file (entry.basename)) try toolbox.copy (
             try std.fs.path.join (builder.allocator, &.{ include_path, entry.path, }), dest),
         .directory => try toolbox.make (dest),
         else => return error.UnexpectedEntryKind,
@@ -361,7 +361,7 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
     {
       switch (entry.kind)
       {
-        .file => if (std.mem.endsWith (u8, entry.name, ".h")) try toolbox.copy (
+        .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
                    try std.fs.path.join (builder.allocator, &.{ header_path, entry.name, }),
                    try std.fs.path.join (builder.allocator, &.{ path.xcb, entry.name, })),
         else => {},
