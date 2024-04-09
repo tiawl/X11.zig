@@ -259,7 +259,7 @@ fn update_xorgproto (builder: *std.Build, path: *const Paths) !void
     defer include_dir.close ();
 
     walker = try include_dir.walk (builder.allocator);
-    defer walker.deinit();
+    defer walker.deinit ();
 
     while (try walker.next ()) |entry|
     {
@@ -309,7 +309,7 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
   defer out_dir.close ();
 
   var walker = try out_dir.walk (builder.allocator);
-  defer walker.deinit();
+  defer walker.deinit ();
 
   var python_path: [] const u8 = undefined;
 
