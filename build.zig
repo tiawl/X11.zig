@@ -46,7 +46,7 @@ fn update_xkbcommon (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
+      .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
                  try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
                  try std.fs.path.join (builder.allocator, &.{ path.xkbcommon, entry.name, })),
       else => {},
@@ -71,7 +71,7 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
+      .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
                  try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
                  try std.fs.path.join (builder.allocator, &.{ path.X11, entry.name, })),
       else => {},
@@ -88,7 +88,7 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
+      .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
                  try std.fs.path.join (builder.allocator, &.{ include_ext_path, entry.name, }),
                  try std.fs.path.join (builder.allocator, &.{ path.ext, entry.name, })),
       else => {},
@@ -231,7 +231,7 @@ fn update_Xext (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
+      .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
                  try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
                  try std.fs.path.join (builder.allocator, &.{ path.ext, entry.name, })),
       else => {},
@@ -266,7 +266,7 @@ fn update_xorgproto (builder: *std.Build, path: *const Paths) !void
       const dest = try std.fs.path.join (builder.allocator, &.{ @field (path, component), entry.path, });
       switch (entry.kind)
       {
-        .file => if (toolbox.is_header_file (entry.basename)) try toolbox.copy (
+        .file => if (toolbox.is_c_header_file (entry.basename)) try toolbox.copy (
             try std.fs.path.join (builder.allocator, &.{ include_path, entry.path, }), dest),
         .directory => try toolbox.make (dest),
         else => return error.UnexpectedEntryKind,
@@ -361,7 +361,7 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
     {
       switch (entry.kind)
       {
-        .file => if (toolbox.is_header_file (entry.name)) try toolbox.copy (
+        .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
                    try std.fs.path.join (builder.allocator, &.{ header_path, entry.name, }),
                    try std.fs.path.join (builder.allocator, &.{ path.xcb, entry.name, })),
         else => {},
@@ -426,7 +426,7 @@ pub fn build (builder: *std.Build) !void
   for ([_][] const u8 { "GL", "X11", "xcb", "xkbcommon", }) |header|
   {
     std.debug.print ("[X11 headers dir] {s}\n", .{ try builder.build_root.join (builder.allocator, &.{ header, }), });
-    lib.installHeadersDirectory (header, header);
+    lib.installHeadersDirectory (.{ .path = header, }, header, .{ .include_extensions = &.{ ".h", }, });
   }
 
   builder.installArtifact (lib);
