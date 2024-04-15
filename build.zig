@@ -1,23 +1,23 @@
 const std = @import ("std");
 const toolbox = @import ("toolbox");
 const pkg = .{
-               .name = "X11.zig",
-               .version = .{
-                 .X11 = "1.8.7",
-                 .xkbcommon = "1.6.0",
-                 .Xcursor = "1.2.2",
-                 .Xrandr = "1.5.4",
-                 .Xfixes = "6.0.1",
-                 .Xrender = "0.9.11",
-                 .Xinerama = "1.1.5",
-                 .Xi = "1.8.1",
-                 .XScrnSaver = "1.2.4",
-                 .Xext = "1.3.6",
-                 .xorgproto = "2023.2",
-                 .xcb = "1.16.1",
-                 .xcbproto = "1.16.0",
-               },
-             };
+  .name = "X11.zig",
+  .version = .{
+    .X11 = "1.8.7",
+    .xkbcommon = "1.6.0",
+    .Xcursor = "1.2.2",
+    .Xrandr = "1.5.4",
+    .Xfixes = "6.0.1",
+    .Xrender = "0.9.11",
+    .Xinerama = "1.1.5",
+    .Xi = "1.8.1",
+    .XScrnSaver = "1.2.4",
+    .Xext = "1.3.6",
+    .xorgproto = "2023.2",
+    .xcb = "1.16.1",
+    .xcbproto = "1.16.0",
+  },
+};
 
 const Paths = struct
 {
@@ -46,9 +46,11 @@ fn update_xkbcommon (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
-                 try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
-                 try std.fs.path.join (builder.allocator, &.{ path.xkbcommon, entry.name, })),
+      .file => {
+        if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
+          try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
+          try std.fs.path.join (builder.allocator, &.{ path.xkbcommon, entry.name, }));
+      },
       else => {},
     }
   }
@@ -71,9 +73,11 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
-                 try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
-                 try std.fs.path.join (builder.allocator, &.{ path.X11, entry.name, })),
+      .file => {
+        if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
+          try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
+          try std.fs.path.join (builder.allocator, &.{ path.X11, entry.name, }));
+      },
       else => {},
     }
   }
@@ -88,9 +92,11 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
-                 try std.fs.path.join (builder.allocator, &.{ include_ext_path, entry.name, }),
-                 try std.fs.path.join (builder.allocator, &.{ path.ext, entry.name, })),
+      .file => {
+        if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
+          try std.fs.path.join (builder.allocator, &.{ include_ext_path, entry.name, }),
+          try std.fs.path.join (builder.allocator, &.{ path.ext, entry.name, }));
+      },
       else => {},
     }
   }
@@ -231,9 +237,11 @@ fn update_Xext (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
-                 try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
-                 try std.fs.path.join (builder.allocator, &.{ path.ext, entry.name, })),
+      .file => {
+        if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
+          try std.fs.path.join (builder.allocator, &.{ include_path, entry.name, }),
+          try std.fs.path.join (builder.allocator, &.{ path.ext, entry.name, }))
+      },
       else => {},
     }
   }
@@ -266,8 +274,10 @@ fn update_xorgproto (builder: *std.Build, path: *const Paths) !void
       const dest = try std.fs.path.join (builder.allocator, &.{ @field (path, component), entry.path, });
       switch (entry.kind)
       {
-        .file => if (toolbox.is_c_header_file (entry.basename)) try toolbox.copy (
-            try std.fs.path.join (builder.allocator, &.{ include_path, entry.path, }), dest),
+        .file => {
+          if (toolbox.is_c_header_file (entry.basename)) try toolbox.copy (
+            try std.fs.path.join (builder.allocator, &.{ include_path, entry.path, }), dest);
+        },
         .directory => try toolbox.make (dest),
         else => return error.UnexpectedEntryKind,
       }
@@ -317,11 +327,13 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
   {
     switch (entry.kind)
     {
-      .directory => if (std.mem.eql (u8, entry.basename, "site-packages"))
-                    {
-                      python_path = try std.fs.path.join (builder.allocator, &.{ out_path, entry.path, });
-                      break :loop;
-                    },
+      .directory => {
+        if (std.mem.eql (u8, entry.basename, "site-packages"))
+        {
+          python_path = try std.fs.path.join (builder.allocator, &.{ out_path, entry.path, });
+          break :loop;
+        }
+      },
       else => {},
     }
   }
@@ -341,9 +353,11 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
     const xml = try std.fs.path.join (builder.allocator, &.{ xcbproto_xml_path, entry.name, });
     switch (entry.kind)
     {
-      .file => if (std.mem.endsWith (u8, entry.name, ".xml")) try toolbox.run (builder, .{
-                 .argv = &.{ "python3", c_client_py_path, "-c", "_", "-l", "_", "-s", "_", xml, },
-                 .cwd = c_client_out_path, .env = &env, }),
+      .file => {
+        if (std.mem.endsWith (u8, entry.name, ".xml")) try toolbox.run (builder, .{
+          .argv = &.{ "python3", c_client_py_path, "-c", "_", "-l", "_", "-s", "_", xml, },
+          .cwd = c_client_out_path, .env = &env, });
+      },
       else => {},
     }
   }
@@ -361,9 +375,11 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
     {
       switch (entry.kind)
       {
-        .file => if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
-                   try std.fs.path.join (builder.allocator, &.{ header_path, entry.name, }),
-                   try std.fs.path.join (builder.allocator, &.{ path.xcb, entry.name, })),
+        .file => {
+          if (toolbox.is_c_header_file (entry.name)) try toolbox.copy (
+            try std.fs.path.join (builder.allocator, &.{ header_path, entry.name, }),
+            try std.fs.path.join (builder.allocator, &.{ path.xcb, entry.name, }));
+        },
         else => {},
       }
     }
