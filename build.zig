@@ -44,7 +44,7 @@ fn update_xkbcommon (builder: *std.Build, path: *const Paths) !void
   try toolbox.make (path.xkbcommon);
 
   var it = include_dir.iterate ();
-  while (try it.next ()) |entry|
+  while (try it.next ()) |*entry|
   {
     switch (entry.kind)
     {
@@ -78,7 +78,7 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   try toolbox.make (path.X11);
 
   var it = include_dir.iterate ();
-  while (try it.next ()) |entry|
+  while (try it.next ()) |*entry|
   {
     switch (entry.kind)
     {
@@ -103,7 +103,7 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   try toolbox.make (path.ext);
   it = include_ext_dir.iterate ();
 
-  while (try it.next ()) |entry|
+  while (try it.next ()) |*entry|
   {
     switch (entry.kind)
     {
@@ -278,7 +278,7 @@ fn update_Xext (builder: *std.Build, path: *const Paths) !void
   defer include_dir.close ();
 
   var it = include_dir.iterate ();
-  while (try it.next ()) |entry|
+  while (try it.next ()) |*entry|
   {
     switch (entry.kind)
     {
@@ -321,7 +321,7 @@ fn update_xorgproto (builder: *std.Build, path: *const Paths) !void
     walker = try include_dir.walk (builder.allocator);
     defer walker.deinit ();
 
-    while (try walker.next ()) |entry|
+    while (try walker.next ()) |*entry|
     {
       const dest = try std.fs.path.join (builder.allocator,
         &.{ @field (path, component), entry.path, });
@@ -389,7 +389,7 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
 
   var python_path: [] const u8 = undefined;
 
-  loop: while (try walker.next ()) |entry|
+  loop: while (try walker.next ()) |*entry|
   {
     switch (entry.kind)
     {
@@ -418,7 +418,7 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
     &.{ path.tmp, "src", "c_client.py", });
 
   var it = xcbproto_xml_dir.iterate ();
-  while (try it.next ()) |entry|
+  while (try it.next ()) |*entry|
   {
     const xml = try std.fs.path.join (builder.allocator,
       &.{ xcbproto_xml_path, entry.name, });
@@ -448,7 +448,7 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
     defer dir.close ();
 
     it = dir.iterate ();
-    while (try it.next ()) |entry|
+    while (try it.next ()) |*entry|
     {
       switch (entry.kind)
       {
