@@ -1,23 +1,5 @@
 const std = @import ("std");
 const toolbox = @import ("toolbox");
-const pkg = .{
-  .name = "X11.zig",
-  .version = .{
-    .X11 = "1.8.7",
-    .xkbcommon = "1.6.0",
-    .Xcursor = "1.2.2",
-    .Xrandr = "1.5.4",
-    .Xfixes = "6.0.1",
-    .Xrender = "0.9.11",
-    .Xinerama = "1.1.5",
-    .Xi = "1.8.1",
-    .XScrnSaver = "1.2.4",
-    .Xext = "1.3.6",
-    .xorgproto = "2023.2",
-    .xcb = "1.16.1",
-    .xcbproto = "1.16.0",
-  },
-};
 
 const Paths = struct
 {
@@ -30,10 +12,10 @@ const Paths = struct
   xcb: [] const u8 = undefined,
 };
 
-fn update_xkbcommon (builder: *std.Build, path: *const Paths) !void
+fn update_xkbcommon (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder, "https://github.com/xkbcommon/libxkbcommon.git",
-    "xkbcommon-" ++ pkg.version.xkbcommon, path.tmp);
+  try dependencies.clone (builder, "xkbcommon", path.tmp);
 
   const include_path = try std.fs.path.join (builder.allocator,
     &.{ path.tmp, "include", "xkbcommon" });
@@ -64,11 +46,10 @@ fn update_xkbcommon (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_X11 (builder: *std.Build, path: *const Paths) !void
+fn update_X11 (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libx11.git",
-    "libX11-" ++ pkg.version.X11, path.tmp);
+  try dependencies.clone (builder, "X11", path.tmp);
 
   const include_path = try std.fs.path.join (builder.allocator,
     &.{ path.tmp, "include", "X11", });
@@ -137,14 +118,13 @@ fn update_X11 (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_Xcursor (builder: *std.Build, path: *const Paths) !void
+fn update_Xcursor (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
   const xcursor_path =
     try std.fs.path.join (builder.allocator, &.{ path.X11, "Xcursor", });
 
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libxcursor.git",
-    "libXcursor-" ++ pkg.version.Xcursor, path.tmp);
+  try dependencies.clone (builder, "Xcursor", path.tmp);
 
   const include_path = try std.fs.path.join (builder.allocator,
     &.{ path.tmp, "include", "X11", "Xcursor", });
@@ -155,7 +135,10 @@ fn update_Xcursor (builder: *std.Build, path: *const Paths) !void
   var xcursor_h = try include_dir.readFileAlloc (builder.allocator,
     "Xcursor.h.in", std.math.maxInt (usize));
 
-  var tokit = std.mem.tokenizeScalar (u8, pkg.version.Xcursor, '.');
+  var xcursor_tag = try toolbox.tag (builder, "Xcursor");
+  xcursor_tag =
+    xcursor_tag [std.mem.indexOfAny (u8, xcursor_tag, "0123456789").? ..];
+  var tokit = std.mem.tokenizeScalar (u8, xcursor_tag, '.');
   const match = [_][] const u8 { "#undef XCURSOR_LIB_MAJOR",
     "#undef XCURSOR_LIB_MINOR", "#undef XCURSOR_LIB_REVISION", };
   const replace = [_][] const u8 { "#define XCURSOR_LIB_MAJOR",
@@ -175,11 +158,10 @@ fn update_Xcursor (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_Xrandr (builder: *std.Build, path: *const Paths) !void
+fn update_Xrandr (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libxrandr.git",
-    "libXrandr-" ++ pkg.version.Xrandr, path.tmp);
+  try dependencies.clone (builder, "Xrandr", path.tmp);
 
   try toolbox.copy (
     try std.fs.path.join (builder.allocator,
@@ -189,11 +171,10 @@ fn update_Xrandr (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_Xfixes (builder: *std.Build, path: *const Paths) !void
+fn update_Xfixes (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libxfixes.git",
-    "libXfixes-" ++ pkg.version.Xfixes, path.tmp);
+  try dependencies.clone (builder, "Xfixes", path.tmp);
 
   try toolbox.copy (
     try std.fs.path.join (builder.allocator,
@@ -203,11 +184,10 @@ fn update_Xfixes (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_Xrender (builder: *std.Build, path: *const Paths) !void
+fn update_Xrender (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libxrender.git",
-    "libXrender-" ++ pkg.version.Xrender, path.tmp);
+  try dependencies.clone (builder, "Xrender", path.tmp);
 
   try toolbox.copy (
     try std.fs.path.join (builder.allocator,
@@ -217,11 +197,10 @@ fn update_Xrender (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_Xinerama (builder: *std.Build, path: *const Paths) !void
+fn update_Xinerama (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libxinerama.git",
-    "libXinerama-" ++ pkg.version.Xinerama, path.tmp);
+  try dependencies.clone (builder, "Xinerama", path.tmp);
 
   for ([_][] const u8 { "Xinerama.h", "panoramiXext.h", }) |file|
   {
@@ -234,11 +213,10 @@ fn update_Xinerama (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_Xi (builder: *std.Build, path: *const Paths) !void
+fn update_Xi (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libxi.git",
-    "libXi-" ++ pkg.version.Xi, path.tmp);
+  try dependencies.clone (builder, "Xi", path.tmp);
 
   for ([_][] const u8 { "XInput.h", "XInput2.h", }) |file|
   {
@@ -251,11 +229,10 @@ fn update_Xi (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_XScrnSaver (builder: *std.Build, path: *const Paths) !void
+fn update_XScrnSaver (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver.git",
-    "libXScrnSaver-" ++ pkg.version.XScrnSaver, path.tmp);
+  try dependencies.clone (builder, "XScrnSaver", path.tmp);
 
   try toolbox.copy (
     try std.fs.path.join (builder.allocator,
@@ -265,11 +242,10 @@ fn update_XScrnSaver (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_Xext (builder: *std.Build, path: *const Paths) !void
+fn update_Xext (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libxext.git",
-    "libXext-" ++ pkg.version.Xext, path.tmp);
+  try dependencies.clone (builder, "Xext", path.tmp);
 
   const include_path = try std.fs.path.join (builder.allocator,
     &.{ path.tmp, "include", "X11", "extensions", });
@@ -298,11 +274,10 @@ fn update_Xext (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_xorgproto (builder: *std.Build, path: *const Paths) !void
+fn update_xorgproto (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/proto/xorgproto.git",
-    "xorgproto-" ++ pkg.version.xorgproto, path.tmp);
+  try dependencies.clone (builder, "xorgproto", path.tmp);
 
   var include_path: [] const u8 = undefined;
   var include_dir: std.fs.Dir = undefined;
@@ -355,15 +330,11 @@ fn update_xorgproto (builder: *std.Build, path: *const Paths) !void
   try std.fs.deleteTreeAbsolute (path.tmp);
 }
 
-fn update_xcb (builder: *std.Build, path: *const Paths) !void
+fn update_xcb (builder: *std.Build, path: *const Paths,
+  dependencies: *const toolbox.Dependencies) !void
 {
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/lib/libxcb.git",
-    "libxcb-" ++ pkg.version.xcb, path.tmp);
-
-  try toolbox.clone (builder,
-    "https://gitlab.freedesktop.org/xorg/proto/xcbproto.git",
-    "xcb-proto-" ++ pkg.version.xcbproto, path.tmp2);
+  try dependencies.clone (builder, "xcb", path.tmp);
+  try dependencies.clone (builder, "xcbproto", path.tmp2);
 
   try toolbox.make (path.xcb);
 
@@ -470,7 +441,8 @@ fn update_xcb (builder: *std.Build, path: *const Paths) !void
     try std.fs.deleteTreeAbsolute (tmp);
 }
 
-fn update (builder: *std.Build) !void
+fn update (builder: *std.Build,
+  dependencies: *const toolbox.Dependencies) !void
 {
   var path: Paths = .{};
   path.GL = try builder.build_root.join (builder.allocator, &.{ "GL", });
@@ -495,18 +467,18 @@ fn update (builder: *std.Build) !void
     };
   }
 
-  try update_xkbcommon (builder, &path);
-  try update_X11 (builder, &path);
-  try update_Xcursor (builder, &path);
-  try update_Xrandr (builder, &path);
-  try update_Xfixes (builder, &path);
-  try update_Xrender (builder, &path);
-  try update_Xinerama (builder, &path);
-  try update_Xi (builder, &path);
-  try update_XScrnSaver (builder, &path);
-  try update_Xext (builder, &path);
-  try update_xorgproto (builder, &path);
-  try update_xcb (builder, &path);
+  try update_xkbcommon (builder, &path, dependencies);
+  try update_X11 (builder, &path, dependencies);
+  try update_Xcursor (builder, &path, dependencies);
+  try update_Xrandr (builder, &path, dependencies);
+  try update_Xfixes (builder, &path, dependencies);
+  try update_Xrender (builder, &path, dependencies);
+  try update_Xinerama (builder, &path, dependencies);
+  try update_Xi (builder, &path, dependencies);
+  try update_XScrnSaver (builder, &path, dependencies);
+  try update_Xext (builder, &path, dependencies);
+  try update_xorgproto (builder, &path, dependencies);
+  try update_xcb (builder, &path, dependencies);
 }
 
 pub fn build (builder: *std.Build) !void
@@ -514,8 +486,86 @@ pub fn build (builder: *std.Build) !void
   const target = builder.standardTargetOptions (.{});
   const optimize = builder.standardOptimizeOption (.{});
 
+  const fetch_option = builder.option (bool, "fetch",
+    "Update .versions folder and build.zig.zon then stop execution")
+      orelse false;
+
+  const dependencies = try toolbox.Dependencies.init (builder,
+  .{
+     .toolbox = .{
+       .name = "tiawl/toolbox",
+       .api = toolbox.Repository.API.github,
+     },
+   }, .{
+     .X11 = .{
+       .name = "xorg/lib/libx11",
+       .id = 701,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .xcb = .{
+       .name = "xorg/lib/libxcb",
+       .id = 2429,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .xcbproto = .{
+       .name = "xorg/proto/xcbproto",
+       .id = 2430,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .Xcursor = .{
+       .name = "xorg/lib/libxcursor",
+       .id = 710,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .Xext = .{
+       .name = "xorg/lib/libxext",
+       .id = 714,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .Xfixes = .{
+       .name = "xorg/lib/libxfixes",
+       .id = 715,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .Xi = .{
+       .name = "xorg/lib/libxi",
+       .id = 719,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .Xinerama = .{
+       .name = "xorg/lib/libxinerama",
+       .id = 720,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .xkbcommon = .{
+       .name = "xkbcommon/libxkbcommon",
+       .api = toolbox.Repository.API.github,
+     },
+     .xorgproto = .{
+       .name = "xorg/proto/xorgproto",
+       .id = 788,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .Xrandr = .{
+       .name = "xorg/lib/libxrandr",
+       .id = 728,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .Xrender = .{
+       .name = "xorg/lib/libxrender",
+       .id = 730,
+       .api = toolbox.Repository.API.gitlab,
+     },
+     .XScrnSaver = .{
+       .name = "xorg/lib/libxscrnsaver",
+       .id = 704,
+       .api = toolbox.Repository.API.gitlab,
+     },
+   }, fetch_option);
+
+  if (fetch_option) try toolbox.fetch (builder, "X11.zig", &dependencies);
   if (builder.option (bool, "update", "Update binding") orelse false)
-    try update (builder);
+    try update (builder, &dependencies);
 
   const lib = builder.addStaticLibrary (.{
     .name = "X11",
