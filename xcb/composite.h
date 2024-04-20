@@ -254,10 +254,10 @@ xcb_composite_query_version_reply (xcb_connection_t                      *c,
                                    xcb_generic_error_t                  **e);
 
 /**
- * @brief Redirect the heirarchy starting at “window” to off-screen storage.
+ * @brief Redirect the hierarchy starting at "window" to off-screen storage.
  *
  * @param c The connection
- * @param window The root of the heirarchy to redirect to off-screen storage.
+ * @param window The root of the hierarchy to redirect to off-screen storage.
  * @param update A bitmask of #xcb_composite_redirect_t values.
  * @param update Whether contents are automatically mirrored to the parent window.  If one client
  * 	already specifies an update type of Manual, any attempt by another to specify a
@@ -281,10 +281,10 @@ xcb_composite_redirect_window_checked (xcb_connection_t *c,
                                        uint8_t           update);
 
 /**
- * @brief Redirect the heirarchy starting at “window” to off-screen storage.
+ * @brief Redirect the hierarchy starting at "window" to off-screen storage.
  *
  * @param c The connection
- * @param window The root of the heirarchy to redirect to off-screen storage.
+ * @param window The root of the hierarchy to redirect to off-screen storage.
  * @param update A bitmask of #xcb_composite_redirect_t values.
  * @param update Whether contents are automatically mirrored to the parent window.  If one client
  * 	already specifies an update type of Manual, any attempt by another to specify a
@@ -308,7 +308,7 @@ xcb_composite_redirect_window (xcb_connection_t *c,
  * @brief Redirect all current and future children of ‘window’
  *
  * @param c The connection
- * @param window The root of the heirarchy to redirect to off-screen storage.
+ * @param window The root of the hierarchy to redirect to off-screen storage.
  * @param update A bitmask of #xcb_composite_redirect_t values.
  * @param update Whether contents are automatically mirrored to the parent window.  If one client
  * 	already specifies an update type of Manual, any attempt by another to specify a
@@ -333,7 +333,7 @@ xcb_composite_redirect_subwindows_checked (xcb_connection_t *c,
  * @brief Redirect all current and future children of ‘window’
  *
  * @param c The connection
- * @param window The root of the heirarchy to redirect to off-screen storage.
+ * @param window The root of the hierarchy to redirect to off-screen storage.
  * @param update A bitmask of #xcb_composite_redirect_t values.
  * @param update Whether contents are automatically mirrored to the parent window.  If one client
  * 	already specifies an update type of Manual, any attempt by another to specify a
