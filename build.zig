@@ -135,10 +135,10 @@ fn update_Xcursor (builder: *std.Build, path: *const Paths,
   var xcursor_h = try include_dir.readFileAlloc (builder.allocator,
     "Xcursor.h.in", std.math.maxInt (usize));
 
-  var xcursor_tag = try toolbox.tag (builder, "Xcursor");
-  xcursor_tag =
-    xcursor_tag [std.mem.indexOfAny (u8, xcursor_tag, "0123456789").? ..];
-  var tokit = std.mem.tokenizeScalar (u8, xcursor_tag, '.');
+  var xcursor_version = try toolbox.version (builder, "Xcursor");
+  xcursor_version = xcursor_version [std.mem.indexOfAny (
+    u8, xcursor_version, "0123456789").? ..];
+  var tokit = std.mem.tokenizeScalar (u8, xcursor_version, '.');
   const match = [_][] const u8 { "#undef XCURSOR_LIB_MAJOR",
     "#undef XCURSOR_LIB_MINOR", "#undef XCURSOR_LIB_REVISION", };
   const replace = [_][] const u8 { "#define XCURSOR_LIB_MAJOR",
@@ -479,6 +479,8 @@ fn update (builder: *std.Build,
   try update_Xext (builder, &path, dependencies);
   try update_xorgproto (builder, &path, dependencies);
   try update_xcb (builder, &path, dependencies);
+
+  try toolbox.clean (builder, &.{ "GL", "X11", "xcb", "xkbcommon", }, &.{});
 }
 
 pub fn build (builder: *std.Build) !void
