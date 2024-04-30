@@ -1,13 +1,13 @@
 # X11.zig
 
-This is a fork of [hexops/x11-headers](https://github.com/hexops/x11-headers) which itself gather various X11 headers needed to GLFW.
+This is a fork of [hexops/x11-headers](https://github.com/hexops/x11-headers) which itself gather various X11 headers @glfw needs.
 
 ## Why this fork ?
 
-The intention under this fork is the same as hexops had when they opened their repository: gather X11 headers and package them to compile GLFW with Zig.
+The intention under this fork is the same as hexops had when they opened their repository: gather X11 headers and package them to compile @glfw with @ziglang.
 However this repository has subtle differences for maintainability tasks:
-* no shell scripting,
-* a cron is triggered every day to check X11 repositories and to update this repository if a new release is available on one of them.
+* No shell scripting,
+* A cron runs every day to check X11 repositories. Then it updates this repository if a new release is available on one of them.
 
 You can find the repositories' versions used here:
 * [xorg/lib/libx11](https://github.com/tiawl/X11.zig/blob/trunk/.versions/X11)
