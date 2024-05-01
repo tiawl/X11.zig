@@ -27,6 +27,7 @@ const Paths = struct
     var self = @This () {
       .__GL = try builder.build_root.join (builder.allocator, &.{ "GL", }),
       .__X11 = try builder.build_root.join (builder.allocator, &.{ "X11", }),
+
       .__tmp = try builder.build_root.join (builder.allocator, &.{ "tmp", }),
       .__tmp2 = try builder.build_root.join (builder.allocator, &.{ "tmp2", }),
       .__xkbcommon = try builder.build_root.join (builder.allocator,
@@ -513,72 +514,60 @@ pub fn build (builder: *std.Build) !void
   .{
      .toolbox = .{
        .name = "tiawl/toolbox",
-       .api = toolbox.Repository.API.github,
+       .host = toolbox.Repository.Host.github,
      },
    }, .{
      .X11 = .{
        .name = "xorg/lib/libx11",
-       .id = 701,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .xcb = .{
        .name = "xorg/lib/libxcb",
-       .id = 2429,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .xcbproto = .{
        .name = "xorg/proto/xcbproto",
-       .id = 2430,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .Xcursor = .{
        .name = "xorg/lib/libxcursor",
-       .id = 710,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .Xext = .{
        .name = "xorg/lib/libxext",
-       .id = 714,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .Xfixes = .{
        .name = "xorg/lib/libxfixes",
-       .id = 715,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .Xi = .{
        .name = "xorg/lib/libxi",
-       .id = 719,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .Xinerama = .{
        .name = "xorg/lib/libxinerama",
-       .id = 720,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .xkbcommon = .{
        .name = "xkbcommon/libxkbcommon",
-       .api = toolbox.Repository.API.github,
+       .host = toolbox.Repository.Host.github,
      },
      .xorgproto = .{
        .name = "xorg/proto/xorgproto",
-       .id = 788,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .Xrandr = .{
        .name = "xorg/lib/libxrandr",
-       .id = 728,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .Xrender = .{
        .name = "xorg/lib/libxrender",
-       .id = 730,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
      .XScrnSaver = .{
        .name = "xorg/lib/libxscrnsaver",
-       .id = 704,
-       .api = toolbox.Repository.API.gitlab,
+       .host = toolbox.Repository.Host.gitlab,
      },
    });
 
