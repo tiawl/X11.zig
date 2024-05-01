@@ -1,13 +1,13 @@
 # X11.zig
 
-This is a fork of [hexops/x11-headers](https://github.com/hexops/x11-headers) which itself gather various X11 headers @glfw needs.
+This is a fork of [hexops/x11-headers][1] which itself gather various [X11][2] headers [GLFW][3] needs.
 
 ## Why this forkception ?
 
-The intention under this fork is the same as hexops had when they opened their repository: gather X11 headers and package them to compile @glfw with @ziglang.
+The intention under this fork is the same as [hexops][4] had when they opened their repository: gather [X11][2] headers and package them to compile [GLFW][4] with [Zig][5].
 However this repository has subtle differences for maintainability tasks:
 * No shell scripting,
-* A cron runs every day to check X11 repositories. Then it updates this repository if a new release is available.
+* A cron runs every day to check [X11][2] repositories. Then it updates this repository if a new release is available.
 
 Here the repositories' version used by this fork:
 * [xorg/lib/libx11](https://github.com/tiawl/X11.zig/blob/trunk/.versions/X11)
@@ -27,27 +27,27 @@ Here the repositories' version used by this fork:
 ## CICD reminder
 
 These repositories are automatically updated when a new release is available:
-* [tiawl/glfw.zig](https://github.com/tiawl/glfw.zig)
+* [tiawl/glfw.zig][6]
 
 This repository is automatically updated when a new release is available from these repositories:
-* [xorg/lib/libx11](https://gitlab.freedesktop.org/xorg/lib/libx11)
-* [xorg/lib/libxcb](https://gitlab.freedesktop.org/xorg/lib/libxcb)
-* [xorg/proto/xcbproto](https://gitlab.freedesktop.org/xorg/proto/xcbproto)
-* [xorg/lib/libxcursor](https://gitlab.freedesktop.org/xorg/lib/libxcursor)
-* [xorg/lib/libxext](https://gitlab.freedesktop.org/xorg/lib/libxext)
-* [xorg/lib/libxfixes](https://gitlab.freedesktop.org/xorg/lib/libxfixes)
-* [xorg/lib/libxi](https://gitlab.freedesktop.org/xorg/lib/libxi)
-* [xorg/lib/libxinerama](https://gitlab.freedesktop.org/xorg/lib/libxinerama)
-* [xkbcommon/libxkbcommon](https://gitlab.freedesktop.org/xkbcommon/libxkbcommon)
-* [xorg/proto/xorgproto](https://gitlab.freedesktop.org/xorg/proto/xorgproto)
-* [xorg/lib/libxrandr](https://gitlab.freedesktop.org/xorg/lib/libxrandr)
-* [xorg/lib/libxrender](https://gitlab.freedesktop.org/xorg/lib/libxrender)
-* [xorg/lib/libxscrnsaver](https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver)
-* [tiawl/toolbox](https://github.com/tiawl/toolbox)
-* [tiawl/spaceporn-action-bot](https://github.com/tiawl/spaceporn-action-bot)
-* [tiawl/spaceporn-action-ci](https://github.com/tiawl/spaceporn-action-ci)
-* [tiawl/spaceporn-action-cd-ping](https://github.com/tiawl/spaceporn-action-cd-ping)
-* [tiawl/spaceporn-action-cd-pong](https://github.com/tiawl/spaceporn-action-cd-pong)
+* [xorg/lib/libx11][2]
+* [xorg/lib/libxcb][7]
+* [xorg/proto/xcbproto][8]
+* [xorg/lib/libxcursor][9]
+* [xorg/lib/libxext][10]
+* [xorg/lib/libxfixes][11]
+* [xorg/lib/libxi][12]
+* [xorg/lib/libxinerama][13]
+* [xkbcommon/libxkbcommon][14]
+* [xorg/proto/xorgproto][15]
+* [xorg/lib/libxrandr][16]
+* [xorg/lib/libxrender][17]
+* [xorg/lib/libxscrnsaver][18]
+* [tiawl/toolbox][19]
+* [tiawl/spaceporn-action-bot][20]
+* [tiawl/spaceporn-action-ci][21]
+* [tiawl/spaceporn-action-cd-ping][22]
+* [tiawl/spaceporn-action-cd-pong][23]
 
 ## `zig build` options
 
@@ -60,3 +60,27 @@ These additional options have been implemented for maintainability tasks:
 ## License
 
 The unprotected parts of this repository are under MIT License. For everything else, see with their respective owners.
+
+[1]:https://github.com/hexops/x11-headers
+[2]:https://gitlab.freedesktop.org/xorg/lib/libx11
+[3]:https://github.com/glfw/glfw
+[4]:https://github.com/hexops
+[5]:https://github.com/ziglang/zig
+[6]:https://github.com/tiawl/glfw.zig
+[7]:https://gitlab.freedesktop.org/xorg/lib/libxcb
+[8]:https://gitlab.freedesktop.org/xorg/proto/xcbproto
+[9]:https://gitlab.freedesktop.org/xorg/lib/libxcursor
+[10]:https://gitlab.freedesktop.org/xorg/lib/libxext
+[11]:https://gitlab.freedesktop.org/xorg/lib/libxfixes
+[12]:https://gitlab.freedesktop.org/xorg/lib/libxi
+[13]:https://gitlab.freedesktop.org/xorg/lib/libxinerama
+[14]:https://gitlab.freedesktop.org/xkbcommon/libxkbcommon
+[15]:https://gitlab.freedesktop.org/xorg/proto/xorgproto
+[16]:https://gitlab.freedesktop.org/xorg/lib/libxrandr
+[17]:https://gitlab.freedesktop.org/xorg/lib/libxrender
+[18]:https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver
+[19]:https://github.com/tiawl/toolbox
+[20]:https://github.com/tiawl/spaceporn-action-bot
+[21]:https://github.com/tiawl/spaceporn-action-ci
+[22]:https://github.com/tiawl/spaceporn-action-cd-ping
+[23]:https://github.com/tiawl/spaceporn-action-cd-pong
