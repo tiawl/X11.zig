@@ -511,6 +511,7 @@ pub fn build (builder: *std.Build) !void
   const optimize = builder.standardOptimizeOption (.{});
 
   const dependencies = try toolbox.Dependencies.init (builder, "X11.zig",
+  &.{ "X11", "GL", "xcb", "xkbcommon", },
   .{
      .toolbox = .{
        .name = "tiawl/toolbox",
