@@ -9,6 +9,14 @@ However this repository has subtle differences for maintainability tasks:
 * No shell scripting,
 * A cron runs every day to check [X11][2] repositories. Then it updates this repository if a new release is available.
 
+## How to use it
+
+The current usage of this repository is centered around [tiawl/glfw.zig][3] compilation. But you could use it for your own projects. Headers are here and there are no planned evolution to modify them. See [tiawl/glfw.zig][3] to see how you can use it. Maybe for your own need, some headers are missing. If it happens, open an issue: this repository is open to potential usage evolution.
+
+## Dependencies
+
+The [Zig][5] part of this package is relying on the latest [Zig][5] release (0.12.0) and will only be updated for the next one (so for the 0.13.0).
+
 Here the repositories' version used by this fork:
 * [xorg/lib/libx11](https://github.com/tiawl/X11.zig/blob/trunk/.versions/X11)
 * [xorg/lib/libxcb](https://github.com/tiawl/X11.zig/blob/trunk/.versions/xcb)
