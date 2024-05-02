@@ -3,12 +3,12 @@
     .version = "1.0.0",
     .minimum_zig_version = "0.12.0",
     .paths = .{
-        "X11",
-        "xkbcommon",
-        "build.zig.zon",
         "build.zig",
-        "xcb",
+        "build.zig.zon",
+        "X11",
         "GL",
+        "xcb",
+        "xkbcommon",
     },
     .dependencies = .{
         .toolbox = .{
