@@ -520,34 +520,42 @@ pub fn build (builder: *std.Build) !void
    }, .{
      .X11 = .{
        .name = "xorg/lib/libx11",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .xcb = .{
        .name = "xorg/lib/libxcb",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .xcbproto = .{
        .name = "xorg/proto/xcbproto",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .Xcursor = .{
        .name = "xorg/lib/libxcursor",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .Xext = .{
        .name = "xorg/lib/libxext",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .Xfixes = .{
        .name = "xorg/lib/libxfixes",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .Xi = .{
        .name = "xorg/lib/libxi",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .Xinerama = .{
        .name = "xorg/lib/libxinerama",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .xkbcommon = .{
@@ -556,18 +564,22 @@ pub fn build (builder: *std.Build) !void
      },
      .xorgproto = .{
        .name = "xorg/proto/xorgproto",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .Xrandr = .{
        .name = "xorg/lib/libxrandr",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .Xrender = .{
        .name = "xorg/lib/libxrender",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
      .XScrnSaver = .{
        .name = "xorg/lib/libxscrnsaver",
+       .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
      },
    });
