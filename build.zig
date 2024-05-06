@@ -516,71 +516,85 @@ pub fn build (builder: *std.Build) !void
      .toolbox = .{
        .name = "tiawl/toolbox",
        .host = toolbox.Repository.Host.github,
+       .ref = toolbox.Repository.Reference.tag,
      },
    }, .{
      .X11 = .{
        .name = "xorg/lib/libx11",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .xcb = .{
        .name = "xorg/lib/libxcb",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .xcbproto = .{
        .name = "xorg/proto/xcbproto",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .Xcursor = .{
        .name = "xorg/lib/libxcursor",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .Xext = .{
        .name = "xorg/lib/libxext",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .Xfixes = .{
        .name = "xorg/lib/libxfixes",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .Xi = .{
        .name = "xorg/lib/libxi",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .Xinerama = .{
        .name = "xorg/lib/libxinerama",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .xkbcommon = .{
        .name = "xkbcommon/libxkbcommon",
        .host = toolbox.Repository.Host.github,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .xorgproto = .{
        .name = "xorg/proto/xorgproto",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .Xrandr = .{
        .name = "xorg/lib/libxrandr",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .Xrender = .{
        .name = "xorg/lib/libxrender",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
      .XScrnSaver = .{
        .name = "xorg/lib/libxscrnsaver",
        .domain = "freedesktop.org",
        .host = toolbox.Repository.Host.gitlab,
+       .ref = toolbox.Repository.Reference.tag,
      },
    });
 
