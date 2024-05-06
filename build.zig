@@ -165,7 +165,7 @@ fn update_Xcursor (builder: *std.Build, path: *const Paths,
   var xcursor_h = try include_dir.readFileAlloc (builder.allocator,
     "Xcursor.h.in", std.math.maxInt (usize));
 
-  var xcursor_version = try toolbox.version (builder, "Xcursor");
+  var xcursor_version = try toolbox.reference (builder, "Xcursor");
   xcursor_version = xcursor_version [std.mem.indexOfAny (
     u8, xcursor_version, "0123456789").? ..];
   var tokit = std.mem.tokenizeScalar (u8, xcursor_version, '.');
