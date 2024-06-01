@@ -19,19 +19,19 @@ The current usage of this repository is centered around [tiawl/glfw.zig][3] comp
 The [Zig][5] part of this package is relying on the latest [Zig][5] release (0.12.0) and will only be updated for the next one (so for the 0.13.0).
 
 Here the repositories' version used by this fork:
-* [xorg/lib/libx11](https://github.com/tiawl/X11.zig/blob/trunk/.versions/X11)
-* [xorg/lib/libxcb](https://github.com/tiawl/X11.zig/blob/trunk/.versions/xcb)
-* [xorg/proto/xcbproto](https://github.com/tiawl/X11.zig/blob/trunk/.versions/xcbproto)
-* [xorg/lib/libxcursor](https://github.com/tiawl/X11.zig/blob/trunk/.versions/Xcursor)
-* [xorg/lib/libxext](https://github.com/tiawl/X11.zig/blob/trunk/.versions/Xext)
-* [xorg/lib/libxfixes](https://github.com/tiawl/X11.zig/blob/trunk/.versions/Xfixes)
-* [xorg/lib/libxi](https://github.com/tiawl/X11.zig/blob/trunk/.versions/Xi)
-* [xorg/lib/libxinerama](https://github.com/tiawl/X11.zig/blob/trunk/.versions/Xinerama)
-* [xkbcommon/libxkbcommon](https://github.com/tiawl/X11.zig/blob/trunk/.versions/xkbcommon)
-* [xorg/proto/xorgproto](https://github.com/tiawl/X11.zig/blob/trunk/.versions/xorgproto)
-* [xorg/lib/libxrandr](https://github.com/tiawl/X11.zig/blob/trunk/.versions/Xrandr)
-* [xorg/lib/libxrender](https://github.com/tiawl/X11.zig/blob/trunk/.versions/Xrender)
-* [xorg/lib/libxscrnsaver](https://github.com/tiawl/X11.zig/blob/trunk/.versions/XScrnSaver)
+* [xorg/lib/libx11](https://github.com/tiawl/X11.zig/blob/trunk/.references/X11)
+* [xorg/lib/libxcb](https://github.com/tiawl/X11.zig/blob/trunk/.references/xcb)
+* [xorg/proto/xcbproto](https://github.com/tiawl/X11.zig/blob/trunk/.references/xcbproto)
+* [xorg/lib/libxcursor](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xcursor)
+* [xorg/lib/libxext](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xext)
+* [xorg/lib/libxfixes](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xfixes)
+* [xorg/lib/libxi](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xi)
+* [xorg/lib/libxinerama](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xinerama)
+* [xkbcommon/libxkbcommon](https://github.com/tiawl/X11.zig/blob/trunk/.references/xkbcommon)
+* [xorg/proto/xorgproto](https://github.com/tiawl/X11.zig/blob/trunk/.references/xorgproto)
+* [xorg/lib/libxrandr](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xrandr)
+* [xorg/lib/libxrender](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xrender)
+* [xorg/lib/libxscrnsaver](https://github.com/tiawl/X11.zig/blob/trunk/.references/XScrnSaver)
 
 ## CICD reminder
 
@@ -62,7 +62,7 @@ This repository is automatically updated when a new release is available from th
 
 These additional options have been implemented for maintainability tasks:
 ```
-  -Dfetch   Update .versions folder and build.zig.zon then stop execution
+  -Dfetch   Update .references folder and build.zig.zon then stop execution
   -Dupdate  Update binding
 ```
 
