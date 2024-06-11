@@ -13,7 +13,7 @@ jobs:
           - glfw
     runs-on: ubuntu-latest
     steps:
-    - uses: tiawl/spaceporn-action-ci@43df9f0e7253ba1ada2ff1882a5ac636be43d4eb
+    - uses: tiawl/spaceporn-action-ci@v1.0.3
       with:
         repository: "${{ github.repository }}"
         sha: "${{ github.event.pull_request.head.sha }}"
