@@ -16,7 +16,7 @@ jobs:
     - uses: tiawl/spaceporn-action-ci@v1.0.2
       with:
         repository: "${{ github.repository }}"
-        sha: "${{ github.sha }}"
+        sha: "${{ github.event.pull_request.head.sha }}"
         user: "${{ matrix.repo }}.zig"
         token: "${{ github.token }}"
         test_build: 'false'

@@ -16,7 +16,7 @@ The current usage of this repository is centered around [tiawl/glfw.zig][3] comp
 
 ## Dependencies
 
-The [Zig][5] part of this package is relying on the latest [Zig][5] release (0.12.0) and will only be updated for the next one (so for the 0.13.0).
+The [Zig][5] part of this package is relying on the latest [Zig][5] release (0.13.0) and will only be updated for the next one (so for the 0.14.0).
 
 Here the repositories' version used by this fork:
 * [xorg/lib/libx11](https://github.com/tiawl/X11.zig/blob/trunk/.references/X11)
