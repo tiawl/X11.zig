@@ -68,7 +68,8 @@ These additional options have been implemented for maintainability tasks:
 
 ## License
 
-The unprotected parts of this repository are under MIT License. For everything else, see with their respective owners.
+The unprotected parts of this repository are dedicated to the public domain. See the LICENSE file for more details.
+**For other parts, it is not dedicated to the public domain. I can not remove any right about restrictions imposed by their respective owners. If you have any doubt about the proprietary of a file, open an issue.**
 
 [1]:https://github.com/hexops/x11-headers
 [2]:https://gitlab.freedesktop.org/xorg/lib/libx11
