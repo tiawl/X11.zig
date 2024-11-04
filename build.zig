@@ -177,8 +177,7 @@ fn update_Xcursor (builder: *std.Build, path: *const Paths,
   while (tokit.next ()) |*token|
   {
     xcursor_h = try std.mem.replaceOwned (u8, builder.allocator, xcursor_h,
-      match [index], try std.fmt.allocPrint (builder.allocator, "{s} {s}",
-        .{ replace [index], token.*, }));
+      match [index], builder.fmt ("{s} {s}", .{ replace [index], token.*, }));
     index += 1;
   }
 
@@ -376,8 +375,8 @@ fn update_xcb (builder: *std.Build, path: *const Paths,
   try toolbox.run (builder,
     .{ .argv = &[_][] const u8 { "make", }, .cwd = path.getTmp2 (), });
   try toolbox.run (builder, .{ .argv = &[_][] const u8 { "make",
-    try std.fmt.allocPrint (builder.allocator, "DESTDIR=\"{s}\"",
-    .{ out_path, }), "install", }, .cwd = path.getTmp2 (), });
+    builder.fmt ("DESTDIR=\"{s}\"", .{ out_path, }), "install", },
+      .cwd = path.getTmp2 (), });
 
   const c_client_out_path = try std.fs.path.join (builder.allocator,
     &.{ path.getTmp2 (), "c_client_out", });
