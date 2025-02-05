@@ -325,13 +325,13 @@ typedef uint32_t xkb_led_mask_t;
  * Test whether a value is a valid extended keycode.
  * @sa xkb_keycode_t
  **/
-#define xkb_keycode_is_legal_ext(key) (key <= XKB_KEYCODE_MAX)
+#define xkb_keycode_is_legal_ext(key) ((key) <= XKB_KEYCODE_MAX)
 
 /**
  * Test whether a value is a valid X11 keycode.
  * @sa xkb_keycode_t
  */
-#define xkb_keycode_is_legal_x11(key) (key >= 8 && key <= 255)
+#define xkb_keycode_is_legal_x11(key) ((key) >= 8 && (key) <= 255)
 
 /**
  * Names to compile a keymap with, also known as RMLVO.
@@ -494,7 +494,7 @@ xkb_keysym_from_name(const char *name, enum xkb_keysym_flags flags);
  *
  * @param[in]  keysym The keysym.
  * @param[out] buffer A buffer to write the UTF-8 string into.
- * @param[in]  size   The size of buffer.  Must be at least 7.
+ * @param[in]  size   The size of buffer.  Must be at least 5.
  *
  * @returns The number of bytes written to the buffer (including the
  * terminating byte).  If the keysym does not have a Unicode
@@ -551,8 +551,22 @@ xkb_utf32_to_keysym(uint32_t ucs);
  *
  * If there is no such form, the keysym is returned unchanged.
  *
- * The conversion rules may be incomplete; prefer to work with the Unicode
+ * The conversion rules are the *simple* (i.e. one-to-one) Unicode case
+ * mappings (with some exceptions, see hereinafter) and do not depend
+ * on the locale. If you need the special case mappings (i.e. not
+ * one-to-one or locale-dependent), prefer to work with the Unicode
  * representation instead, when possible.
+ *
+ * Exceptions to the Unicode mappings:
+ *
+ * | Lower keysym | Lower letter | Upper keysym | Upper letter | Comment |
+ * | ------------ | ------------ | ------------ | ------------ | ------- |
+ * | `ssharp`     | `U+00DF`: ß  | `U1E9E`      | `U+1E9E`: ẞ  | [Council for German Orthography] |
+ *
+ * [Council for German Orthography]: https://www.rechtschreibrat.com/regeln-und-woerterverzeichnis/
+ *
+ * @since 0.8.0: Initial implementation, based on `libX11`.
+ * @since 1.8.0: Use Unicode 16.0 mappings for complete Unicode coverage.
  */
 xkb_keysym_t
 xkb_keysym_to_upper(xkb_keysym_t ks);
@@ -560,8 +574,15 @@ xkb_keysym_to_upper(xkb_keysym_t ks);
 /**
  * Convert a keysym to its lowercase form.
  *
- * The conversion rules may be incomplete; prefer to work with the Unicode
- * representation instead, when possible.
+ * If there is no such form, the keysym is returned unchanged.
+ *
+ * The conversion rules are the *simple* (i.e. one-to-one) Unicode case
+ * mappings and do not depend on the locale. If you need the special
+ * case mappings (i.e. not one-to-one or locale-dependent), prefer to
+ * work with the Unicode representation instead, when possible.
+ *
+ * @since 0.8.0: Initial implementation, based on `libX11`.
+ * @since 1.8.0: Use Unicode 16.0 mappings for complete Unicode coverage.
  */
 xkb_keysym_t
 xkb_keysym_to_lower(xkb_keysym_t ks);
@@ -1694,10 +1715,19 @@ xkb_state_serialize_layout(struct xkb_state *state,
 /**
  * Test whether a modifier is active in a given keyboard state by name.
  *
+ * @warning For [virtual modifiers], this function may *overmatch* in case
+ * there are virtual modifiers with overlapping mappings to [real modifiers].
+ *
  * @returns 1 if the modifier is active, 0 if it is not.  If the modifier
  * name does not exist in the keymap, returns -1.
  *
  * @memberof xkb_state
+ *
+ * @since 0.1.0: Works only with *real* modifiers
+ * @since 1.8.0: Works also with *virtual* modifiers
+ *
+ * [virtual modifiers]: @ref virtual-modifier-def
+ * [real modifiers]: @ref real-modifier-def
  */
 int
 xkb_state_mod_name_is_active(struct xkb_state *state, const char *name,
@@ -1706,6 +1736,9 @@ xkb_state_mod_name_is_active(struct xkb_state *state, const char *name,
 /**
  * Test whether a set of modifiers are active in a given keyboard state by
  * name.
+ *
+ * @warning For [virtual modifiers], this function may *overmatch* in case
+ * there are virtual modifiers with overlapping mappings to [real modifiers].
  *
  * @param state The keyboard state.
  * @param type  The component of the state against which to match the
@@ -1719,6 +1752,12 @@ xkb_state_mod_name_is_active(struct xkb_state *state, const char *name,
  * the modifier names do not exist in the keymap, returns -1.
  *
  * @memberof xkb_state
+ *
+ * @since 0.1.0: Works only with *real* modifiers
+ * @since 1.8.0: Works also with *virtual* modifiers
+ *
+ * [virtual modifiers]: @ref virtual-modifier-def
+ * [real modifiers]: @ref real-modifier-def
  */
 int
 xkb_state_mod_names_are_active(struct xkb_state *state,
@@ -1729,10 +1768,19 @@ xkb_state_mod_names_are_active(struct xkb_state *state,
 /**
  * Test whether a modifier is active in a given keyboard state by index.
  *
+ * @warning For [virtual modifiers], this function may *overmatch* in case
+ * there are virtual modifiers with overlapping mappings to [real modifiers].
+ *
  * @returns 1 if the modifier is active, 0 if it is not.  If the modifier
  * index is invalid in the keymap, returns -1.
  *
  * @memberof xkb_state
+ *
+ * @since 0.1.0: Works only with *real* modifiers
+ * @since 1.8.0: Works also with *virtual* modifiers
+ *
+ * [virtual modifiers]: @ref virtual-modifier-def
+ * [real modifiers]: @ref real-modifier-def
  */
 int
 xkb_state_mod_index_is_active(struct xkb_state *state, xkb_mod_index_t idx,
@@ -1741,6 +1789,9 @@ xkb_state_mod_index_is_active(struct xkb_state *state, xkb_mod_index_t idx,
 /**
  * Test whether a set of modifiers are active in a given keyboard state by
  * index.
+ *
+ * @warning For [virtual modifiers], this function may *overmatch* in case
+ * there are virtual modifiers with overlapping mappings to [real modifiers].
  *
  * @param state The keyboard state.
  * @param type  The component of the state against which to match the
@@ -1754,6 +1805,12 @@ xkb_state_mod_index_is_active(struct xkb_state *state, xkb_mod_index_t idx,
  * the modifier indices are invalid in the keymap, returns -1.
  *
  * @memberof xkb_state
+ *
+ * @since 0.1.0: Works only with *real* modifiers
+ * @since 1.8.0: Works also with *virtual* modifiers
+ *
+ * [virtual modifiers]: @ref virtual-modifier-def
+ * [real modifiers]: @ref real-modifier-def
  */
 int
 xkb_state_mod_indices_are_active(struct xkb_state *state,
@@ -1870,10 +1927,12 @@ enum xkb_consumed_mode {
  * @param key   The keycode of the key.
  * @param mode  The consumed modifiers mode to use; see enum description.
  *
- * @returns a mask of the consumed modifiers.
+ * @returns a mask of the consumed [real modifiers] modifiers.
  *
  * @memberof xkb_state
  * @since 0.7.0
+ *
+ * [real modifiers]: @ref real-modifier-def
  */
 xkb_mod_mask_t
 xkb_state_key_get_consumed_mods2(struct xkb_state *state, xkb_keycode_t key,
@@ -1892,6 +1951,9 @@ xkb_state_key_get_consumed_mods(struct xkb_state *state, xkb_keycode_t key);
  * Test whether a modifier is consumed by keyboard state translation for
  * a key.
  *
+ * @warning For [virtual modifiers], this function may *overmatch* in case
+ * there are virtual modifiers with overlapping mappings to [real modifiers].
+ *
  * @param state The keyboard state.
  * @param key   The keycode of the key.
  * @param idx   The index of the modifier to check.
@@ -1903,7 +1965,11 @@ xkb_state_key_get_consumed_mods(struct xkb_state *state, xkb_keycode_t key);
  * @sa xkb_state_mod_mask_remove_consumed()
  * @sa xkb_state_key_get_consumed_mods()
  * @memberof xkb_state
- * @since 0.7.0
+ * @since 0.7.0: Works only with *real* modifiers
+ * @since 1.8.0: Works also with *virtual* modifiers
+ *
+ * [virtual modifiers]: @ref virtual-modifier-def
+ * [real modifiers]: @ref real-modifier-def
  */
 int
 xkb_state_mod_index_is_consumed2(struct xkb_state *state,
@@ -1914,8 +1980,15 @@ xkb_state_mod_index_is_consumed2(struct xkb_state *state,
 /**
  * Same as xkb_state_mod_index_is_consumed2() with mode XKB_CONSUMED_MOD_XKB.
  *
+ * @warning For [virtual modifiers], this function may *overmatch* in case
+ * there are virtual modifiers with overlapping mappings to [real modifiers].
+ *
  * @memberof xkb_state
- * @since 0.4.1
+ * @since 0.4.1: Works only with *real* modifiers
+ * @since 1.8.0: Works also with *virtual* modifiers
+ *
+ * [virtual modifiers]: @ref virtual-modifier-def
+ * [real modifiers]: @ref real-modifier-def
  */
 int
 xkb_state_mod_index_is_consumed(struct xkb_state *state, xkb_keycode_t key,
@@ -1929,8 +2002,14 @@ xkb_state_mod_index_is_consumed(struct xkb_state *state, xkb_keycode_t key,
  * Takes the given modifier mask, and removes all modifiers which are
  * consumed for that particular key (as in xkb_state_mod_index_is_consumed()).
  *
+ * @returns a mask of [real modifiers] modifiers.
+ *
  * @sa xkb_state_mod_index_is_consumed()
  * @memberof xkb_state
+ * @since 0.5.0: Works only with *real* modifiers
+ * @since 1.8.0: Works also with *virtual* modifiers
+ *
+ * [real modifiers]: @ref real-modifier-def
  */
 xkb_mod_mask_t
 xkb_state_mod_mask_remove_consumed(struct xkb_state *state, xkb_keycode_t key,
