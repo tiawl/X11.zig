@@ -5,6 +5,9 @@ on:
     branches:
       - trunk
 
+env:
+  ZIG_VERSION: "0.13.0"
+
 jobs:
   build:
     strategy:
@@ -13,12 +16,43 @@ jobs:
           - glfw
     runs-on: ubuntu-latest
     steps:
-    - uses: tiawl/spaceporn-action-ci@v1.1.1
+    - name: Setup Zig
+      uses: mlugg/setup-zig@v1
       with:
-        repository: "${{ github.repository }}"
-        sha: "${{ github.event.pull_request.head.sha }}"
-        user: "${{ matrix.repo }}.zig"
-        token: "${{ github.token }}"
-        test_build: 'false'
-        test_update: 'true'
-        test_fetch: 'true'
+        version: ${{ env.ZIG_VERSION }}
+
+    - uses: actions/checkout@v4
+      with:
+        repository: "${{ github.repository_owner }}/${{ matrix.repo }}.zig"
+
+    - name: Prepare ${{ matrix.repo }}.zig/build.zig.zon
+      env:
+        SHA: "${{ github.event.pull_request.head.sha }}"
+        URL: "${{ github.server_url }}/${{ github.repository }}/archive"
+      shell: 'bash'
+      run: |
+        old_url="$(grep -o "${URL}/.*\.tar\.gz" build.zig.zon)"
+        old_hash="$(zig fetch "${old_url}")"
+        new_url="${URL}/${SHA}.tar.gz"
+        new_hash="$(zig fetch "${new_url}")"
+        sed -i "s@${old_url}@${new_url}@;s@${old_hash}@${new_hash}@" build.zig.zon
+
+    - name: Test updating ${{ matrix.repo }}.zig
+      env:
+        REPO: "${{ matrix.repo }}"
+        RUNNER_TMP: "${{ runner.temp }}"
+      shell: 'bash'
+      run: |
+        case "${REPO}" in
+        ( * ) zig build -Dupdate ;;
+        esac
+
+    - name: Test fetching ${{ matrix.repo }}.zig
+      env:
+        REPO: "${{ matrix.repo }}"
+        RUNNER_TMP: "${{ runner.temp }}"
+      shell: 'bash'
+      run: |
+        case "${REPO}" in
+        ( * ) zig build -Dfetch ;;
+        esac
