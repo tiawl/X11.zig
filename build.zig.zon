@@ -1,5 +1,5 @@
 .{
-    .name = "X11.zig",
+    .name = .X11_zig,
     .version = "1.0.0",
     .minimum_zig_version = "0.13.0",
     .paths = .{
@@ -16,4 +16,5 @@
             .hash = "122037046680450473adc3670f08c8695638d05f07c00be18e94ff3f7e21edf9ed9e",
         },
     },
+    .fingerprint = 0x73d0ebf76c33e052,
 }
