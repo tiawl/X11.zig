@@ -1,24 +1,6 @@
 /*
  * Copyright © 2013 Ran Benita
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice (including the next
- * paragraph) shall be included in all copies or substantial portions of the
- * Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef _XKBCOMMON_X11_H
@@ -163,7 +145,7 @@ enum xkb_x11_setup_xkb_extension_flags {
  *
  * @returns 1 on success, or 0 on failure.
  */
-int
+XKB_EXPORT int
 xkb_x11_setup_xkb_extension(xcb_connection_t *connection,
                             uint16_t major_xkb_version,
                             uint16_t minor_xkb_version,
@@ -181,7 +163,7 @@ xkb_x11_setup_xkb_extension(xcb_connection_t *connection,
  * @returns A device ID which may be used with other xkb_x11_* functions,
  *          or -1 on failure.
  */
-int32_t
+XKB_EXPORT int32_t
 xkb_x11_get_core_keyboard_device_id(xcb_connection_t *connection);
 
 /**
@@ -206,7 +188,7 @@ xkb_x11_get_core_keyboard_device_id(xcb_connection_t *connection);
  *
  * @memberof xkb_keymap
  */
-struct xkb_keymap *
+XKB_EXPORT struct xkb_keymap *
 xkb_x11_keymap_new_from_device(struct xkb_context *context,
                                xcb_connection_t *connection,
                                int32_t device_id,
@@ -230,7 +212,7 @@ xkb_x11_keymap_new_from_device(struct xkb_context *context,
  *
  * @memberof xkb_state
  */
-struct xkb_state *
+XKB_EXPORT struct xkb_state *
 xkb_x11_state_new_from_device(struct xkb_keymap *keymap,
                               xcb_connection_t *connection,
                               int32_t device_id);
