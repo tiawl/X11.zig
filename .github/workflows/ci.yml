@@ -44,6 +44,7 @@ jobs:
       env:
         REPO: "${{ matrix.repo }}"
         RUNNER_TMP: "${{ runner.temp }}"
+        PR_BODY: "${{ github.event.pull_request.body }}"
       shell: 'bash'
       run: |
         opts="$(printf '%s' "${PR_BODY}" | sed -n "s/^\[${REPO} fetch opts\] \(.*\)/\1/p")"
