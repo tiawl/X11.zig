@@ -12,8 +12,8 @@
     },
     .dependencies = .{
         .toolbox = .{
-            .url = "git+https://github.com/tiawl/toolbox#a1e559d4af4e6d4992c949654d64c516c2f057fb",
-            .hash = "toolbox-1.11.2-kRAu4NRNAAAmfBT3UgvZQdtwry08DkZ3bQj-P2oFPHNH",
+            .url = "git+https://github.com/tiawl/toolbox#02bb0af6ca24b747ca9de17325e8b422d9b5de2c",
+            .hash = "toolbox-1.11.2-kRAu4CVLAAC8cC-LITQL_lNOAKx1v9t6VTWfq1Q4uiJR",
         },
     },
     .fingerprint = 0x73d0ebf76c33e052,

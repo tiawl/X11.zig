@@ -638,7 +638,7 @@ pub fn build(builder: *std.Build) !void {
     const target = builder.standardTargetOptions(.{});
     const optimize = builder.standardOptimizeOption(.{});
 
-    const dependencies = try toolbox.Dependencies.init(builder, "X11.zig", &.{
+    const dependencies = try toolbox.Dependencies.init(builder, .X11_zig, "0x73d0ebf76c33e052", &.{
         "X11",
         "GL",
         "xcb",
@@ -647,7 +647,7 @@ pub fn build(builder: *std.Build) !void {
         .toolbox = .{
             .name = "tiawl/toolbox",
             .host = toolbox.Repository.Host.github,
-            .ref = toolbox.Repository.Reference.tag,
+            .ref = toolbox.Repository.Reference.commit,
         },
     }, .{
         .X11 = .{
