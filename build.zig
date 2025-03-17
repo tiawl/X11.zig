@@ -603,7 +603,7 @@ fn update_xcb(builder: *std.Build, path: *const Paths, dependencies: *const tool
 fn update(builder: *std.Build, dependencies: *const toolbox.Dependencies) !void {
     const path = try Paths.init(builder);
 
-    inline for (@typeInfo(@TypeOf(path)).Struct.fields) |field| {
+    inline for (@typeInfo(@TypeOf(path)).@"struct".fields) |field| {
         std.fs.deleteTreeAbsolute(@field(path, field.name)) catch |err|
             {
             switch (err) {
