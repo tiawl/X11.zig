@@ -53,10 +53,6 @@ This repository is automatically updated when a new release is available from th
 * [xorg/lib/libxrender][17]
 * [xorg/lib/libxscrnsaver][18]
 * [tiawl/toolbox][19]
-* [tiawl/spaceporn-action-bot][20]
-* [tiawl/spaceporn-action-ci][21]
-* [tiawl/spaceporn-action-cd-ping][22]
-* [tiawl/spaceporn-action-cd-pong][23]
 
 ## `zig build` options
 
@@ -93,7 +89,3 @@ The parts of this repository originated from this repository are dedicated to th
 [17]:https://gitlab.freedesktop.org/xorg/lib/libxrender
 [18]:https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver
 [19]:https://github.com/tiawl/toolbox
-[20]:https://github.com/tiawl/spaceporn-action-bot
-[21]:https://github.com/tiawl/spaceporn-action-ci
-[22]:https://github.com/tiawl/spaceporn-action-cd-ping
-[23]:https://github.com/tiawl/spaceporn-action-cd-pong
