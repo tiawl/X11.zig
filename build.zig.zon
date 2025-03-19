@@ -1,7 +1,14 @@
 .{
     .name = .X11_zig,
     .version = "1.0.0",
-    .minimum_zig_version = "0.13.0",
+    .dependencies = .{
+        .toolbox = .{
+            .url = "git+https://github.com/tiawl/toolbox#90a8e16b77a7e4a0e5eef8f80f96c99acf9e6c16",
+            .hash = "toolbox-1.11.2-kRAu4CVLAAC8cC-LITQL_lNOAKx1v9t6VTWfq1Q4uiJR",
+        },
+    },
+    .minimum_zig_version = "0.14.0",
+    .fingerprint = 0x73d0ebf76c33e052,
     .paths = .{
         "build.zig",
         "build.zig.zon",
@@ -10,11 +17,4 @@
         "xcb",
         "xkbcommon",
     },
-    .dependencies = .{
-        .toolbox = .{
-            .url = "git+https://github.com/tiawl/toolbox#02bb0af6ca24b747ca9de17325e8b422d9b5de2c",
-            .hash = "toolbox-1.11.2-kRAu4CVLAAC8cC-LITQL_lNOAKx1v9t6VTWfq1Q4uiJR",
-        },
-    },
-    .fingerprint = 0x73d0ebf76c33e052,
 }
