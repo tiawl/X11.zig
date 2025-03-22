@@ -73,8 +73,8 @@ fn update_xkbcommon(builder: *std.Build, path: *const Paths, dependencies: *cons
     const include_path = try std.fs.path.join(builder.allocator, &.{ path.getTmp(), "include", "xkbcommon" });
     var include_dir =
         try std.fs.openDirAbsolute(include_path, .{
-        .iterate = true,
-    });
+            .iterate = true,
+        });
     defer include_dir.close();
 
     try toolbox.make(path.getXkbcommon());
@@ -110,8 +110,8 @@ fn update_X11(builder: *std.Build, path: *const Paths, dependencies: *const tool
     });
     var include_dir =
         try std.fs.openDirAbsolute(include_path, .{
-        .iterate = true,
-    });
+            .iterate = true,
+        });
     defer include_dir.close();
     try toolbox.make(path.getX11());
 
@@ -139,8 +139,8 @@ fn update_X11(builder: *std.Build, path: *const Paths, dependencies: *const tool
     });
     var include_ext_dir =
         try std.fs.openDirAbsolute(include_ext_path, .{
-        .iterate = true,
-    });
+            .iterate = true,
+        });
     defer include_ext_dir.close();
     try toolbox.make(path.getExt());
     it = include_ext_dir.iterate();
@@ -188,9 +188,9 @@ fn update_X11(builder: *std.Build, path: *const Paths, dependencies: *const tool
 fn update_Xcursor(builder: *std.Build, path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
     const xcursor_path =
         try std.fs.path.join(builder.allocator, &.{
-        path.getX11(),
-        "Xcursor",
-    });
+            path.getX11(),
+            "Xcursor",
+        });
 
     try dependencies.clone(builder, "Xcursor", path.getTmp());
 
@@ -202,8 +202,8 @@ fn update_Xcursor(builder: *std.Build, path: *const Paths, dependencies: *const 
     });
     var include_dir =
         try std.fs.openDirAbsolute(include_path, .{
-        .iterate = true,
-    });
+            .iterate = true,
+        });
     defer include_dir.close();
 
     var xcursor_h = try include_dir.readFileAlloc(builder.allocator, "Xcursor.h.in", std.math.maxInt(usize));
@@ -359,8 +359,8 @@ fn update_Xext(builder: *std.Build, path: *const Paths, dependencies: *const too
     });
     var include_dir =
         try std.fs.openDirAbsolute(include_path, .{
-        .iterate = true,
-    });
+            .iterate = true,
+        });
     defer include_dir.close();
 
     var it = include_dir.iterate();
@@ -404,8 +404,8 @@ fn update_xorgproto(builder: *std.Build, path: *const Paths, dependencies: *cons
         });
         include_dir =
             try std.fs.openDirAbsolute(include_path, .{
-            .iterate = true,
-        });
+                .iterate = true,
+            });
         defer include_dir.close();
 
         walker = try include_dir.walk(builder.allocator);
@@ -437,8 +437,8 @@ fn update_xorgproto(builder: *std.Build, path: *const Paths, dependencies: *cons
     });
     include_dir =
         try std.fs.openDirAbsolute(include_path, .{
-        .iterate = true,
-    });
+            .iterate = true,
+        });
     defer include_dir.close();
 
     var xpoll_h = try include_dir.readFileAlloc(builder.allocator, "Xpoll.h.in", std.math.maxInt(usize));
@@ -517,13 +517,13 @@ fn update_xcb(builder: *std.Build, path: *const Paths, dependencies: *const tool
 
     const xcbproto_xml_path =
         try std.fs.path.join(builder.allocator, &.{
-        path.getTmp2(),
-        "src",
-    });
+            path.getTmp2(),
+            "src",
+        });
     var xcbproto_xml_dir =
         try std.fs.openDirAbsolute(xcbproto_xml_path, .{
-        .iterate = true,
-    });
+            .iterate = true,
+        });
     defer xcbproto_xml_dir.close();
 
     const c_client_py_path = try std.fs.path.join(builder.allocator, &.{
@@ -560,9 +560,9 @@ fn update_xcb(builder: *std.Build, path: *const Paths, dependencies: *const tool
 
     const xcb_src_path =
         try std.fs.path.join(builder.allocator, &.{
-        path.getTmp(),
-        "src",
-    });
+            path.getTmp(),
+            "src",
+        });
     var dir: std.fs.Dir = undefined;
 
     for ([_][]const u8{
@@ -606,11 +606,11 @@ fn update(builder: *std.Build, dependencies: *const toolbox.Dependencies) !void 
     inline for (@typeInfo(@TypeOf(path)).@"struct".fields) |field| {
         std.fs.deleteTreeAbsolute(@field(path, field.name)) catch |err|
             {
-            switch (err) {
-                error.FileNotFound => {},
-                else => return err,
-            }
-        };
+                switch (err) {
+                    error.FileNotFound => {},
+                    else => return err,
+                }
+            };
     }
 
     try update_xkbcommon(builder, &path, dependencies);
