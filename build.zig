@@ -637,9 +637,7 @@ pub fn build(builder: *std.Build) !void {
         },
     });
 
-    if (toolbox.instance().ptrBuilder().option(bool, "update", "Update binding") orelse false) {
-        try update(&dependencies);
-    }
+    if (toolbox.instance().getUpdate()) try update(&dependencies);
 
     const lib = toolbox.instance().ptrBuilder().addStaticLibrary(.{
         .name = "X11",
