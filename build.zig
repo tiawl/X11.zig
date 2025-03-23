@@ -1,5 +1,6 @@
 const std = @import("std");
-const toolbox = @import("toolbox");
+const toolbox_pkg = @import("toolbox");
+const Toolbox = toolbox_pkg.Toolbox;
 
 const Paths = struct {
     __GL: []const u8,
@@ -38,54 +39,54 @@ const Paths = struct {
         return self.__xcb;
     }
 
-    fn init() !@This() {
-        const X11_path = try toolbox.instance().buildRootJoin(&.{
+    fn init(toolbox: *Toolbox) !@This() {
+        const X11_path = try toolbox.buildRootJoin(&.{
             "X11",
         });
 
         return .{
-            .__GL = try toolbox.instance().buildRootJoin(&.{
+            .__GL = try toolbox.buildRootJoin(&.{
                 "GL",
             }),
             .__X11 = X11_path,
-            .__tmp = try toolbox.instance().buildRootJoin(&.{
+            .__tmp = try toolbox.buildRootJoin(&.{
                 "tmp",
             }),
-            .__tmp2 = try toolbox.instance().buildRootJoin(&.{
+            .__tmp2 = try toolbox.buildRootJoin(&.{
                 "tmp2",
             }),
-            .__xkbcommon = try toolbox.instance().buildRootJoin(&.{
+            .__xkbcommon = try toolbox.buildRootJoin(&.{
                 "xkbcommon",
             }),
-            .__xcb = try toolbox.instance().buildRootJoin(&.{
+            .__xcb = try toolbox.buildRootJoin(&.{
                 "xcb",
             }),
-            .__ext = toolbox.instance().pathJoin(&.{
+            .__ext = toolbox.pathJoin(&.{
                 X11_path, "extensions",
             }),
         };
     }
 };
 
-fn update_xkbcommon(path: *const Paths) !void {
-    try toolbox.instance().clone(.xkbcommon, path.getTmp());
+fn update_xkbcommon(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.xkbcommon, path.getTmp());
 
-    const include_path = toolbox.instance().pathJoin(&.{ path.getTmp(), "include", "xkbcommon" });
+    const include_path = toolbox.pathJoin(&.{ path.getTmp(), "include", "xkbcommon" });
     var include_dir = try std.fs.openDirAbsolute(include_path, .{
         .iterate = true,
     });
     defer include_dir.close();
 
-    try toolbox.instance().make(path.getXkbcommon());
+    try toolbox.make(path.getXkbcommon());
 
     var it = include_dir.iterate();
     while (try it.next()) |*entry| {
         switch (entry.kind) {
             .file => {
-                if (toolbox.isCHeader(entry.name)) {
-                    try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+                if (toolbox_pkg.isCHeader(entry.name)) {
+                    try toolbox.copy(toolbox.pathJoin(&.{
                         include_path, entry.name,
-                    }), toolbox.instance().pathJoin(&.{
+                    }), toolbox.pathJoin(&.{
                         path.getXkbcommon(), entry.name,
                     }));
                 }
@@ -97,26 +98,26 @@ fn update_xkbcommon(path: *const Paths) !void {
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_X11(path: *const Paths) !void {
-    try toolbox.instance().clone(.X11, path.getTmp());
+fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.X11, path.getTmp());
 
-    const include_path = toolbox.instance().pathJoin(&.{
+    const include_path = toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11",
     });
     var include_dir = try std.fs.openDirAbsolute(include_path, .{
         .iterate = true,
     });
     defer include_dir.close();
-    try toolbox.instance().make(path.getX11());
+    try toolbox.make(path.getX11());
 
     var it = include_dir.iterate();
     while (try it.next()) |*entry| {
         switch (entry.kind) {
             .file => {
-                if (toolbox.isCHeader(entry.name)) {
-                    try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+                if (toolbox_pkg.isCHeader(entry.name)) {
+                    try toolbox.copy(toolbox.pathJoin(&.{
                         include_path, entry.name,
-                    }), toolbox.instance().pathJoin(&.{
+                    }), toolbox.pathJoin(&.{
                         path.getX11(), entry.name,
                     }));
                 }
@@ -125,23 +126,23 @@ fn update_X11(path: *const Paths) !void {
         }
     }
 
-    const include_ext_path = toolbox.instance().pathJoin(&.{
+    const include_ext_path = toolbox.pathJoin(&.{
         include_path, "extensions",
     });
     var include_ext_dir = try std.fs.openDirAbsolute(include_ext_path, .{
         .iterate = true,
     });
     defer include_ext_dir.close();
-    try toolbox.instance().make(path.getExt());
+    try toolbox.make(path.getExt());
     it = include_ext_dir.iterate();
 
     while (try it.next()) |*entry| {
         switch (entry.kind) {
             .file => {
-                if (toolbox.isCHeader(entry.name)) {
-                    try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+                if (toolbox_pkg.isCHeader(entry.name)) {
+                    try toolbox.copy(toolbox.pathJoin(&.{
                         include_ext_path, entry.name,
-                    }), toolbox.instance().pathJoin(&.{
+                    }), toolbox.pathJoin(&.{
                         path.getExt(), entry.name,
                     }));
                 }
@@ -150,7 +151,7 @@ fn update_X11(path: *const Paths) !void {
         }
     }
 
-    var xlib_conf_h = try include_dir.readFileAlloc(toolbox.instance().getBuilder().allocator, "XlibConf.h.in", std.math.maxInt(usize));
+    var xlib_conf_h = try include_dir.readFileAlloc(toolbox.getAllocator(), "XlibConf.h.in", std.math.maxInt(usize));
 
     for ([_]struct {
         match: []const u8,
@@ -165,22 +166,22 @@ fn update_X11(path: *const Paths) !void {
             .replace = "#define XUSE_MTSAFE_API 1",
         },
     }) |search_and_replace| {
-        xlib_conf_h = try std.mem.replaceOwned(u8, toolbox.instance().getBuilder().allocator, xlib_conf_h, search_and_replace.match, search_and_replace.replace);
+        xlib_conf_h = try std.mem.replaceOwned(u8, toolbox.getAllocator(), xlib_conf_h, search_and_replace.match, search_and_replace.replace);
     }
 
-    try toolbox.instance().write(path.getX11(), "XlibConf.h", xlib_conf_h);
+    try toolbox.write(path.getX11(), "XlibConf.h", xlib_conf_h);
 
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xcursor(path: *const Paths) !void {
-    const xcursor_path = toolbox.instance().pathJoin(&.{
+fn update_Xcursor(toolbox: *Toolbox, path: *const Paths) !void {
+    const xcursor_path = toolbox.pathJoin(&.{
         path.getX11(), "Xcursor",
     });
 
-    try toolbox.instance().clone(.Xcursor, path.getTmp());
+    try toolbox.clone(.Xcursor, path.getTmp());
 
-    const include_path = toolbox.instance().pathJoin(&.{
+    const include_path = toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11", "Xcursor",
     });
     var include_dir = try std.fs.openDirAbsolute(include_path, .{
@@ -188,7 +189,7 @@ fn update_Xcursor(path: *const Paths) !void {
     });
     defer include_dir.close();
 
-    var xcursor_h = try include_dir.readFileAlloc(toolbox.instance().getBuilder().allocator, "Xcursor.h.in", std.math.maxInt(usize));
+    var xcursor_h = try include_dir.readFileAlloc(toolbox.getAllocator(), "Xcursor.h.in", std.math.maxInt(usize));
 
     var xcursor_version = try toolbox.reference(.Xcursor);
     xcursor_version = xcursor_version[std.mem.indexOfAny(u8, xcursor_version, "0123456789").?..];
@@ -201,63 +202,63 @@ fn update_Xcursor(path: *const Paths) !void {
     };
     var index: usize = 0;
     while (tokit.next()) |*token| {
-        xcursor_h = try std.mem.replaceOwned(u8, toolbox.instance().getBuilder().allocator, xcursor_h, match[index], toolbox.instance().fmt("{s} {s}", .{
+        xcursor_h = try std.mem.replaceOwned(u8, toolbox.getAllocator(), xcursor_h, match[index], toolbox.fmt("{s} {s}", .{
             replace[index], token.*,
         }));
         index += 1;
     }
 
-    try toolbox.instance().make(xcursor_path);
-    try toolbox.instance().write(xcursor_path, "Xcursor.h", xcursor_h);
+    try toolbox.make(xcursor_path);
+    try toolbox.write(xcursor_path, "Xcursor.h", xcursor_h);
 
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xrandr(path: *const Paths) !void {
-    try toolbox.instance().clone(.Xrandr, path.getTmp());
+fn update_Xrandr(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.Xrandr, path.getTmp());
 
-    try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+    try toolbox.copy(toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions", "Xrandr.h",
-    }), toolbox.instance().pathJoin(&.{
+    }), toolbox.pathJoin(&.{
         path.getExt(), "Xrandr.h",
     }));
 
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xfixes(path: *const Paths) !void {
-    try toolbox.instance().clone(.Xfixes, path.getTmp());
+fn update_Xfixes(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.Xfixes, path.getTmp());
 
-    try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+    try toolbox.copy(toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions", "Xfixes.h",
-    }), toolbox.instance().pathJoin(&.{
+    }), toolbox.pathJoin(&.{
         path.getExt(), "Xfixes.h",
     }));
 
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xrender(path: *const Paths) !void {
-    try toolbox.instance().clone(.Xrender, path.getTmp());
+fn update_Xrender(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.Xrender, path.getTmp());
 
-    try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+    try toolbox.copy(toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions", "Xrender.h",
-    }), toolbox.instance().pathJoin(&.{
+    }), toolbox.pathJoin(&.{
         path.getExt(), "Xrender.h",
     }));
 
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xinerama(path: *const Paths) !void {
-    try toolbox.instance().clone(.Xinerama, path.getTmp());
+fn update_Xinerama(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.Xinerama, path.getTmp());
 
     for ([_][]const u8{
         "Xinerama.h", "panoramiXext.h",
     }) |file| {
-        try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+        try toolbox.copy(toolbox.pathJoin(&.{
             path.getTmp(), "include", "X11", "extensions", file,
-        }), toolbox.instance().pathJoin(&.{
+        }), toolbox.pathJoin(&.{
             path.getExt(), file,
         }));
     }
@@ -265,15 +266,15 @@ fn update_Xinerama(path: *const Paths) !void {
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xi(path: *const Paths) !void {
-    try toolbox.instance().clone(.Xi, path.getTmp());
+fn update_Xi(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.Xi, path.getTmp());
 
     for ([_][]const u8{
         "XInput.h", "XInput2.h",
     }) |file| {
-        try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+        try toolbox.copy(toolbox.pathJoin(&.{
             path.getTmp(), "include", "X11", "extensions", file,
-        }), toolbox.instance().pathJoin(&.{
+        }), toolbox.pathJoin(&.{
             path.getExt(), file,
         }));
     }
@@ -281,22 +282,22 @@ fn update_Xi(path: *const Paths) !void {
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_XScrnSaver(path: *const Paths) !void {
-    try toolbox.instance().clone(.XScrnSaver, path.getTmp());
+fn update_XScrnSaver(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.XScrnSaver, path.getTmp());
 
-    try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+    try toolbox.copy(toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions", "scrnsaver.h",
-    }), toolbox.instance().pathJoin(&.{
+    }), toolbox.pathJoin(&.{
         path.getExt(), "scrnsaver.h",
     }));
 
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xext(path: *const Paths) !void {
-    try toolbox.instance().clone(.Xext, path.getTmp());
+fn update_Xext(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.Xext, path.getTmp());
 
-    const include_path = toolbox.instance().pathJoin(&.{
+    const include_path = toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions",
     });
     var include_dir = try std.fs.openDirAbsolute(include_path, .{
@@ -308,10 +309,10 @@ fn update_Xext(path: *const Paths) !void {
     while (try it.next()) |*entry| {
         switch (entry.kind) {
             .file => {
-                if (toolbox.isCHeader(entry.name)) {
-                    try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+                if (toolbox_pkg.isCHeader(entry.name)) {
+                    try toolbox.copy(toolbox.pathJoin(&.{
                         include_path, entry.name,
-                    }), toolbox.instance().pathJoin(&.{
+                    }), toolbox.pathJoin(&.{
                         path.getExt(), entry.name,
                     }));
                 }
@@ -323,19 +324,19 @@ fn update_Xext(path: *const Paths) !void {
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_xorgproto(path: *const Paths) !void {
-    try toolbox.instance().clone(.xorgproto, path.getTmp());
+fn update_xorgproto(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.xorgproto, path.getTmp());
 
     var include_path: []const u8 = undefined;
     var include_dir: std.fs.Dir = undefined;
     var walker: std.fs.Dir.Walker = undefined;
 
-    try toolbox.instance().make(path.getGL());
+    try toolbox.make(path.getGL());
 
     inline for ([_][]const u8{
         "GL", "X11",
     }) |component| {
-        include_path = toolbox.instance().pathJoin(&.{
+        include_path = toolbox.pathJoin(&.{
             path.getTmp(), "include", component,
         });
         include_dir = try std.fs.openDirAbsolute(include_path, .{
@@ -343,28 +344,28 @@ fn update_xorgproto(path: *const Paths) !void {
         });
         defer include_dir.close();
 
-        walker = try include_dir.walk(toolbox.instance().getBuilder().allocator);
+        walker = try include_dir.walk(toolbox.getAllocator());
         defer walker.deinit();
 
         while (try walker.next()) |*entry| {
-            const dest = toolbox.instance().pathJoin(&.{
+            const dest = toolbox.pathJoin(&.{
                 if (std.mem.eql(u8, "GL", component)) path.getGL() else path.getX11(), entry.path,
             });
             switch (entry.kind) {
                 .file => {
-                    if (toolbox.isCHeader(entry.basename)) {
-                        try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+                    if (toolbox_pkg.isCHeader(entry.basename)) {
+                        try toolbox.copy(toolbox.pathJoin(&.{
                             include_path, entry.path,
                         }), dest);
                     }
                 },
-                .directory => try toolbox.instance().make(dest),
+                .directory => try toolbox.make(dest),
                 else => return error.UnexpectedEntryKind,
             }
         }
     }
 
-    include_path = toolbox.instance().pathJoin(&.{
+    include_path = toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11",
     });
     include_dir = try std.fs.openDirAbsolute(include_path, .{
@@ -372,38 +373,38 @@ fn update_xorgproto(path: *const Paths) !void {
     });
     defer include_dir.close();
 
-    var xpoll_h = try include_dir.readFileAlloc(toolbox.instance().getBuilder().allocator, "Xpoll.h.in", std.math.maxInt(usize));
-    xpoll_h = try std.mem.replaceOwned(u8, toolbox.instance().getBuilder().allocator, xpoll_h, "@USE_FDS_BITS@", "__fds_bits");
-    try toolbox.instance().write(path.getX11(), "Xpoll.h", xpoll_h);
+    var xpoll_h = try include_dir.readFileAlloc(toolbox.getAllocator(), "Xpoll.h.in", std.math.maxInt(usize));
+    xpoll_h = try std.mem.replaceOwned(u8, toolbox.getAllocator(), xpoll_h, "@USE_FDS_BITS@", "__fds_bits");
+    try toolbox.write(path.getX11(), "Xpoll.h", xpoll_h);
 
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_xcb(path: *const Paths) !void {
-    try toolbox.instance().clone(.xcb, path.getTmp());
-    try toolbox.instance().clone(.xcbproto, path.getTmp2());
+fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
+    try toolbox.clone(.xcb, path.getTmp());
+    try toolbox.clone(.xcbproto, path.getTmp2());
 
-    try toolbox.instance().make(path.getXcb());
+    try toolbox.make(path.getXcb());
 
-    const out_path = toolbox.instance().pathJoin(&.{
+    const out_path = toolbox.pathJoin(&.{
         path.getTmp2(), "out",
     });
-    try toolbox.instance().run(.{
+    try toolbox.run(.{
         .argv = &[_][]const u8{
             "./autogen.sh",
         },
         .cwd = path.getTmp2(),
     });
-    try toolbox.instance().run(.{
+    try toolbox.run(.{
         .argv = &[_][]const u8{
             "make",
         },
         .cwd = path.getTmp2(),
     });
-    try toolbox.instance().run(.{
+    try toolbox.run(.{
         .argv = &[_][]const u8{
             "make",
-            toolbox.instance().fmt("DESTDIR=\"{s}\"", .{
+            toolbox.fmt("DESTDIR=\"{s}\"", .{
                 out_path,
             }),
             "install",
@@ -411,17 +412,17 @@ fn update_xcb(path: *const Paths) !void {
         .cwd = path.getTmp2(),
     });
 
-    const c_client_out_path = toolbox.instance().pathJoin(&.{
+    const c_client_out_path = toolbox.pathJoin(&.{
         path.getTmp2(), "c_client_out",
     });
-    try toolbox.instance().make(c_client_out_path);
+    try toolbox.make(c_client_out_path);
 
     var out_dir = try std.fs.openDirAbsolute(out_path, .{
         .iterate = true,
     });
     defer out_dir.close();
 
-    var walker = try out_dir.walk(toolbox.instance().getBuilder().allocator);
+    var walker = try out_dir.walk(toolbox.getAllocator());
     defer walker.deinit();
 
     var python_path: []const u8 = undefined;
@@ -430,7 +431,7 @@ fn update_xcb(path: *const Paths) !void {
         switch (entry.kind) {
             .directory => {
                 if (std.mem.eql(u8, entry.basename, "site-packages")) {
-                    python_path = toolbox.instance().pathJoin(&.{
+                    python_path = toolbox.pathJoin(&.{
                         out_path, entry.path,
                     });
                     break :loop;
@@ -440,10 +441,10 @@ fn update_xcb(path: *const Paths) !void {
         }
     }
 
-    var env = std.process.EnvMap.init(toolbox.instance().getBuilder().allocator);
+    var env = std.process.EnvMap.init(toolbox.getAllocator());
     try env.put("PYTHONPATH", python_path);
 
-    const xcbproto_xml_path = toolbox.instance().pathJoin(&.{
+    const xcbproto_xml_path = toolbox.pathJoin(&.{
         path.getTmp2(), "src",
     });
     var xcbproto_xml_dir = try std.fs.openDirAbsolute(xcbproto_xml_path, .{
@@ -451,19 +452,19 @@ fn update_xcb(path: *const Paths) !void {
     });
     defer xcbproto_xml_dir.close();
 
-    const c_client_py_path = toolbox.instance().pathJoin(&.{
+    const c_client_py_path = toolbox.pathJoin(&.{
         path.getTmp(), "src", "c_client.py",
     });
 
     var it = xcbproto_xml_dir.iterate();
     while (try it.next()) |*entry| {
-        const xml = toolbox.instance().pathJoin(&.{
+        const xml = toolbox.pathJoin(&.{
             xcbproto_xml_path, entry.name,
         });
         switch (entry.kind) {
             .file => {
                 if (std.mem.endsWith(u8, entry.name, ".xml")) {
-                    try toolbox.instance().run(.{
+                    try toolbox.run(.{
                         .argv = &.{
                             "python3", c_client_py_path, "-c", "_", "-l", "_", "-s", "_", xml,
                         },
@@ -476,7 +477,7 @@ fn update_xcb(path: *const Paths) !void {
         }
     }
 
-    const xcb_src_path = toolbox.instance().pathJoin(&.{
+    const xcb_src_path = toolbox.pathJoin(&.{
         path.getTmp(), "src",
     });
     var dir: std.fs.Dir = undefined;
@@ -493,10 +494,10 @@ fn update_xcb(path: *const Paths) !void {
         while (try it.next()) |*entry| {
             switch (entry.kind) {
                 .file => {
-                    if (toolbox.isCHeader(entry.name)) {
-                        try toolbox.instance().copy(toolbox.instance().pathJoin(&.{
+                    if (toolbox_pkg.isCHeader(entry.name)) {
+                        try toolbox.copy(toolbox.pathJoin(&.{
                             header_path, entry.name,
-                        }), toolbox.instance().pathJoin(&.{
+                        }), toolbox.pathJoin(&.{
                             path.getXcb(), entry.name,
                         }));
                     }
@@ -513,8 +514,8 @@ fn update_xcb(path: *const Paths) !void {
     }
 }
 
-fn update() !void {
-    const path = try Paths.init();
+fn update(toolbox: *Toolbox) !void {
+    const path = try Paths.init(toolbox);
 
     inline for (@typeInfo(@TypeOf(path)).@"struct".fields) |field| {
         std.fs.deleteTreeAbsolute(@field(path, field.name)) catch |err| {
@@ -525,29 +526,29 @@ fn update() !void {
         };
     }
 
-    try update_xkbcommon(&path);
-    try update_X11(&path);
-    try update_Xcursor(&path);
-    try update_Xrandr(&path);
-    try update_Xfixes(&path);
-    try update_Xrender(&path);
-    try update_Xinerama(&path);
-    try update_Xi(&path);
-    try update_XScrnSaver(&path);
-    try update_Xext(&path);
-    try update_xorgproto(&path);
-    try update_xcb(&path);
+    try update_xkbcommon(toolbox, &path);
+    try update_X11(toolbox, &path);
+    try update_Xcursor(toolbox, &path);
+    try update_Xrandr(toolbox, &path);
+    try update_Xfixes(toolbox, &path);
+    try update_Xrender(toolbox, &path);
+    try update_Xinerama(toolbox, &path);
+    try update_Xi(toolbox, &path);
+    try update_XScrnSaver(toolbox, &path);
+    try update_Xext(toolbox, &path);
+    try update_xorgproto(toolbox, &path);
+    try update_xcb(toolbox, &path);
 
-    try toolbox.instance().clean(&.{
+    try toolbox.clean(&.{
         "GL", "X11", "xcb", "xkbcommon",
     }, &.{});
 }
 
-const FromZon = toolbox.Repositories(.{
+const FromZon = toolbox_pkg.Repositories(.{
     .toolbox,
 });
 
-const DuringExec = toolbox.Repositories(.{
+const DuringExec = toolbox_pkg.Repositories(.{
     .X11, .xcb, .xcbproto, .Xcursor, .Xext, .Xfixes, .Xi, .Xinerama, .xkbcommon, .xorgproto, .Xrandr, .Xrender, .XScrnSaver,
 });
 
@@ -555,7 +556,7 @@ pub fn build(builder: *std.Build) !void {
     const target = builder.standardTargetOptions(.{});
     const optimize = builder.standardOptimizeOption(.{});
 
-    try toolbox.init(FromZon, DuringExec, builder, optimize, .X11_zig, "0x73d0ebf76c33e052", &.{
+    var toolbox = try Toolbox.init(FromZon, DuringExec, builder, optimize, .X11_zig, "0x73d0ebf76c33e052", &.{
         "X11", "GL", "xcb", "xkbcommon",
     }, .{
         .toolbox = .{
@@ -644,7 +645,7 @@ pub fn build(builder: *std.Build) !void {
     });
     defer toolbox.deinit();
 
-    if (toolbox.instance().getUpdate()) try update();
+    if (toolbox.getUpdate()) try update(&toolbox);
 
     const lib = builder.addStaticLibrary(.{
         .name = "X11",
@@ -656,7 +657,7 @@ pub fn build(builder: *std.Build) !void {
     for ([_][]const u8{
         "GL", "X11", "xcb", "xkbcommon",
     }) |header| {
-        toolbox.instance().addHeader(lib, try builder.build_root.join(builder.allocator, &.{
+        toolbox.addHeader(lib, try builder.build_root.join(builder.allocator, &.{
             header,
         }), header, &.{
             ".h",
