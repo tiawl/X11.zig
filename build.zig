@@ -402,9 +402,11 @@ fn update_xcb(path: *const Paths) !void {
     });
     try toolbox.instance().run(.{
         .argv = &[_][]const u8{
-            "make", toolbox.instance().fmt("DESTDIR=\"{s}\"", .{
+            "make",
+            toolbox.instance().fmt("DESTDIR=\"{s}\"", .{
                 out_path,
-            }), "install",
+            }),
+            "install",
         },
         .cwd = path.getTmp2(),
     });
