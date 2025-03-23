@@ -67,8 +67,8 @@ const Paths = struct {
     }
 };
 
-fn update_xkbcommon(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("xkbcommon", path.getTmp());
+fn update_xkbcommon(path: *const Paths) !void {
+    try toolbox.instance().clone("xkbcommon", path.getTmp());
 
     const include_path = toolbox.instance().ptrBuilder().pathJoin(&.{ path.getTmp(), "include", "xkbcommon" });
     var include_dir = try std.fs.openDirAbsolute(include_path, .{
@@ -97,8 +97,8 @@ fn update_xkbcommon(path: *const Paths, dependencies: *const toolbox.Dependencie
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_X11(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("X11", path.getTmp());
+fn update_X11(path: *const Paths) !void {
+    try toolbox.instance().clone("X11", path.getTmp());
 
     const include_path = toolbox.instance().ptrBuilder().pathJoin(&.{
         path.getTmp(), "include", "X11",
@@ -173,12 +173,12 @@ fn update_X11(path: *const Paths, dependencies: *const toolbox.Dependencies) !vo
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xcursor(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
+fn update_Xcursor(path: *const Paths) !void {
     const xcursor_path = toolbox.instance().ptrBuilder().pathJoin(&.{
         path.getX11(), "Xcursor",
     });
 
-    try dependencies.clone("Xcursor", path.getTmp());
+    try toolbox.instance().clone("Xcursor", path.getTmp());
 
     const include_path = toolbox.instance().ptrBuilder().pathJoin(&.{
         path.getTmp(), "include", "X11", "Xcursor",
@@ -213,8 +213,8 @@ fn update_Xcursor(path: *const Paths, dependencies: *const toolbox.Dependencies)
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xrandr(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("Xrandr", path.getTmp());
+fn update_Xrandr(path: *const Paths) !void {
+    try toolbox.instance().clone("Xrandr", path.getTmp());
 
     try toolbox.instance().copy(toolbox.instance().ptrBuilder().pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions", "Xrandr.h",
@@ -225,8 +225,8 @@ fn update_Xrandr(path: *const Paths, dependencies: *const toolbox.Dependencies) 
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xfixes(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("Xfixes", path.getTmp());
+fn update_Xfixes(path: *const Paths) !void {
+    try toolbox.instance().clone("Xfixes", path.getTmp());
 
     try toolbox.instance().copy(toolbox.instance().ptrBuilder().pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions", "Xfixes.h",
@@ -237,8 +237,8 @@ fn update_Xfixes(path: *const Paths, dependencies: *const toolbox.Dependencies) 
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xrender(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("Xrender", path.getTmp());
+fn update_Xrender(path: *const Paths) !void {
+    try toolbox.instance().clone("Xrender", path.getTmp());
 
     try toolbox.instance().copy(toolbox.instance().ptrBuilder().pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions", "Xrender.h",
@@ -249,8 +249,8 @@ fn update_Xrender(path: *const Paths, dependencies: *const toolbox.Dependencies)
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xinerama(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("Xinerama", path.getTmp());
+fn update_Xinerama(path: *const Paths) !void {
+    try toolbox.instance().clone("Xinerama", path.getTmp());
 
     for ([_][]const u8{
         "Xinerama.h", "panoramiXext.h",
@@ -265,8 +265,8 @@ fn update_Xinerama(path: *const Paths, dependencies: *const toolbox.Dependencies
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xi(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("Xi", path.getTmp());
+fn update_Xi(path: *const Paths) !void {
+    try toolbox.instance().clone("Xi", path.getTmp());
 
     for ([_][]const u8{
         "XInput.h", "XInput2.h",
@@ -281,8 +281,8 @@ fn update_Xi(path: *const Paths, dependencies: *const toolbox.Dependencies) !voi
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_XScrnSaver(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("XScrnSaver", path.getTmp());
+fn update_XScrnSaver(path: *const Paths) !void {
+    try toolbox.instance().clone("XScrnSaver", path.getTmp());
 
     try toolbox.instance().copy(toolbox.instance().ptrBuilder().pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions", "scrnsaver.h",
@@ -293,8 +293,8 @@ fn update_XScrnSaver(path: *const Paths, dependencies: *const toolbox.Dependenci
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_Xext(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("Xext", path.getTmp());
+fn update_Xext(path: *const Paths) !void {
+    try toolbox.instance().clone("Xext", path.getTmp());
 
     const include_path = toolbox.instance().ptrBuilder().pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions",
@@ -323,8 +323,8 @@ fn update_Xext(path: *const Paths, dependencies: *const toolbox.Dependencies) !v
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_xorgproto(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("xorgproto", path.getTmp());
+fn update_xorgproto(path: *const Paths) !void {
+    try toolbox.instance().clone("xorgproto", path.getTmp());
 
     var include_path: []const u8 = undefined;
     var include_dir: std.fs.Dir = undefined;
@@ -379,9 +379,9 @@ fn update_xorgproto(path: *const Paths, dependencies: *const toolbox.Dependencie
     try std.fs.deleteTreeAbsolute(path.getTmp());
 }
 
-fn update_xcb(path: *const Paths, dependencies: *const toolbox.Dependencies) !void {
-    try dependencies.clone("xcb", path.getTmp());
-    try dependencies.clone("xcbproto", path.getTmp2());
+fn update_xcb(path: *const Paths) !void {
+    try toolbox.instance().clone("xcb", path.getTmp());
+    try toolbox.instance().clone("xcbproto", path.getTmp2());
 
     try toolbox.instance().make(path.getXcb());
 
@@ -513,7 +513,7 @@ fn update_xcb(path: *const Paths, dependencies: *const toolbox.Dependencies) !vo
     }
 }
 
-fn update(dependencies: *const toolbox.Dependencies) !void {
+fn update() !void {
     const path = try Paths.init();
 
     inline for (@typeInfo(@TypeOf(path)).@"struct".fields) |field| {
@@ -525,119 +525,126 @@ fn update(dependencies: *const toolbox.Dependencies) !void {
         };
     }
 
-    try update_xkbcommon(&path, dependencies);
-    try update_X11(&path, dependencies);
-    try update_Xcursor(&path, dependencies);
-    try update_Xrandr(&path, dependencies);
-    try update_Xfixes(&path, dependencies);
-    try update_Xrender(&path, dependencies);
-    try update_Xinerama(&path, dependencies);
-    try update_Xi(&path, dependencies);
-    try update_XScrnSaver(&path, dependencies);
-    try update_Xext(&path, dependencies);
-    try update_xorgproto(&path, dependencies);
-    try update_xcb(&path, dependencies);
+    try update_xkbcommon(&path);
+    try update_X11(&path);
+    try update_Xcursor(&path);
+    try update_Xrandr(&path);
+    try update_Xfixes(&path);
+    try update_Xrender(&path);
+    try update_Xinerama(&path);
+    try update_Xi(&path);
+    try update_XScrnSaver(&path);
+    try update_Xext(&path);
+    try update_xorgproto(&path);
+    try update_xcb(&path);
 
     try toolbox.instance().clean(&.{
         "GL", "X11", "xcb", "xkbcommon",
     }, &.{});
 }
 
+const FromZon = toolbox.Repositories(.{
+    .toolbox,
+});
+
+const DuringExec = toolbox.Repositories(.{
+    .X11, .xcb, .xcbproto, .Xcursor, .Xext, .Xfixes, .Xi, .Xinerama, .xkbcommon, .xorgproto, .Xrandr, .Xrender, .XScrnSaver,
+});
+
 pub fn build(builder: *std.Build) !void {
     const target = builder.standardTargetOptions(.{});
     const optimize = builder.standardOptimizeOption(.{});
 
-    toolbox.init(builder, optimize);
-    defer toolbox.deinit();
-    const dependencies = try toolbox.Dependencies.init(.X11_zig, "0x73d0ebf76c33e052", &.{
+    try toolbox.init(FromZon, DuringExec, builder, optimize, .X11_zig, "0x73d0ebf76c33e052", &.{
         "X11", "GL", "xcb", "xkbcommon",
     }, .{
         .toolbox = .{
             .name = "tiawl/toolbox",
-            .host = toolbox.Repository.Host.github,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .github,
+            .ref = .tag,
         },
     }, .{
         .X11 = .{
             .name = "xorg/lib/libx11",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .xcb = .{
             .name = "xorg/lib/libxcb",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .xcbproto = .{
             .name = "xorg/proto/xcbproto",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .Xcursor = .{
             .name = "xorg/lib/libxcursor",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .Xext = .{
             .name = "xorg/lib/libxext",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .Xfixes = .{
             .name = "xorg/lib/libxfixes",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .Xi = .{
             .name = "xorg/lib/libxi",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .Xinerama = .{
             .name = "xorg/lib/libxinerama",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .xkbcommon = .{
             .name = "xkbcommon/libxkbcommon",
-            .host = toolbox.Repository.Host.github,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .github,
+            .ref = .tag,
         },
         .xorgproto = .{
             .name = "xorg/proto/xorgproto",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .Xrandr = .{
             .name = "xorg/lib/libxrandr",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .Xrender = .{
             .name = "xorg/lib/libxrender",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
         .XScrnSaver = .{
             .name = "xorg/lib/libxscrnsaver",
             .domain = "freedesktop.org",
-            .host = toolbox.Repository.Host.gitlab,
-            .ref = toolbox.Repository.Reference.tag,
+            .host = .gitlab,
+            .ref = .tag,
         },
     });
+    defer toolbox.deinit();
 
-    if (toolbox.instance().getUpdate()) try update(&dependencies);
+    if (toolbox.instance().getUpdate()) try update();
 
     const lib = toolbox.instance().ptrBuilder().addStaticLibrary(.{
         .name = "X11",
