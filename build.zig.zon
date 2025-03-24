@@ -3,8 +3,8 @@
     .version = "1.0.0",
     .dependencies = .{
         .toolbox = .{
-            .url = "git+https://github.com/tiawl/toolbox#b498c0a99edebefea3c5583b9c309c86c5c6f603",
-            .hash = "toolbox-1.12.0-kRAu4NpbAAD1Udg7-EaHBo3CdoO7yEV4e6obmze-rmsf",
+            .url = "git+https://github.com/tiawl/toolbox#1b417058ddd7c5c52f26621a59c9ef40780faf8b",
+            .hash = "toolbox-1.12.2-kRAu4GRZAAAiIQjk8qdsjXVdSro7DI9pI8J82LGG4k4j",
         },
     },
     .minimum_zig_version = "0.14.0",
