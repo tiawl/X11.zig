@@ -20,6 +20,7 @@
 #ifndef _XKBCOMMON_H_
 #define _XKBCOMMON_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -140,8 +141,9 @@ typedef uint32_t xkb_keycode_t;
  * Keysym names are case-sensitive.
  *
  * @note **Encoding:** Keysyms are 32-bit integers with the 3 most significant
- * bits always set to zero.  See: Appendix A [“KEYSYM Encoding”][encoding] of
- * the X Window System Protocol.
+ * bits always set to zero.  Thus valid keysyms are in the range
+ * `0 .. 0x1fffffff` = @ref XKB_KEYSYM_MAX.
+ * See: Appendix A [“KEYSYM Encoding”][encoding] of the X Window System Protocol.
  *
  * [encoding]: https://www.x.org/releases/current/doc/xproto/x11protocol.html#keysym_encoding
  *
@@ -281,13 +283,26 @@ typedef uint32_t xkb_led_mask_t;
 #define xkb_keycode_is_legal_x11(key) ((key) >= 8 && (key) <= 255)
 
 /**
- * Names to compile a keymap with, also known as RMLVO.
+ * @defgroup rules-api Rules
+ * Utility functions related to *rules*, whose purpose is introduced in:
+ * @ref xkb-the-config "".
+ *
+ * @{
+ */
+
+/**
+ * Names to compile a keymap with, also known as [RMLVO].
  *
  * The names are the common configuration values by which a user picks
  * a keymap.
  *
  * If the entire struct is NULL, then each field is taken to be NULL.
  * You should prefer passing NULL instead of choosing your own defaults.
+ *
+ * @see [Introduction to RMLVO][RMLVO]
+ * @see @ref rules-api ""
+ *
+ * [RMLVO]: @ref RMLVO-intro
  */
 struct xkb_rule_names {
     /**
@@ -344,6 +359,67 @@ struct xkb_rule_names {
 };
 
 /**
+ * Keymap components, also known as [KcCGST].
+ *
+ * The components are the result of the [RMLVO] resolution.
+ *
+ * @see [Introduction to RMLVO][RMLVO]
+ * @see [Introduction to KcCGST][KcCGST]
+ * @see @ref rules-api ""
+ *
+ * [RMLVO]: @ref RMLVO-intro
+ * [KcCGST]: @ref KcCGST-intro
+ */
+struct xkb_component_names {
+    char *keycodes;
+    char *compatibility;
+    char *geometry;
+    char *symbols;
+    char *types;
+};
+
+/**
+ * Resolve [RMLVO] names to [KcCGST] components.
+ *
+ * This function is used primarily for *debugging*. See
+ * xkb_keymap::xkb_keymap_new_from_names() for creating keymaps from
+ * [RMLVO] names.
+ *
+ * @param[in]  context    The context in which to resolve the names.
+ * @param[in]  rmlvo_in   The [RMLVO] names to use.
+ * @param[out] rmlvo_out  The [RMLVO] names actually used after resolving
+ * missing values.
+ * @param[out] components_out The [KcCGST] components resulting of the [RMLVO]
+ * resolution.
+ *
+ * @c rmlvo_out and @c components can be omitted by using `NULL`, but not both.
+ *
+ * If @c components is not `NULL`, it is filled with dynamically-allocated
+ * strings that should be freed by the caller.
+ *
+ * @returns `true` if the [RMLVO] names could be resolved, `false` otherwise.
+ *
+ * @see [Introduction to RMLVO][RMLVO]
+ * @see [Introduction to KcCGST][KcCGST]
+ * @see xkb_rule_names
+ * @see xkb_component_names
+ * @see xkb_keymap::xkb_keymap_new_from_names()
+ *
+ * @since 1.9.0
+ * @memberof xkb_component_names
+ *
+ * [RMLVO]: @ref RMLVO-intro
+ * [KcCGST]: @ref KcCGST-intro
+ */
+XKB_EXPORT bool
+xkb_components_names_from_rules(struct xkb_context *context,
+                                const struct xkb_rule_names *rmlvo_in,
+                                struct xkb_rule_names *rmlvo_out,
+                                struct xkb_component_names *components_out);
+
+/** @} */
+
+/**
  * @defgroup keysyms Keysyms
  * Utility functions related to *keysyms* (short for “key symbols”).
  *
@@ -357,8 +433,8 @@ struct xkb_rule_names {
  * as described in the XKB specification.  These are:
  *
  * - Capitalization transformation.  If the Caps Lock modifier is
- *   active and was not consumed by the translation process, a single
- *   keysym is transformed to its upper-case form (if applicable).
+ *   active and was not consumed by the translation process, keysyms
+ *   are transformed to their upper-case form (if applicable).
  *   Similarly, the UTF-8/UTF-32 string produced is capitalized.
  *
  *   This is described in:
@@ -432,6 +508,8 @@ enum xkb_keysym_flags {
  * @returns The keysym. If the name is invalid, returns XKB_KEY_NoSymbol.
  *
  * @sa xkb_keysym_t
+ * @since 1.9.0: Enable support for C0 and C1 control characters in the Unicode
+   notation.
  */
 XKB_EXPORT xkb_keysym_t
 xkb_keysym_from_name(const char *name, enum xkb_keysym_flags flags);
@@ -484,11 +562,9 @@ xkb_keysym_to_utf32(xkb_keysym_t keysym);
  * encoding use a direct encoding scheme. These keysyms don't usually
  * have an associated keysym constant (XKB_KEY_*).
  *
- * For noncharacter Unicode codepoints and codepoints outside of the
- * defined Unicode planes this function returns XKB_KEY_NoSymbol.
- *
  * @sa xkb_keysym_to_utf32()
  * @since 1.0.0
+ * @since 1.9.0: Enable support for all noncharacters.
  */
 XKB_EXPORT xkb_keysym_t
 xkb_utf32_to_keysym(uint32_t ucs);
@@ -1475,14 +1551,15 @@ xkb_state_update_mask(struct xkb_state *state,
  * If you do not want to handle this case, you can use
  * xkb_state_key_get_one_sym() for a simpler interface.
  *
- * This function does not perform any @ref keysym-transformations.
- * (This might change).
- *
  * @returns The number of keysyms in the syms_out array.  If no keysyms
  * are produced by the key in the given keyboard state, returns 0 and sets
  * syms_out to NULL.
  *
+ * This function performs Capitalization @ref keysym-transformations.
+ *
  * @memberof xkb_state
+ *
+ * @since 1.9.0 This function now performs @ref keysym-transformations.
  */
 XKB_EXPORT int
 xkb_state_key_get_syms(struct xkb_state *state, xkb_keycode_t key,
