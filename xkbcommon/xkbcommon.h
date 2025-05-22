@@ -1154,6 +1154,23 @@ XKB_EXPORT xkb_mod_index_t
 xkb_keymap_mod_get_index(struct xkb_keymap *keymap, const char *name);
 
 /**
+ * Get the mapping of a modifier by name.
+ *
+ * In X11 terminology it corresponds to the mapping to the *[real modifiers]*.
+ *
+ * @returns The mapping of a modifier.  Note that it may be 0 if the name does
+ * not exist or if the modifier is not mapped.
+ *
+ * @since 1.10.0
+ * @memberof xkb_keymap
+ *
+ * [real modifiers]: @ref real-modifier-def
+ */
+XKB_EXPORT xkb_mod_mask_t
+xkb_keymap_mod_get_mask(struct xkb_keymap *keymap, const char *name);
+
+
+/**
  * Get the number of layouts in the keymap.
  *
  * @sa xkb_layout_index_t xkb_rule_names xkb_keymap_num_layouts_for_key()
@@ -1502,6 +1519,63 @@ enum xkb_state_component {
 XKB_EXPORT enum xkb_state_component
 xkb_state_update_key(struct xkb_state *state, xkb_keycode_t key,
                      enum xkb_key_direction direction);
+
+/**
+ * Update the keyboard state to change the latched and locked state of
+ * the modifiers and layout.
+ *
+ * This entry point is intended for *server* applications and should not be used
+ * by *client* applications; see @ref server-client-state for details.
+ *
+ * Use this function to update the latched and locked state according to
+ * “out of band” (non-device) inputs, such as UI layout switchers.
+ *
+ * @par Layout out of range
+ * @parblock
+ *
+ * If the effective layout, after taking into account the depressed, latched and
+ * locked layout, is out of range (negative or greater than the maximum layout),
+ * it is brought into range. Currently, the layout is wrapped using integer
+ * modulus (with negative values wrapping from the end). The wrapping behavior
+ * may be made configurable in the future.
+ *
+ * @endparblock
+ *
+ * @param state The keyboard state object.
+ * @param affect_latched_mods
+ * @param latched_mods
+ *     Modifiers to set as latched or unlatched. Only modifiers in
+ *     `affect_latched_mods` are considered.
+ * @param affect_latched_layout
+ * @param latched_layout
+ *     Layout to latch. Only considered if `affect_latched_layout` is true.
+ *     Maybe be out of range (including negative) -- see note above.
+ * @param affect_locked_mods
+ * @param locked_mods
+ *     Modifiers to set as locked or unlocked. Only modifiers in
+ *     `affect_locked_mods` are considered.
+ * @param affect_locked_layout
+ * @param locked_layout
+ *     Layout to lock. Only considered if `affect_locked_layout` is true.
+ *     Maybe be out of range (including negative) -- see note above.
+ *
+ * @returns A mask of state components that have changed as a result of
+ * the update.  If nothing in the state has changed, returns 0.
+ *
+ * @memberof xkb_state
+ *
+ * @sa xkb_state_update_mask()
+ */
+XKB_EXPORT enum xkb_state_component
+xkb_state_update_latched_locked(struct xkb_state *state,
+                                xkb_mod_mask_t affect_latched_mods,
+                                xkb_mod_mask_t latched_mods,
+                                bool affect_latched_layout,
+                                int32_t latched_layout,
+                                xkb_mod_mask_t affect_locked_mods,
+                                xkb_mod_mask_t locked_mods,
+                                bool affect_locked_layout,
+                                int32_t locked_layout);
 
 /**
  * Update a keyboard state from a set of explicit masks.
