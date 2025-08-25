@@ -647,11 +647,13 @@ pub fn build(builder: *std.Build) !void {
 
     if (toolbox.getUpdate()) try update(&toolbox);
 
-    const lib = builder.addStaticLibrary(.{
+    const lib = builder.addLibrary(.{
         .name = "X11",
-        .root_source_file = builder.addWriteFiles().add("empty.c", ""),
-        .target = target,
-        .optimize = optimize,
+        .root_module = std.Builder.Module.create(builder, .{
+            .root_source_file = builder.addWriteFiles().add("empty.c", ""),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
 
     for ([_][]const u8{
