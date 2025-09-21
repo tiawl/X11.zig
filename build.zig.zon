@@ -13,6 +13,7 @@
         "build.zig",
         "build.zig.zon",
         "X11",
+        "Xau",
         "GL",
         "xcb",
         "xkbcommon",
