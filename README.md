@@ -6,13 +6,14 @@ This is a fork of [hexops/x11-headers][1] which itself gather various [X11][2] h
 
 The intention under this fork is the same as [hexops][4] had when they opened their repository: gather [X11][2] headers and package them to compile [GLFW][4] with [Zig][5].
 
-However this repository has subtle differences for maintainability tasks:
-* No shell scripting,
+However this repository has subtle differences:
+* Add libX11 sources (and xorg libs needed source files for compilation process)
+* No shell scripting for maintainability tasks,
 * A cron runs every day to check [X11][2] repositories. Then it updates this repository if a new release is available.
 
 ## How to use it
 
-The current usage of this repository is centered around [tiawl/glfw.zig][3] compilation. But you could use it for your own projects. Headers are here and there are no planned evolution to modify them. See [tiawl/glfw.zig][3] to see how you can use it. Maybe for your own need, some headers are missing. If it happens, open an issue: this repository is open to potential usage evolution.
+The current usage of this repository is centered around [tiawl/glfw.zig][3] compilation. But you could use it for your own projects. Files are here and there are no planned evolution to modify them. See [tiawl/glfw.zig][3] to see how you can use it. Maybe for your own need, some files are missing. If it happens, open an issue: this repository is open to potential usage evolution.
 
 ## Dependencies
 
