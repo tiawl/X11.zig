@@ -1,15 +1,15 @@
 # X11.zig
 
-This is a fork of [hexops/x11-headers][1] which itself gather various [X11][2] headers [GLFW][3] needs.
+This is a fork of [hexops/x11-headers][1] which itself gather various [xorg][21] headers [GLFW][3] needs.
 
 ## Why this forkception ?
 
-The intention under this fork is the same as [hexops][4] had when they opened their repository: gather [X11][2] headers and package them to compile [GLFW][4] with [Zig][5].
+The intention under this fork is the same as [hexops][4] had when they opened their repository: gather [xorg][21] headers and package them to compile [GLFW][4] with [Zig][5].
 
 However this repository has subtle differences:
-* Add libX11 sources (and xorg libs needed source files for compilation process)
+* Add [xorg][21] sources needed for [libX11][2] compilation,
 * No shell scripting for maintainability tasks,
-* A cron runs every day to check [X11][2] repositories. Then it updates this repository if a new release is available.
+* A cron runs every day to check [xorg][21] repositories. Then it updates this repository if a new release is available.
 
 ## How to use it
 
@@ -33,6 +33,8 @@ Here the repositories' version used by this fork:
 * [xorg/lib/libxrandr](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xrandr)
 * [xorg/lib/libxrender](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xrender)
 * [xorg/lib/libxscrnsaver](https://github.com/tiawl/X11.zig/blob/trunk/.references/XScrnSaver)
+* [xorg/lib/libxtrans](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xtrans)
+* [xorg/lib/libxau](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xau)
 
 ## CICD reminder
 
@@ -53,7 +55,9 @@ This repository is automatically updated when a new release is available from th
 * [xorg/lib/libxrandr][16]
 * [xorg/lib/libxrender][17]
 * [xorg/lib/libxscrnsaver][18]
-* [tiawl/toolbox][19]
+* [xorg/lib/libxtrans][19]
+* [xorg/lib/libxau][20]
+* [tiawl/toolbox][22]
 
 ## `zig build` options
 
@@ -89,4 +93,7 @@ The parts of this repository originated from this repository are dedicated to th
 [16]:https://gitlab.freedesktop.org/xorg/lib/libxrandr
 [17]:https://gitlab.freedesktop.org/xorg/lib/libxrender
 [18]:https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver
-[19]:https://github.com/tiawl/toolbox
+[19]:https://gitlab.freedesktop.org/xorg/lib/libxtrans
+[20]:https://gitlab.freedesktop.org/xorg/lib/libxau
+[21]:https://gitlab.freedesktop.org/xorg
+[22]:https://github.com/tiawl/toolbox
