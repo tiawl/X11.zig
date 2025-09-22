@@ -763,7 +763,7 @@ pub fn build(builder: *std.Build) !void {
     const optimize = builder.standardOptimizeOption(.{});
 
     var toolbox = try Toolbox.init(FromZon, DuringExec, builder, optimize, .X11_zig, "0x73d0ebf76c33e052", &.{
-        "X11", "GL", "xcb", "xkbcommon",
+        "X11", "Xau", "GL", "xcb", "xkbcommon",
     }, .{
         .toolbox = .{
             .name = "tiawl/toolbox",
