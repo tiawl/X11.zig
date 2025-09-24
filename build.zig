@@ -985,8 +985,12 @@ pub fn build(builder: *std.Build) !void {
     };
     while (try walker.next()) |*entry| {
         switch (entry.kind) {
-            .file => if ((toolbox_pkg.isCSource(entry.basename)) and !std.mem.startsWith(u8, entry.basename, "os2"))
-                try toolbox.addSource(lib, path.getX11Src(), entry.path, &src_flags),
+            .file => if ((toolbox_pkg.isCSource(entry.basename)) and
+                !std.mem.startsWith(u8, entry.basename, "os2") and
+                !std.mem.eql(u8, entry.path, "util/makekeys.c"))
+            {
+                try toolbox.addSource(lib, path.getX11Src(), entry.path, &src_flags);
+            },
             else => {},
         }
     }
