@@ -282,7 +282,9 @@ fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
             });
             switch (entry.kind) {
                 .file => {
-                    if (toolbox_pkg.isCSource(entry.basename) or toolbox_pkg.isCHeader(entry.basename)) {
+                    if ((toolbox_pkg.isCSource(entry.basename) and !std.mem.startsWith(u8, entry.path, toolbox.pathJoin(&.{
+                        "xlibi18n", "lcUniConv",
+                    }))) or toolbox_pkg.isCHeader(entry.basename)) {
                         try toolbox.copy(toolbox.pathJoin(&.{
                             src.path, entry.path,
                         }), dest);
@@ -987,7 +989,9 @@ pub fn build(builder: *std.Build) !void {
         switch (entry.kind) {
             .file => if ((toolbox_pkg.isCSource(entry.basename)) and
                 !std.mem.startsWith(u8, entry.basename, "os2") and
-                !std.mem.eql(u8, entry.path, "util/makekeys.c"))
+                !std.mem.eql(u8, entry.path, toolbox.pathJoin(&.{
+                    "util", "makekeys.c",
+                })))
             {
                 try toolbox.addSource(lib, path.getX11Src(), entry.path, &src_flags);
             },
