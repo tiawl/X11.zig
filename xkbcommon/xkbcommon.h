@@ -737,6 +737,7 @@ xkb_utf32_to_keysym(uint32_t ucs);
  *
  * @since 0.8.0: Initial implementation, based on `libX11`.
  * @since 1.8.0: Use Unicode 16.0 mappings for complete Unicode coverage.
+ * @since 1.12.0: Update to Unicode 17.0.
  */
 XKB_EXPORT xkb_keysym_t
 xkb_keysym_to_upper(xkb_keysym_t ks);
@@ -753,6 +754,7 @@ xkb_keysym_to_upper(xkb_keysym_t ks);
  *
  * @since 0.8.0: Initial implementation, based on `libX11`.
  * @since 1.8.0: Use Unicode 16.0 mappings for complete Unicode coverage.
+ * @since 1.12.0: Update to Unicode 17.0.
  */
 XKB_EXPORT xkb_keysym_t
 xkb_keysym_to_lower(xkb_keysym_t ks);
@@ -869,15 +871,17 @@ xkb_context_get_user_data(struct xkb_context *context);
  * include statement is encountered during keymap compilation.
  *
  * The default include paths are, in that lookup order:
- * - The path `$XDG_CONFIG_HOME/xkb`, with the usual `XDG_CONFIG_HOME`
- *   fallback to `$HOME/.config/` if unset.
- * - The path `$HOME/.xkb`, where $HOME is the value of the environment
+ * - The path `$XDG_CONFIG_HOME/xkb`, where `$XDG_CONFIG_HOME` is the value of
+     the environment variable `XDG_CONFIG_HOME`, with the usual fallback to
+     `$HOME/.config/` if unset.
+ * - The path `$HOME/.xkb`, where `$HOME` is the value of the environment
  *   variable `HOME`.
  * - The `XKB_CONFIG_EXTRA_PATH` environment variable, if defined, otherwise the
  *   system configuration directory, defined at library configuration time
  *   (usually `/etc/xkb`).
  * - The `XKB_CONFIG_ROOT` environment variable, if defined, otherwise
- *   the system XKB root, defined at library configuration time.
+ *   the system XKB root, defined at library configuration time
+ *   (usually `/usr/share/X11/xkb`).
  *
  * @{
  */
@@ -1324,6 +1328,36 @@ xkb_keymap_unref(struct xkb_keymap *keymap);
 #define XKB_KEYMAP_USE_ORIGINAL_FORMAT ((enum xkb_keymap_format) -1)
 
 /**
+ * Flags to control keymap serialization.
+ *
+ * @since 1.12.0
+ */
+enum xkb_keymap_serialize_flags {
+    /** Do not apply any flags. */
+    XKB_KEYMAP_SERIALIZE_NO_FLAGS = 0,
+    /** Enable pretty-printing */
+    XKB_KEYMAP_SERIALIZE_PRETTY = (1 << 0),
+    /** Do not drop unused bits (key types, compatibility entries) */
+    XKB_KEYMAP_SERIALIZE_KEEP_UNUSED = (1 << 1),
+};
+
+/**
+ * Get the compiled keymap as a string.
+ *
+ * Same as `xkb_keymap::xkb_keymap_get_as_string2()` using
+ * `::XKB_KEYMAP_SERIALIZE_NO_FLAGS`.
+ *
+ * @since 1.12.0: Drop unused types and compatibility entries and do not
+ * pretty-print.
+ *
+ * @sa `xkb_keymap::xkb_keymap_get_as_string2()`
+ * @memberof xkb_keymap
+ */
+XKB_EXPORT char *
+xkb_keymap_get_as_string(struct xkb_keymap *keymap,
+                         enum xkb_keymap_format format);
+
+/**
  * Get the compiled keymap as a string.
  *
  * @param keymap The keymap to get as a string.
@@ -1331,22 +1365,28 @@ xkb_keymap_unref(struct xkb_keymap *keymap);
  * in the special value `::XKB_KEYMAP_USE_ORIGINAL_FORMAT` to use the format
  * from which the keymap was originally created. When used as an *interchange*
  * format such as Wayland <code>[xkb_v1]</code>, the format should be explicit.
+ * @param flags  Optional flags to control the serialization, or 0.
  *
  * @returns The keymap as a `NULL`-terminated string, or `NULL` if unsuccessful.
  *
- * The returned string may be fed back into `xkb_keymap_new_from_string()` to
- * get the exact same keymap (possibly in another process, etc.).
+ * The returned string may be fed back into `xkb_keymap_new_from_string()`
+ * to get the exact same keymap (possibly in another process, etc.).
  *
  * The returned string is *dynamically allocated* and should be freed by the
  * caller.
  *
+ * @since 1.12.0
+ *
+ * @sa `xkb_keymap_get_as_string()`
+ * @sa `xkb_keymap_new_from_string()`
  * @memberof xkb_keymap
  *
  * [xkb_v1]: https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_keyboard-enum-keymap_format
  */
 XKB_EXPORT char *
-xkb_keymap_get_as_string(struct xkb_keymap *keymap,
-                         enum xkb_keymap_format format);
+xkb_keymap_get_as_string2(struct xkb_keymap *keymap,
+                          enum xkb_keymap_format format,
+                          enum xkb_keymap_serialize_flags flags);
 
 /** @} */
 
