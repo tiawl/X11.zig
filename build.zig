@@ -134,15 +134,15 @@ fn update_xkbcommon(toolbox: *Toolbox, path: *const Paths) !void {
     try toolbox.clone(.xkbcommon, path.getTmp());
 
     const include_path = toolbox.pathJoin(&.{ path.getTmp(), "include", "xkbcommon" });
-    var include_dir = try std.fs.openDirAbsolute(include_path, .{
+    var include_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), include_path, .{
         .iterate = true,
     });
-    defer include_dir.close();
+    defer include_dir.close(toolbox.getIo());
 
     try toolbox.make(path.getXkbcommon());
 
     var it = include_dir.iterate();
-    while (try it.next()) |*entry| {
+    while (try it.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => {
                 if (toolbox_pkg.isCHeader(entry.name)) {
@@ -157,7 +157,8 @@ fn update_xkbcommon(toolbox: *Toolbox, path: *const Paths) !void {
         }
     }
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
@@ -166,10 +167,10 @@ fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
     const include_path = toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11",
     });
-    var include_dir = try std.fs.openDirAbsolute(include_path, .{
+    var include_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), include_path, .{
         .iterate = true,
     });
-    defer include_dir.close();
+    defer include_dir.close(toolbox.getIo());
     for ([_][]const u8{
         path.getX11(),
         path.getX11Include(),
@@ -179,7 +180,7 @@ fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
     }) |dir_path| try toolbox.make(dir_path);
 
     var it = include_dir.iterate();
-    while (try it.next()) |*entry| {
+    while (try it.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => {
                 if (toolbox_pkg.isCHeader(entry.name)) {
@@ -197,14 +198,14 @@ fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
     const include_ext_path = toolbox.pathJoin(&.{
         include_path, "extensions",
     });
-    var include_ext_dir = try std.fs.openDirAbsolute(include_ext_path, .{
+    var include_ext_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), include_ext_path, .{
         .iterate = true,
     });
-    defer include_ext_dir.close();
+    defer include_ext_dir.close(toolbox.getIo());
     try toolbox.make(path.getX11Ext());
     it = include_ext_dir.iterate();
 
-    while (try it.next()) |*entry| {
+    while (try it.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => {
                 if (toolbox_pkg.isCHeader(entry.name)) {
@@ -219,7 +220,7 @@ fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
         }
     }
 
-    var xlib_conf_h = try include_dir.readFileAlloc(toolbox.getAllocator(), "XlibConf.h.in", std.math.maxInt(usize));
+    var xlib_conf_h = try include_dir.readFileAlloc(toolbox.getIo(), "XlibConf.h.in", toolbox.getAllocator(), .unlimited);
 
     for ([_]struct {
         match: []const u8,
@@ -242,24 +243,24 @@ fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
     const src_path = toolbox.pathJoin(&.{
         path.getTmp(), "src",
     });
-    var src_dir = try std.fs.openDirAbsolute(src_path, .{
+    var src_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), src_path, .{
         .iterate = true,
     });
-    defer src_dir.close();
+    defer src_dir.close(toolbox.getIo());
 
     const modules_path = toolbox.pathJoin(&.{
         path.getTmp(), "modules",
     });
-    var modules_dir = try std.fs.openDirAbsolute(modules_path, .{
+    var modules_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), modules_path, .{
         .iterate = true,
     });
-    defer modules_dir.close();
+    defer modules_dir.close(toolbox.getIo());
 
-    var walker: std.fs.Dir.Walker = undefined;
+    var walker: std.Io.Dir.Walker = undefined;
 
     for ([_]struct {
         path: []const u8,
-        dir: std.fs.Dir,
+        dir: std.Io.Dir,
         dest: []const u8,
     }{
         .{
@@ -276,7 +277,7 @@ fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
         walker = try src.dir.walk(toolbox.getAllocator());
         defer walker.deinit();
 
-        while (try walker.next()) |*entry| {
+        while (try walker.next(toolbox.getIo())) |*entry| {
             const dest = toolbox.pathJoin(&.{
                 src.dest, entry.path,
             });
@@ -296,7 +297,8 @@ fn update_X11(toolbox: *Toolbox, path: *const Paths) !void {
         }
     }
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_Xcursor(toolbox: *Toolbox, path: *const Paths) !void {
@@ -309,12 +311,12 @@ fn update_Xcursor(toolbox: *Toolbox, path: *const Paths) !void {
     const include_path = toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11", "Xcursor",
     });
-    var include_dir = try std.fs.openDirAbsolute(include_path, .{
+    var include_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), include_path, .{
         .iterate = true,
     });
-    defer include_dir.close();
+    defer include_dir.close(toolbox.getIo());
 
-    var xcursor_h = try include_dir.readFileAlloc(toolbox.getAllocator(), "Xcursor.h.in", std.math.maxInt(usize));
+    var xcursor_h = try include_dir.readFileAlloc(toolbox.getIo(), "Xcursor.h.in", toolbox.getAllocator(), .unlimited);
 
     var xcursor_version = try toolbox.reference(.Xcursor);
     xcursor_version = xcursor_version[std.mem.indexOfAny(u8, xcursor_version, "0123456789").?..];
@@ -336,7 +338,8 @@ fn update_Xcursor(toolbox: *Toolbox, path: *const Paths) !void {
     try toolbox.make(xcursor_path);
     try toolbox.write(xcursor_path, "Xcursor.h", xcursor_h);
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_Xrandr(toolbox: *Toolbox, path: *const Paths) !void {
@@ -348,7 +351,8 @@ fn update_Xrandr(toolbox: *Toolbox, path: *const Paths) !void {
         path.getX11Ext(), "Xrandr.h",
     }));
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_Xfixes(toolbox: *Toolbox, path: *const Paths) !void {
@@ -360,7 +364,8 @@ fn update_Xfixes(toolbox: *Toolbox, path: *const Paths) !void {
         path.getX11Ext(), "Xfixes.h",
     }));
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_Xrender(toolbox: *Toolbox, path: *const Paths) !void {
@@ -372,7 +377,8 @@ fn update_Xrender(toolbox: *Toolbox, path: *const Paths) !void {
         path.getX11Ext(), "Xrender.h",
     }));
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_Xinerama(toolbox: *Toolbox, path: *const Paths) !void {
@@ -388,7 +394,8 @@ fn update_Xinerama(toolbox: *Toolbox, path: *const Paths) !void {
         }));
     }
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_Xi(toolbox: *Toolbox, path: *const Paths) !void {
@@ -404,7 +411,8 @@ fn update_Xi(toolbox: *Toolbox, path: *const Paths) !void {
         }));
     }
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_Xau(toolbox: *Toolbox, path: *const Paths) !void {
@@ -418,13 +426,13 @@ fn update_Xau(toolbox: *Toolbox, path: *const Paths) !void {
         path.getX11IncludeX11(), "Xauth.h",
     }));
 
-    var xau_dir = try std.fs.openDirAbsolute(path.getTmp(), .{
+    var xau_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), path.getTmp(), .{
         .iterate = true,
     });
-    defer xau_dir.close();
+    defer xau_dir.close(toolbox.getIo());
 
     var it = xau_dir.iterate();
-    while (try it.next()) |*entry| {
+    while (try it.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => if (toolbox_pkg.isCSource(entry.name) and !std.mem.eql(u8, entry.name, "Autest.c")) {
                 try toolbox.copy(toolbox.pathJoin(&.{
@@ -437,7 +445,8 @@ fn update_Xau(toolbox: *Toolbox, path: *const Paths) !void {
         }
     }
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_XScrnSaver(toolbox: *Toolbox, path: *const Paths) !void {
@@ -449,7 +458,8 @@ fn update_XScrnSaver(toolbox: *Toolbox, path: *const Paths) !void {
         path.getX11Ext(), "scrnsaver.h",
     }));
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_Xext(toolbox: *Toolbox, path: *const Paths) !void {
@@ -458,13 +468,13 @@ fn update_Xext(toolbox: *Toolbox, path: *const Paths) !void {
     const include_path = toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11", "extensions",
     });
-    var include_dir = try std.fs.openDirAbsolute(include_path, .{
+    var include_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), include_path, .{
         .iterate = true,
     });
-    defer include_dir.close();
+    defer include_dir.close(toolbox.getIo());
 
     var it = include_dir.iterate();
-    while (try it.next()) |*entry| {
+    while (try it.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => {
                 if (toolbox_pkg.isCHeader(entry.name)) {
@@ -479,7 +489,8 @@ fn update_Xext(toolbox: *Toolbox, path: *const Paths) !void {
         }
     }
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_Xtrans(toolbox: *Toolbox, path: *const Paths) !void {
@@ -487,13 +498,13 @@ fn update_Xtrans(toolbox: *Toolbox, path: *const Paths) !void {
 
     try toolbox.make(path.getX11IncludeX11Xtrans());
 
-    var xtrans_dir = try std.fs.openDirAbsolute(path.getTmp(), .{
+    var xtrans_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), path.getTmp(), .{
         .iterate = true,
     });
-    defer xtrans_dir.close();
+    defer xtrans_dir.close(toolbox.getIo());
 
     var it = xtrans_dir.iterate();
-    while (try it.next()) |*entry| {
+    while (try it.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => if (toolbox_pkg.isCSource(entry.name) or toolbox_pkg.isCHeader(entry.name)) {
                 try toolbox.copy(toolbox.pathJoin(&.{
@@ -506,15 +517,16 @@ fn update_Xtrans(toolbox: *Toolbox, path: *const Paths) !void {
         }
     }
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_xorgproto(toolbox: *Toolbox, path: *const Paths) !void {
     try toolbox.clone(.xorgproto, path.getTmp());
 
     var include_path: []const u8 = undefined;
-    var include_dir: std.fs.Dir = undefined;
-    var walker: std.fs.Dir.Walker = undefined;
+    var include_dir: std.Io.Dir = undefined;
+    var walker: std.Io.Dir.Walker = undefined;
 
     try toolbox.make(path.getGL());
 
@@ -524,22 +536,22 @@ fn update_xorgproto(toolbox: *Toolbox, path: *const Paths) !void {
         include_path = toolbox.pathJoin(&.{
             path.getTmp(), "include", component,
         });
-        include_dir = try std.fs.openDirAbsolute(include_path, .{
+        include_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), include_path, .{
             .iterate = true,
         });
-        defer include_dir.close();
+        defer include_dir.close(toolbox.getIo());
 
         walker = try include_dir.walk(toolbox.getAllocator());
         defer walker.deinit();
 
-        while (try walker.next()) |*entry| {
+        while (try walker.next(toolbox.getIo())) |*entry| {
             const dest = toolbox.pathJoin(&.{
                 if (std.mem.eql(u8, "GL", component)) path.getGL() else path.getX11IncludeX11(), entry.path,
             });
             switch (entry.kind) {
                 .file => {
                     if (toolbox_pkg.isCHeader(entry.basename)) {
-                        std.fs.accessAbsolute(dest, .{}) catch {
+                        std.Io.Dir.accessAbsolute(toolbox.getIo(), dest, .{}) catch {
                             try toolbox.copy(toolbox.pathJoin(&.{
                                 include_path, entry.path,
                             }), dest);
@@ -555,16 +567,17 @@ fn update_xorgproto(toolbox: *Toolbox, path: *const Paths) !void {
     include_path = toolbox.pathJoin(&.{
         path.getTmp(), "include", "X11",
     });
-    include_dir = try std.fs.openDirAbsolute(include_path, .{
+    include_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), include_path, .{
         .iterate = true,
     });
-    defer include_dir.close();
+    defer include_dir.close(toolbox.getIo());
 
-    var xpoll_h = try include_dir.readFileAlloc(toolbox.getAllocator(), "Xpoll.h.in", std.math.maxInt(usize));
+    var xpoll_h = try include_dir.readFileAlloc(toolbox.getIo(), "Xpoll.h.in", toolbox.getAllocator(), .unlimited);
     xpoll_h = try std.mem.replaceOwned(u8, toolbox.getAllocator(), xpoll_h, "@USE_FDS_BITS@", "__fds_bits");
     try toolbox.write(path.getX11IncludeX11(), "Xpoll.h", xpoll_h);
 
-    try std.fs.deleteTreeAbsolute(path.getTmp());
+    std.debug.assert(std.fs.path.isAbsolute(path.getTmp()));
+    try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), path.getTmp());
 }
 
 fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
@@ -581,13 +594,13 @@ fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
         .argv = &[_][]const u8{
             "./autogen.sh",
         },
-        .cwd = path.getTmp2(),
+        .cwd = .{ .path = path.getTmp2() },
     });
     try toolbox.run(.{
         .argv = &[_][]const u8{
             "make",
         },
-        .cwd = path.getTmp2(),
+        .cwd = .{ .path = path.getTmp2() },
     });
     try toolbox.run(.{
         .argv = &[_][]const u8{
@@ -597,7 +610,7 @@ fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
             }),
             "install",
         },
-        .cwd = path.getTmp2(),
+        .cwd = .{ .path = path.getTmp2() },
     });
 
     const c_client_out_path = toolbox.pathJoin(&.{
@@ -605,17 +618,17 @@ fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
     });
     try toolbox.make(c_client_out_path);
 
-    var out_dir = try std.fs.openDirAbsolute(out_path, .{
+    var out_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), out_path, .{
         .iterate = true,
     });
-    defer out_dir.close();
+    defer out_dir.close(toolbox.getIo());
 
     var walker = try out_dir.walk(toolbox.getAllocator());
     defer walker.deinit();
 
     var python_path: []const u8 = undefined;
 
-    loop: while (try walker.next()) |*entry| {
+    loop: while (try walker.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .directory => {
                 if (std.mem.eql(u8, entry.basename, "site-packages")) {
@@ -629,23 +642,23 @@ fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
         }
     }
 
-    var env = std.process.EnvMap.init(toolbox.getAllocator());
+    var env = std.process.Environ.Map.init(toolbox.getAllocator());
     try env.put("PYTHONPATH", python_path);
 
     const xcbproto_xml_path = toolbox.pathJoin(&.{
         path.getTmp2(), "src",
     });
-    var xcbproto_xml_dir = try std.fs.openDirAbsolute(xcbproto_xml_path, .{
+    var xcbproto_xml_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), xcbproto_xml_path, .{
         .iterate = true,
     });
-    defer xcbproto_xml_dir.close();
+    defer xcbproto_xml_dir.close(toolbox.getIo());
 
     const c_client_py_path = toolbox.pathJoin(&.{
         path.getTmp(), "src", "c_client.py",
     });
 
     var it = xcbproto_xml_dir.iterate();
-    while (try it.next()) |*entry| {
+    while (try it.next(toolbox.getIo())) |*entry| {
         const xml = toolbox.pathJoin(&.{
             xcbproto_xml_path, entry.name,
         });
@@ -656,7 +669,7 @@ fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
                         .argv = &.{
                             "python3", c_client_py_path, "-c", "_", "-l", "_", "-s", "_", xml,
                         },
-                        .cwd = c_client_out_path,
+                        .cwd = .{ .path = c_client_out_path },
                         .env = &env,
                     });
                 }
@@ -668,18 +681,18 @@ fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
     const xcb_src_path = toolbox.pathJoin(&.{
         path.getTmp(), "src",
     });
-    var dir: std.fs.Dir = undefined;
+    var dir: std.Io.Dir = undefined;
 
     for ([_][]const u8{
         xcb_src_path, c_client_out_path,
     }) |header_path| {
-        dir = try std.fs.openDirAbsolute(header_path, .{
+        dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), header_path, .{
             .iterate = true,
         });
-        defer dir.close();
+        defer dir.close(toolbox.getIo());
 
         it = dir.iterate();
-        while (try it.next()) |*entry| {
+        while (try it.next(toolbox.getIo())) |*entry| {
             switch (entry.kind) {
                 .file => {
                     if (toolbox_pkg.isCSource(entry.name) or toolbox_pkg.isCHeader(entry.name)) {
@@ -695,12 +708,12 @@ fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
         }
     }
 
-    var xcb_src_dir = try std.fs.openDirAbsolute(xcb_src_path, .{
+    var xcb_src_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), xcb_src_path, .{
         .iterate = true,
     });
-    defer xcb_src_dir.close();
+    defer xcb_src_dir.close(toolbox.getIo());
     it = xcb_src_dir.iterate();
-    while (try it.next()) |*entry| {
+    while (try it.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => {
                 if (toolbox_pkg.isCSource(entry.name)) {
@@ -718,18 +731,15 @@ fn update_xcb(toolbox: *Toolbox, path: *const Paths) !void {
     for ([_][]const u8{
         path.getTmp(), path.getTmp2(),
     }) |tmp| {
-        try std.fs.deleteTreeAbsolute(tmp);
+        std.debug.assert(std.fs.path.isAbsolute(tmp));
+        try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), tmp);
     }
 }
 
 fn update(toolbox: *Toolbox, path: *const Paths) !void {
     inline for (@typeInfo(@TypeOf(path.*)).@"struct".fields) |field| {
-        std.fs.deleteTreeAbsolute(@field(path.*, field.name)) catch |err| {
-            switch (err) {
-                error.FileNotFound => {},
-                else => return err,
-            }
-        };
+        std.debug.assert(std.fs.path.isAbsolute(@field(path.*, field.name)));
+        try std.Io.Dir.deleteTree(.cwd(), toolbox.getIo(), @field(path.*, field.name));
     }
 
     try update_xkbcommon(toolbox, path);
@@ -879,13 +889,14 @@ pub fn build(builder: *std.Build) !void {
 
     const makekeys = builder.addExecutable(.{
         .name = "makekeys",
-        .root_module = std.Build.Module.create(builder, .{
+        .root_module = builder.createModule(.{
             .target = target,
             .optimize = optimize,
+            .link_libc = true,
         }),
     });
-    makekeys.linkLibC();
-    makekeys.addCSourceFiles(.{
+
+    makekeys.root_module.addCSourceFiles(.{
         .root = .{
             .cwd_relative = toolbox.pathJoin(&.{
                 path.getX11Src(), "util",
@@ -903,7 +914,7 @@ pub fn build(builder: *std.Build) !void {
         path.getX11IncludeX11(),
         "keysymdef.h",
     })});
-    const ks_tables_h_content = run_makekeys.captureStdOut();
+    const ks_tables_h_content = run_makekeys.captureStdOut(.{});
     const write_files = builder.addWriteFiles();
     const ks_tables_h = write_files.addCopyFile(ks_tables_h_content, toolbox.pathJoin(&.{
         "include",
@@ -912,14 +923,15 @@ pub fn build(builder: *std.Build) !void {
 
     const lib = builder.addLibrary(.{
         .name = "X11",
-        .root_module = std.Build.Module.create(builder, .{
+        .root_module = builder.createModule(.{
             .root_source_file = builder.addWriteFiles().add("empty.zig", ""),
             .target = target,
             .optimize = optimize,
+            .link_libc = true,
         }),
     });
 
-    lib.addIncludePath(ks_tables_h.dirname());
+    lib.root_module.addIncludePath(ks_tables_h.dirname());
 
     for ([_][]const u8{
         toolbox.pathJoin(&.{
@@ -958,13 +970,11 @@ pub fn build(builder: *std.Build) !void {
         });
     }
 
-    lib.linkLibC();
-
-    var src_dir = try std.fs.openDirAbsolute(path.getX11Src(), .{
+    var src_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), path.getX11Src(), .{
         .iterate = true,
     });
-    defer src_dir.close();
-    var walker: std.fs.Dir.Walker = undefined;
+    defer src_dir.close(toolbox.getIo());
+    var walker: std.Io.Dir.Walker = undefined;
     walker = try src_dir.walk(toolbox.getAllocator());
     defer walker.deinit();
 
@@ -985,7 +995,7 @@ pub fn build(builder: *std.Build) !void {
         "-DHAVE_SYS_IOCTL_H=1",
         "-DXKB=1",
     };
-    while (try walker.next()) |*entry| {
+    while (try walker.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => if ((toolbox_pkg.isCSource(entry.basename)) and
                 !std.mem.startsWith(u8, entry.basename, "os2") and
@@ -999,10 +1009,10 @@ pub fn build(builder: *std.Build) !void {
         }
     }
 
-    var modules_dir = try std.fs.openDirAbsolute(path.getX11Modules(), .{
+    var modules_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), path.getX11Modules(), .{
         .iterate = true,
     });
-    defer modules_dir.close();
+    defer modules_dir.close(toolbox.getIo());
     walker.deinit();
     walker = try modules_dir.walk(toolbox.getAllocator());
 
@@ -1011,17 +1021,17 @@ pub fn build(builder: *std.Build) !void {
         "-DTRANS_CLIENT=1",
     };
 
-    while (try walker.next()) |*entry| {
+    while (try walker.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => if (toolbox_pkg.isCSource(entry.basename)) try toolbox.addSource(lib, path.getX11Modules(), entry.path, &modules_flags),
             else => {},
         }
     }
 
-    var xcb_dir = try std.fs.openDirAbsolute(path.getXcbXcb(), .{
+    var xcb_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), path.getXcbXcb(), .{
         .iterate = true,
     });
-    defer xcb_dir.close();
+    defer xcb_dir.close(toolbox.getIo());
     walker.deinit();
     walker = try xcb_dir.walk(toolbox.getAllocator());
 
@@ -1036,21 +1046,21 @@ pub fn build(builder: *std.Build) !void {
         }),
     };
 
-    while (try walker.next()) |*entry| {
+    while (try walker.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => if (toolbox_pkg.isCSource(entry.basename)) try toolbox.addSource(lib, path.getXcbXcb(), entry.path, &xcb_flags),
             else => {},
         }
     }
 
-    var xau_dir = try std.fs.openDirAbsolute(path.getXau(), .{
+    var xau_dir = try std.Io.Dir.openDirAbsolute(toolbox.getIo(), path.getXau(), .{
         .iterate = true,
     });
-    defer xau_dir.close();
+    defer xau_dir.close(toolbox.getIo());
     walker.deinit();
     walker = try xau_dir.walk(toolbox.getAllocator());
 
-    while (try walker.next()) |*entry| {
+    while (try walker.next(toolbox.getIo())) |*entry| {
         switch (entry.kind) {
             .file => if (toolbox_pkg.isCSource(entry.basename)) try toolbox.addSource(lib, path.getXau(), entry.path, &.{}),
             else => {},

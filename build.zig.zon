@@ -1,13 +1,13 @@
 .{
     .name = .X11_zig,
-    .version = "1.0.0",
+    .version = "1.0.1",
     .dependencies = .{
         .toolbox = .{
-            .url = "git+https://github.com/tiawl/toolbox?ref=1.12.6#79c1dffe608a9c4a7dcf11f98f1dc88b9b46e9f5",
-            .hash = "toolbox-1.12.6-kRAu4BJbAAAGPWPltdn1vwY83xau2Zh9015JTQ0MZjyM",
+            .url = "git+https://github.com/apm5127/toolbox.git?ref=update-zig#53d8342f24a9213fa6454ab6f15605c6ac35c8ab",
+            .hash = "toolbox-1.12.7-kRAu4DRlAAC0RRGTn0MRUxiv6TKMUAvWqnnXKs2UF3F7",
         },
     },
-    .minimum_zig_version = "0.15.1",
+    .minimum_zig_version = "0.16.0",
     .fingerprint = 0x73d0ebf76c33e052,
     .paths = .{
         "build.zig",
