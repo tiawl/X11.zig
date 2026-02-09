@@ -2,9 +2,70 @@
     .name = .X11_zig,
     .version = "1.0.0",
     .dependencies = .{
+        //.url = "git+https://github.com/tiawl/toolbox?ref=1.12.6#79c1dffe608a9c4a7dcf11f98f1dc88b9b46e9f5",
+        //.hash = "toolbox-1.12.6-kRAu4BJbAAAGPWPltdn1vwY83xau2Zh9015JTQ0MZjyM",
         .toolbox = .{
-            .url = "git+https://github.com/tiawl/toolbox?ref=1.12.6#79c1dffe608a9c4a7dcf11f98f1dc88b9b46e9f5",
-            .hash = "toolbox-1.12.6-kRAu4BJbAAAGPWPltdn1vwY83xau2Zh9015JTQ0MZjyM",
+            .path = "../toolbox",
+        },
+        .XScrnSaver = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver?ref=libXScrnSaver-1.2.5#60c957ba8a727d01b376da0142aef7e18aa86fe1",
+            .hash = "N-V-__8AAMXRAADYeHz48Y1IuZUzOOqRvOO7f0wrdeNkWcBF",
+        },
+        .Xrender = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxrender?ref=libXrender-0.9.12#46e12ff9e8e4d3f0313a2f097df93dbfdc14f92f",
+            .hash = "N-V-__8AANorBADbt-RlITZJofNvQWTiaQlv7r7lWYtxAqGx",
+        },
+        .Xrandr = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxrandr?ref=libXrandr-1.5.5#540c3ceef2be3e513b18002a858c7a9591dd749a",
+            .hash = "N-V-__8AAGlRAgBdkf1F-Y410qIz6cV4C62ZAUk_SGeUVriw",
+        },
+        .xorgproto = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/proto/xorgproto?ref=xorgproto-2025.1#c18d2bc22813793bba7f0e4e603c0104d7724802",
+            .hash = "N-V-__8AAG86ZgA2-SHGTO4n81-Sj8LNvSASCKZ91wOWZ7Sg",
+        },
+        .Xinerama = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxinerama?ref=libXinerama-1.1.6#cc4ac9cf36fdf3815381b791e47a90b8aebc7e78",
+            .hash = "N-V-__8AADGbAADcSgAMV_BzmUHtufxO65p2fWn8YYOXU16O",
+        },
+        .Xcursor = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxcursor?ref=libXcursor-1.2.3#8ae6cf61b18ecddf26f72a07bbfbd1ea9f022c36",
+            .hash = "N-V-__8AAKtlAgAAqwksheZkCSajEEPpi2XivNet-_3hZyz2",
+        },
+        .Xext = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxext?ref=libXext-1.3.7#2a694ba264ccdb205909909abfe8b136f9156ebe",
+            .hash = "N-V-__8AAHTdBwAEWsgYzKEVP-WmGT0wYKIJjBtqH1No6y73",
+        },
+        .Xtrans = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxtrans?ref=xtrans-1.6.0#cf05ba4a10c90da2c63805a5375e983b174e28b0",
+            .hash = "N-V-__8AAPmRAwD2MFbqdgQz922YH3E6X_64ouktIekZrgb6",
+        },
+        .Xfixes = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxfixes?ref=libXfixes-6.0.2#70d5b0e37f8a759f3dbc218f22954347ceed094a",
+            .hash = "N-V-__8AAFIgAQCJSug37AGy4zypGtiDtUR9wtQa8U74Nm0a",
+        },
+        .Xi = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxi?ref=libXi-1.8.2#3c2d5aedd7708c75710b39268631762de904c304",
+            .hash = "N-V-__8AAPVzDQBJt3bUATh5SVq-T6QI-Ns9v2pSScvG_cwH",
+        },
+        .Xau = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libXau?ref=libXau-1.0.12#a9c65683e68b3a4349afee5d7673b393fb924d2e",
+            .hash = "N-V-__8AAGTlAABgkQ5gmw2C1xhypMB4PArGI_hNIFTXs3mQ",
+        },
+        .X11 = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libx11?ref=libX11-1.8.13#6c75545a1deb51f5903992c52af6bc35cc9bc103",
+            .hash = "N-V-__8AANL5xACqderCBKpnIFKe282dZAikvyc--kNSKWgd",
+        },
+        .xcb = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxcb?ref=libxcb-1.17.0#622152ee42a310876f10602601206954b8d0613e",
+            .hash = "N-V-__8AAPZxCQD7JyQLx0_D9J9dnkSoP7iziBVxreTgUqlj",
+        },
+        .xcbproto = .{
+            .url = "git+https://gitlab.freedesktop.org/xorg/proto/xcbproto?ref=xcb-proto-1.17.0#77d7fc04da729ddc5ed4aacf30253726fac24dca",
+            .hash = "N-V-__8AAFnMDACdXT5YIakLgEMFZ-K7ZICgB18p8xKobHjk",
+        },
+        .xkbcommon = .{
+            .url = "git+https://github.com/xkbcommon/libxkbcommon?ref=xkbcommon-1.13.0#3049d310694fd70f1269bf48a1200aa4259e79b1",
+            .hash = "N-V-__8AAPSQawCcuTcqIxPOXcScgtciyBHFP_S54FcaFo5L",
         },
     },
     .minimum_zig_version = "0.15.1",

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: mlugg/setup-zig@v2.0.5
+    - uses: mlugg/setup-zig@v2
     - name: Check zig is canonical
       shell: bash
       run: |
@@ -27,7 +27,7 @@ jobs:
         repository: "${{ github.repository_owner }}/${{ matrix.repo }}.zig"
 
     - name: Setup Zig
-      uses: mlugg/setup-zig@v2.0.5
+      uses: mlugg/setup-zig@v2
 
     - name: Prepare ${{ matrix.repo }}.zig/build.zig.zon
       env:
@@ -42,7 +42,7 @@ jobs:
         RUNNER_TMP: "${{ runner.temp }}"
       shell: 'bash'
       run: |
-        zig build -Dupdate
+        zig build -Dupdate -Dverbose
 
     - name: Test fetching ${{ matrix.repo }}.zig
       env:
@@ -55,5 +55,5 @@ jobs:
         opts="${opts#"${opts%%[![:space:]]*}"}"
         opts="${opts%"${opts##*[![:space:]]}"}"
         set -f
-        zig build -Dfetch ${opts}
+        zig build -Dfetch -Dverbose ${opts}
         set +f
