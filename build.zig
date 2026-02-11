@@ -45,7 +45,7 @@ fn update_xkbcommon(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.name)) {
-                    try pkg_builder.copy(&.{ path.xkbcommon, entry.name }, &xkbcommon_builder, &.{entry.name});
+                    try pkg_builder.copy(&.{ path.xkbcommon, entry.name }, &xkbcommon_builder, &.{ "include", "xkbcommon", entry.name });
                 }
             },
             else => {},
@@ -61,7 +61,7 @@ fn update_X11(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.basename)) {
-                    try pkg_builder.copy(&.{ path.X11_include_X11, entry.path }, &X11_builder, &.{entry.path});
+                    try pkg_builder.copy(&.{ path.X11_include_X11, entry.path }, &X11_builder, &.{ "include", "X11", entry.path });
                 }
             },
             .directory => try pkg_builder.make(&.{ path.X11_include_X11, entry.path }),
@@ -81,7 +81,7 @@ fn update_X11(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
                     !std.mem.startsWith(u8, entry.path, pkg_builder.resolve(&.{ "xlibi18n", "lcUniConv" }))) or
                     toolbox.isCHeader(entry.basename))
                 {
-                    try pkg_builder.copy(&.{ path.X11_src, entry.path }, &X11_builder, &.{entry.path});
+                    try pkg_builder.copy(&.{ path.X11_src, entry.path }, &X11_builder, &.{ "src", entry.path });
                 }
             },
             .directory => try pkg_builder.make(&.{ path.X11_src, entry.path }),
@@ -93,7 +93,7 @@ fn update_X11(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCFile(entry.basename)) {
-                    try pkg_builder.copy(&.{ path.X11_modules, entry.path }, &X11_builder, &.{entry.path});
+                    try pkg_builder.copy(&.{ path.X11_modules, entry.path }, &X11_builder, &.{ "modules", entry.path });
                 }
             },
             .directory => try pkg_builder.make(&.{ path.X11_modules, entry.path }),
@@ -193,7 +193,7 @@ fn update_Xext(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.name)) {
-                    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, entry.name }, &xext_builder, &.{entry.name});
+                    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, entry.name }, &xext_builder, &.{ "include", "X11", "extensions", entry.name });
                 }
             },
             else => {},
@@ -225,7 +225,7 @@ fn update_xorgproto(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.basename)) {
-                    pkg_builder.copy(&.{ path.X11_include_X11, entry.path }, &xorgproto_builder, &.{entry.path}) catch |err| switch (err) {
+                    pkg_builder.copy(&.{ path.X11_include_X11, entry.path }, &xorgproto_builder, &.{ "include", "X11", entry.path }) catch |err| switch (err) {
                         error.OverwritingCopy => {},
                         else => return err,
                     };
@@ -240,7 +240,7 @@ fn update_xorgproto(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.basename)) {
-                    try pkg_builder.copy(&.{ path.GL, entry.path }, &xorgproto_builder, &.{entry.path});
+                    try pkg_builder.copy(&.{ path.GL, entry.path }, &xorgproto_builder, &.{ "include", "GL", entry.path });
                 }
             },
             .directory => try pkg_builder.make(&.{ path.GL, entry.path }),
@@ -300,7 +300,7 @@ fn update_xcb(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCFile(entry.name)) {
-                    try pkg_builder.copy(&.{ path.xcb_xcb, entry.name }, &xcb_builder, &.{entry.name});
+                    try pkg_builder.copy(&.{ path.xcb_xcb, entry.name }, &xcb_builder, &.{ "src", entry.name });
                 }
             },
             else => {},
@@ -311,7 +311,7 @@ fn update_xcb(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCFile(entry.name)) {
-                    try pkg_builder.copy(&.{ path.xcb_xcb, entry.name }, &xcbproto_builder, &.{entry.name});
+                    try pkg_builder.copy(&.{ path.xcb_xcb, entry.name }, &xcbproto_builder, &.{ "c_client_out", entry.name });
                 }
             },
             else => {},
