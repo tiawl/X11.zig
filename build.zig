@@ -375,10 +375,10 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     pkg_builder.addInclude(lib, &.{ "X11", "src", "xlibi18n", "lcUniConv" });
     pkg_builder.addInclude(lib, &.{"xcb"});
 
-    pkg_builder.installHeaders(lib, &.{"GL"}, "GL", &toolbox.ext.c.header);
-    pkg_builder.installHeaders(lib, &.{"X11"}, "X11", &toolbox.ext.c.header);
-    pkg_builder.installHeaders(lib, &.{"xcb"}, "xcb", &toolbox.ext.c.header);
-    pkg_builder.installHeaders(lib, &.{"xkbcommon"}, "xkbcommon", &toolbox.ext.c.header);
+    //pkg_builder.installHeaders(lib, &.{"GL"}, "GL", &toolbox.ext.c.header);
+    //pkg_builder.installHeaders(lib, &.{"X11"}, "X11", &toolbox.ext.c.header);
+    //pkg_builder.installHeaders(lib, &.{"xcb"}, "xcb", &toolbox.ext.c.header);
+    //pkg_builder.installHeaders(lib, &.{"xkbcommon"}, "xkbcommon", &toolbox.ext.c.header);
 
     pkg_builder.linkLibC(lib);
 
