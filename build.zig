@@ -38,7 +38,7 @@ const Paths = struct {
 };
 
 fn update_xkbcommon(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xkbcommon_dep = pkg_builder.dependency("xkbcommon");
+    const xkbcommon_dep = pkg_builder.verboseDependency("xkbcommon");
     var xkbcommon_builder = VerboseBuilder.initFromDependency(xkbcommon_dep);
 
     while (try xkbcommon_builder.iterate(&.{ "include", "xkbcommon" })) |entry| {
@@ -54,13 +54,13 @@ fn update_xkbcommon(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
 }
 
 fn update_X11(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const X11_dep = pkg_builder.dependency("X11");
+    const X11_dep = pkg_builder.verboseDependency("X11");
     var X11_builder = VerboseBuilder.initFromDependency(X11_dep);
 
     while (try X11_builder.walk(&.{ "include", "X11" })) |entry| {
         switch (entry.kind) {
             .file => {
-                if (toolbox.isCHeader(entry.basename)) {
+                if (toolbox.isCHeader(entry.basename) or toolbox.isCTemplate(entry.basename)) {
                     try pkg_builder.copy(&.{ path.X11_include_X11, entry.path }, &X11_builder, &.{ "include", "X11", entry.path });
                 }
             },
@@ -68,11 +68,6 @@ fn update_X11(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
             else => {},
         }
     }
-
-    var xlib_conf_h = try X11_builder.readFile(&.{ "include", "X11", "XlibConf.h.in" });
-    xlib_conf_h = X11_builder.replace(xlib_conf_h, "#undef XTHREADS", "#define XTHREADS 1");
-    xlib_conf_h = X11_builder.replace(xlib_conf_h, "#undef XUSE_MTSAFE_API", "#define XUSE_MTSAFE_API 1");
-    try pkg_builder.writeFile(&.{ path.X11_include_X11, "XlibConf.h" }, xlib_conf_h);
 
     while (try X11_builder.walk(&.{"src"})) |entry| {
         switch (entry.kind) {
@@ -103,49 +98,35 @@ fn update_X11(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
 }
 
 fn update_Xcursor(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xcursor_dep = pkg_builder.dependency("Xcursor");
+    const xcursor_dep = pkg_builder.verboseDependency("Xcursor");
     var xcursor_builder = VerboseBuilder.initFromDependency(xcursor_dep);
 
-    var xcursor_h = try xcursor_builder.readFile(&.{ "include", "X11", "Xcursor", "Xcursor.h.in" });
-
-    const uri = try std.Uri.parse(build_zig_zon.dependencies.Xcursor.url);
-    var xcursor_version = pkg_builder.uriComponent(&uri.query.?)[4..];
-    xcursor_version = xcursor_version[std.mem.indexOfAny(u8, xcursor_version, "0123456789").?..];
-
-    var it = std.mem.tokenizeScalar(u8, xcursor_version, '.');
-    var token = it.next().?;
-    xcursor_h = pkg_builder.replace(xcursor_h, "#undef XCURSOR_LIB_MAJOR", pkg_builder.fmt("#define XCURSOR_LIB_MAJOR {s}", .{token}));
-    token = it.next().?;
-    xcursor_h = pkg_builder.replace(xcursor_h, "#undef XCURSOR_LIB_MINOR", pkg_builder.fmt("#define XCURSOR_LIB_MINOR {s}", .{token}));
-    token = it.next().?;
-    xcursor_h = pkg_builder.replace(xcursor_h, "#undef XCURSOR_LIB_REVISION", pkg_builder.fmt("#define XCURSOR_LIB_REVISION {s}", .{token}));
-
-    try pkg_builder.writeFile(&.{ path.X11_include_X11_Xcursor, "Xcursor.h" }, xcursor_h);
+    try pkg_builder.copy(&.{ path.X11_include_X11_Xcursor, "Xcursor.h.in" }, &xcursor_builder, &.{ "include", "X11", "Xcursor", "Xcursor.h.in" });
 }
 
 fn update_Xrandr(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xrandr_dep = pkg_builder.dependency("Xrandr");
+    const xrandr_dep = pkg_builder.verboseDependency("Xrandr");
     var xrandr_builder = VerboseBuilder.initFromDependency(xrandr_dep);
 
     try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "Xrandr.h" }, &xrandr_builder, &.{ "include", "X11", "extensions", "Xrandr.h" });
 }
 
 fn update_Xfixes(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xfixes_dep = pkg_builder.dependency("Xfixes");
+    const xfixes_dep = pkg_builder.verboseDependency("Xfixes");
     var xfixes_builder = VerboseBuilder.initFromDependency(xfixes_dep);
 
     try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "Xfixes.h" }, &xfixes_builder, &.{ "include", "X11", "extensions", "Xfixes.h" });
 }
 
 fn update_Xrender(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xrender_dep = pkg_builder.dependency("Xrender");
+    const xrender_dep = pkg_builder.verboseDependency("Xrender");
     var xrender_builder = VerboseBuilder.initFromDependency(xrender_dep);
 
     try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "Xrender.h" }, &xrender_builder, &.{ "include", "X11", "extensions", "Xrender.h" });
 }
 
 fn update_Xinerama(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xinerama_dep = pkg_builder.dependency("Xinerama");
+    const xinerama_dep = pkg_builder.verboseDependency("Xinerama");
     var xinerama_builder = VerboseBuilder.initFromDependency(xinerama_dep);
 
     try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "Xinerama.h" }, &xinerama_builder, &.{ "include", "X11", "extensions", "Xinerama.h" });
@@ -153,7 +134,7 @@ fn update_Xinerama(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
 }
 
 fn update_Xi(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xi_dep = pkg_builder.dependency("Xi");
+    const xi_dep = pkg_builder.verboseDependency("Xi");
     var xi_builder = VerboseBuilder.initFromDependency(xi_dep);
 
     try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "XInput.h" }, &xi_builder, &.{ "include", "X11", "extensions", "XInput.h" });
@@ -161,7 +142,7 @@ fn update_Xi(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
 }
 
 fn update_Xau(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xau_dep = pkg_builder.dependency("Xau");
+    const xau_dep = pkg_builder.verboseDependency("Xau");
     var xau_builder = VerboseBuilder.initFromDependency(xau_dep);
 
     try pkg_builder.copy(&.{ path.X11_include_X11, "Xauth.h" }, &xau_builder, &.{ "include", "X11", "Xauth.h" });
@@ -179,14 +160,14 @@ fn update_Xau(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
 }
 
 fn update_XScrnSaver(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xscrnsaver_dep = pkg_builder.dependency("XScrnSaver");
+    const xscrnsaver_dep = pkg_builder.verboseDependency("XScrnSaver");
     var xscrnsaver_builder = VerboseBuilder.initFromDependency(xscrnsaver_dep);
 
     try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "scrnsaver.h" }, &xscrnsaver_builder, &.{ "include", "X11", "extensions", "scrnsaver.h" });
 }
 
 fn update_Xext(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xext_dep = pkg_builder.dependency("Xext");
+    const xext_dep = pkg_builder.verboseDependency("Xext");
     var xext_builder = VerboseBuilder.initFromDependency(xext_dep);
 
     while (try xext_builder.iterate(&.{ "include", "X11", "extensions" })) |entry| {
@@ -202,7 +183,7 @@ fn update_Xext(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
 }
 
 fn update_Xtrans(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xtrans_dep = pkg_builder.dependency("Xtrans");
+    const xtrans_dep = pkg_builder.verboseDependency("Xtrans");
     var xtrans_builder = VerboseBuilder.initFromDependency(xtrans_dep);
 
     while (try xtrans_builder.iterate(&.{"."})) |entry| {
@@ -218,13 +199,13 @@ fn update_Xtrans(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
 }
 
 fn update_xorgproto(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xorgproto_dep = pkg_builder.dependency("xorgproto");
+    const xorgproto_dep = pkg_builder.verboseDependency("xorgproto");
     var xorgproto_builder = VerboseBuilder.initFromDependency(xorgproto_dep);
 
     while (try xorgproto_builder.walk(&.{ "include", "X11" })) |entry| {
         switch (entry.kind) {
             .file => {
-                if (toolbox.isCHeader(entry.basename)) {
+                if (toolbox.isCHeader(entry.basename) or toolbox.isCTemplate(entry.basename)) {
                     pkg_builder.copy(&.{ path.X11_include_X11, entry.path }, &xorgproto_builder, &.{ "include", "X11", entry.path }) catch |err| switch (err) {
                         error.OverwritingCopy => {},
                         else => return err,
@@ -247,16 +228,12 @@ fn update_xorgproto(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
             else => {},
         }
     }
-
-    var xpoll_h = try xorgproto_builder.readFile(&.{ "include", "X11", "Xpoll.h.in" });
-    xpoll_h = pkg_builder.replace(xpoll_h, "@USE_FDS_BITS@", "__fds_bits");
-    try pkg_builder.writeFile(&.{ path.X11_include_X11, "Xpoll.h" }, xpoll_h);
 }
 
 fn update_xcb(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const xcb_dep = pkg_builder.dependency("xcb");
+    const xcb_dep = pkg_builder.verboseDependency("xcb");
     var xcb_builder = VerboseBuilder.initFromDependency(xcb_dep);
-    const xcbproto_dep = pkg_builder.dependency("xcbproto");
+    const xcbproto_dep = pkg_builder.verboseDependency("xcbproto");
     var xcbproto_builder = VerboseBuilder.initFromDependency(xcbproto_dep);
 
     try xcbproto_builder.remove(&.{"c_client.py"});
@@ -375,12 +352,33 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     pkg_builder.addInclude(lib, &.{ "X11", "src", "xlibi18n", "lcUniConv" });
     pkg_builder.addInclude(lib, &.{"xcb"});
 
-    //pkg_builder.installHeaders(lib, &.{"GL"}, "GL", &toolbox.ext.c.header);
-    //pkg_builder.installHeaders(lib, &.{"X11"}, "X11", &toolbox.ext.c.header);
-    //pkg_builder.installHeaders(lib, &.{"xcb"}, "xcb", &toolbox.ext.c.header);
-    //pkg_builder.installHeaders(lib, &.{"xkbcommon"}, "xkbcommon", &toolbox.ext.c.header);
+    for ([_][]const u8 { "GL", "X11", "xcb", "xkbcommon"}) |dir| {
+        while (try pkg_builder.walk(&.{ dir })) |*entry| {
+            if (toolbox.isCHeader(entry.basename)) pkg_builder.installHeader(lib, &.{dir, entry.path }, &.{entry.path});
+        }
+    }
 
     pkg_builder.linkLibC(lib);
+
+    pkg_builder.addConfigHeader(lib, &.{ "X11", "include", "X11", "XlibConf.h.in" }, .autoconf_undef, .{
+        .XTHREADS = 1,
+        .XUSE_MTSAFE_API = 1,
+    });
+
+    const xcursor_uri = try std.Uri.parse(build_zig_zon.dependencies.Xcursor.url);
+    var xcursor_version = pkg_builder.uriComponent(&xcursor_uri.query.?)[4..];
+    xcursor_version = xcursor_version[std.mem.indexOfAny(u8, xcursor_version, "0123456789").?..];
+    const xcursor_version_sem = std.SemanticVersion.parse(xcursor_version) catch unreachable;
+
+    pkg_builder.addConfigHeader(lib, &.{ "X11", "include", "X11", "Xcursor", "Xcursor.h.in" }, .autoconf_undef, .{
+        .XCURSOR_LIB_MAJOR = @as(i64, @intCast(xcursor_version_sem.major)),
+        .XCURSOR_LIB_MINOR = @as(i64, @intCast(xcursor_version_sem.minor)),
+        .XCURSOR_LIB_REVISION = @as(i64, @intCast(xcursor_version_sem.patch)),
+    });
+
+    pkg_builder.addConfigHeader(lib, &.{ "X11", "include", "X11", "Xpoll.h.in" }, .autoconf_at, .{
+        .USE_FDS_BITS = "__fds_bits",
+    });
 
     const src_flags = [_][]const u8{
         pkg_builder.concat(&.{ "-DXCMSDIR=\"", pkg_builder.resolve(&.{ path.X11_src, "xcms" }), "\"" }),
