@@ -2,9 +2,6 @@
     .name = .X11_zig,
     .version = "1.0.0",
     .dependencies = .{
-        .toolbox = .{
-            .path = "../toolbox",
-        },
         .XScrnSaver = .{
             .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver?ref=libXScrnSaver-1.2.5#60c957ba8a727d01b376da0142aef7e18aa86fe1",
             .hash = "N-V-__8AAMXRAADYeHz48Y1IuZUzOOqRvOO7f0wrdeNkWcBF",
@@ -64,6 +61,10 @@
         .xkbcommon = .{
             .url = "git+https://github.com/xkbcommon/libxkbcommon?ref=xkbcommon-1.13.0#3049d310694fd70f1269bf48a1200aa4259e79b1",
             .hash = "N-V-__8AAPSQawCcuTcqIxPOXcScgtciyBHFP_S54FcaFo5L",
+        },
+        .toolbox = .{
+            .url = "git+https://github.com/tiawl/toolbox#c40e214efcaf902c455dc9ba3dc1ddf64bb3bf25",
+            .hash = "toolbox-2.0.0-kRAu4Cp6AAAOOwydlP8GG2SVXq82AhgeA_C6ABUpDZhH",
         },
     },
     .minimum_zig_version = "0.15.2",
