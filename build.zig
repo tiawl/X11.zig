@@ -3,41 +3,7 @@ const build_zig_zon = @import("build.zig.zon");
 const toolbox = @import("toolbox");
 const VerboseBuilder = toolbox.VerboseBuilder;
 
-const Paths = struct {
-    GL: []const u8,
-    X11: []const u8,
-    X11_include: []const u8,
-    X11_include_X11: []const u8,
-    X11_include_X11_Xtrans: []const u8,
-    X11_include_X11_Xcursor: []const u8,
-    X11_include_X11_extensions: []const u8,
-    X11_src: []const u8,
-    X11_modules: []const u8,
-    xkbcommon: []const u8,
-    xcb: []const u8,
-    xcb_xcb: []const u8,
-    Xau: []const u8,
-
-    fn init(pkg_builder: *VerboseBuilder) @This() {
-        return .{
-            .GL = "GL",
-            .X11 = "X11",
-            .X11_include = pkg_builder.resolve(&.{ "X11", "include" }),
-            .X11_include_X11 = pkg_builder.resolve(&.{ "X11", "include", "X11" }),
-            .X11_include_X11_Xtrans = pkg_builder.resolve(&.{ "X11", "include", "X11", "Xtrans" }),
-            .X11_include_X11_Xcursor = pkg_builder.resolve(&.{ "X11", "include", "X11", "Xcursor" }),
-            .X11_include_X11_extensions = pkg_builder.resolve(&.{ "X11", "include", "X11", "extensions" }),
-            .X11_src = pkg_builder.resolve(&.{ "X11", "src" }),
-            .X11_modules = pkg_builder.resolve(&.{ "X11", "modules" }),
-            .xkbcommon = "xkbcommon",
-            .xcb = "xcb",
-            .xcb_xcb = pkg_builder.resolve(&.{ "xcb", "xcb" }),
-            .Xau = "Xau",
-        };
-    }
-};
-
-fn update_xkbcommon(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXkbcommon(pkg_builder: *VerboseBuilder) !void {
     const xkbcommon_dep = pkg_builder.verboseDependency("xkbcommon");
     var xkbcommon_builder = VerboseBuilder.initFromDependency(xkbcommon_dep);
 
@@ -45,7 +11,7 @@ fn update_xkbcommon(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.name)) {
-                    try pkg_builder.copy(&.{ path.xkbcommon, entry.name }, &xkbcommon_builder, &.{ "include", "xkbcommon", entry.name });
+                    try pkg_builder.copy(&.{ "xkbcommon", entry.name }, &xkbcommon_builder, &.{ "include", "xkbcommon", entry.name });
                 }
             },
             else => {},
@@ -53,105 +19,105 @@ fn update_xkbcommon(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
     }
 }
 
-fn update_X11(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
-    const X11_dep = pkg_builder.verboseDependency("X11");
-    var X11_builder = VerboseBuilder.initFromDependency(X11_dep);
+fn updateX11(pkg_builder: *VerboseBuilder) !void {
+    const x11_dep = pkg_builder.verboseDependency("X11");
+    var x11_builder = VerboseBuilder.initFromDependency(x11_dep);
 
-    while (try X11_builder.walk(&.{ "include", "X11" })) |entry| {
+    while (try x11_builder.walk(&.{ "include", "X11" })) |entry| {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.basename) or toolbox.isCTemplate(entry.basename)) {
-                    try pkg_builder.copy(&.{ path.X11_include_X11, entry.path }, &X11_builder, &.{ "include", "X11", entry.path });
+                    try pkg_builder.copy(&.{ "X11", "include", "X11", entry.path }, &x11_builder, &.{ "include", "X11", entry.path });
                 }
             },
-            .directory => try pkg_builder.make(&.{ path.X11_include_X11, entry.path }),
+            .directory => try pkg_builder.make(&.{ "X11", "include", "X11", entry.path }),
             else => {},
         }
     }
 
-    while (try X11_builder.walk(&.{"src"})) |entry| {
+    while (try x11_builder.walk(&.{"src"})) |entry| {
         switch (entry.kind) {
             .file => {
                 if ((toolbox.isCSource(entry.basename) and
                     !std.mem.startsWith(u8, entry.path, pkg_builder.resolve(&.{ "xlibi18n", "lcUniConv" }))) or
                     toolbox.isCHeader(entry.basename))
                 {
-                    try pkg_builder.copy(&.{ path.X11_src, entry.path }, &X11_builder, &.{ "src", entry.path });
+                    try pkg_builder.copy(&.{ "X11", "src", entry.path }, &x11_builder, &.{ "src", entry.path });
                 }
             },
-            .directory => try pkg_builder.make(&.{ path.X11_src, entry.path }),
+            .directory => try pkg_builder.make(&.{ "X11", "src", entry.path }),
             else => {},
         }
     }
 
-    while (try X11_builder.walk(&.{"modules"})) |entry| {
+    while (try x11_builder.walk(&.{"modules"})) |entry| {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCFile(entry.basename)) {
-                    try pkg_builder.copy(&.{ path.X11_modules, entry.path }, &X11_builder, &.{ "modules", entry.path });
+                    try pkg_builder.copy(&.{ "X11", "modules", entry.path }, &x11_builder, &.{ "modules", entry.path });
                 }
             },
-            .directory => try pkg_builder.make(&.{ path.X11_modules, entry.path }),
+            .directory => try pkg_builder.make(&.{ "X11", "modules", entry.path }),
             else => {},
         }
     }
 }
 
-fn update_Xcursor(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXcursor(pkg_builder: *VerboseBuilder) !void {
     const xcursor_dep = pkg_builder.verboseDependency("Xcursor");
     var xcursor_builder = VerboseBuilder.initFromDependency(xcursor_dep);
 
-    try pkg_builder.copy(&.{ path.X11_include_X11_Xcursor, "Xcursor.h.in" }, &xcursor_builder, &.{ "include", "X11", "Xcursor", "Xcursor.h.in" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "Xcursor", "Xcursor.h.in" }, &xcursor_builder, &.{ "include", "X11", "Xcursor", "Xcursor.h.in" });
 }
 
-fn update_Xrandr(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXrandr(pkg_builder: *VerboseBuilder) !void {
     const xrandr_dep = pkg_builder.verboseDependency("Xrandr");
     var xrandr_builder = VerboseBuilder.initFromDependency(xrandr_dep);
 
-    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "Xrandr.h" }, &xrandr_builder, &.{ "include", "X11", "extensions", "Xrandr.h" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "Xrandr.h" }, &xrandr_builder, &.{ "include", "X11", "extensions", "Xrandr.h" });
 }
 
-fn update_Xfixes(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXfixes(pkg_builder: *VerboseBuilder) !void {
     const xfixes_dep = pkg_builder.verboseDependency("Xfixes");
     var xfixes_builder = VerboseBuilder.initFromDependency(xfixes_dep);
 
-    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "Xfixes.h" }, &xfixes_builder, &.{ "include", "X11", "extensions", "Xfixes.h" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "Xfixes.h" }, &xfixes_builder, &.{ "include", "X11", "extensions", "Xfixes.h" });
 }
 
-fn update_Xrender(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXrender(pkg_builder: *VerboseBuilder) !void {
     const xrender_dep = pkg_builder.verboseDependency("Xrender");
     var xrender_builder = VerboseBuilder.initFromDependency(xrender_dep);
 
-    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "Xrender.h" }, &xrender_builder, &.{ "include", "X11", "extensions", "Xrender.h" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "Xrender.h" }, &xrender_builder, &.{ "include", "X11", "extensions", "Xrender.h" });
 }
 
-fn update_Xinerama(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXinerama(pkg_builder: *VerboseBuilder) !void {
     const xinerama_dep = pkg_builder.verboseDependency("Xinerama");
     var xinerama_builder = VerboseBuilder.initFromDependency(xinerama_dep);
 
-    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "Xinerama.h" }, &xinerama_builder, &.{ "include", "X11", "extensions", "Xinerama.h" });
-    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "panoramiXext.h" }, &xinerama_builder, &.{ "include", "X11", "extensions", "panoramiXext.h" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "Xinerama.h" }, &xinerama_builder, &.{ "include", "X11", "extensions", "Xinerama.h" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "panoramiXext.h" }, &xinerama_builder, &.{ "include", "X11", "extensions", "panoramiXext.h" });
 }
 
-fn update_Xi(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXi(pkg_builder: *VerboseBuilder) !void {
     const xi_dep = pkg_builder.verboseDependency("Xi");
     var xi_builder = VerboseBuilder.initFromDependency(xi_dep);
 
-    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "XInput.h" }, &xi_builder, &.{ "include", "X11", "extensions", "XInput.h" });
-    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "XInput2.h" }, &xi_builder, &.{ "include", "X11", "extensions", "XInput2.h" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "XInput.h" }, &xi_builder, &.{ "include", "X11", "extensions", "XInput.h" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "XInput2.h" }, &xi_builder, &.{ "include", "X11", "extensions", "XInput2.h" });
 }
 
-fn update_Xau(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXau(pkg_builder: *VerboseBuilder) !void {
     const xau_dep = pkg_builder.verboseDependency("Xau");
     var xau_builder = VerboseBuilder.initFromDependency(xau_dep);
 
-    try pkg_builder.copy(&.{ path.X11_include_X11, "Xauth.h" }, &xau_builder, &.{ "include", "X11", "Xauth.h" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "Xauth.h" }, &xau_builder, &.{ "include", "X11", "Xauth.h" });
 
     while (try xau_builder.iterate(&.{"."})) |entry| {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCSource(entry.name) and !std.mem.eql(u8, entry.name, "Autest.c")) {
-                    try pkg_builder.copy(&.{ path.Xau, entry.name }, &xau_builder, &.{entry.name});
+                    try pkg_builder.copy(&.{ "Xau", entry.name }, &xau_builder, &.{entry.name});
                 }
             },
             else => {},
@@ -159,14 +125,14 @@ fn update_Xau(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
     }
 }
 
-fn update_XScrnSaver(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXScrnSaver(pkg_builder: *VerboseBuilder) !void {
     const xscrnsaver_dep = pkg_builder.verboseDependency("XScrnSaver");
     var xscrnsaver_builder = VerboseBuilder.initFromDependency(xscrnsaver_dep);
 
-    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, "scrnsaver.h" }, &xscrnsaver_builder, &.{ "include", "X11", "extensions", "scrnsaver.h" });
+    try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "scrnsaver.h" }, &xscrnsaver_builder, &.{ "include", "X11", "extensions", "scrnsaver.h" });
 }
 
-fn update_Xext(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXext(pkg_builder: *VerboseBuilder) !void {
     const xext_dep = pkg_builder.verboseDependency("Xext");
     var xext_builder = VerboseBuilder.initFromDependency(xext_dep);
 
@@ -174,7 +140,7 @@ fn update_Xext(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.name)) {
-                    try pkg_builder.copy(&.{ path.X11_include_X11_extensions, entry.name }, &xext_builder, &.{ "include", "X11", "extensions", entry.name });
+                    try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", entry.name }, &xext_builder, &.{ "include", "X11", "extensions", entry.name });
                 }
             },
             else => {},
@@ -182,7 +148,7 @@ fn update_Xext(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
     }
 }
 
-fn update_Xtrans(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXtrans(pkg_builder: *VerboseBuilder) !void {
     const xtrans_dep = pkg_builder.verboseDependency("Xtrans");
     var xtrans_builder = VerboseBuilder.initFromDependency(xtrans_dep);
 
@@ -190,7 +156,7 @@ fn update_Xtrans(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCFile(entry.name)) {
-                    try pkg_builder.copy(&.{ path.X11_include_X11_Xtrans, entry.name }, &xtrans_builder, &.{entry.name});
+                    try pkg_builder.copy(&.{ "X11", "include", "X11", "Xtrans", entry.name }, &xtrans_builder, &.{entry.name});
                 }
             },
             else => {},
@@ -198,7 +164,7 @@ fn update_Xtrans(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
     }
 }
 
-fn update_xorgproto(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXorgproto(pkg_builder: *VerboseBuilder) !void {
     const xorgproto_dep = pkg_builder.verboseDependency("xorgproto");
     var xorgproto_builder = VerboseBuilder.initFromDependency(xorgproto_dep);
 
@@ -206,13 +172,13 @@ fn update_xorgproto(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.basename) or toolbox.isCTemplate(entry.basename)) {
-                    pkg_builder.copy(&.{ path.X11_include_X11, entry.path }, &xorgproto_builder, &.{ "include", "X11", entry.path }) catch |err| switch (err) {
+                    pkg_builder.copy(&.{ "X11", "include", "X11", entry.path }, &xorgproto_builder, &.{ "include", "X11", entry.path }) catch |err| switch (err) {
                         error.OverwritingCopy => {},
                         else => return err,
                     };
                 }
             },
-            .directory => try pkg_builder.make(&.{ path.X11_include_X11, entry.path }),
+            .directory => try pkg_builder.make(&.{ "X11", "include", "X11", entry.path }),
             else => {},
         }
     }
@@ -221,16 +187,16 @@ fn update_xorgproto(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCHeader(entry.basename)) {
-                    try pkg_builder.copy(&.{ path.GL, entry.path }, &xorgproto_builder, &.{ "include", "GL", entry.path });
+                    try pkg_builder.copy(&.{ "GL", entry.path }, &xorgproto_builder, &.{ "include", "GL", entry.path });
                 }
             },
-            .directory => try pkg_builder.make(&.{ path.GL, entry.path }),
+            .directory => try pkg_builder.make(&.{ "GL", entry.path }),
             else => {},
         }
     }
 }
 
-fn update_xcb(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
+fn updateXcb(pkg_builder: *VerboseBuilder) !void {
     const xcb_dep = pkg_builder.verboseDependency("xcb");
     var xcb_builder = VerboseBuilder.initFromDependency(xcb_dep);
     const xcbproto_dep = pkg_builder.verboseDependency("xcbproto");
@@ -277,7 +243,7 @@ fn update_xcb(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCFile(entry.name)) {
-                    try pkg_builder.copy(&.{ path.xcb_xcb, entry.name }, &xcb_builder, &.{ "src", entry.name });
+                    try pkg_builder.copy(&.{ "xcb", "xcb", entry.name }, &xcb_builder, &.{ "src", entry.name });
                 }
             },
             else => {},
@@ -288,7 +254,7 @@ fn update_xcb(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCFile(entry.name)) {
-                    try pkg_builder.copy(&.{ path.xcb_xcb, entry.name }, &xcbproto_builder, &.{ "c_client_out", entry.name });
+                    try pkg_builder.copy(&.{ "xcb", "xcb", entry.name }, &xcbproto_builder, &.{ "c_client_out", entry.name });
                 }
             },
             else => {},
@@ -297,32 +263,28 @@ fn update_xcb(pkg_builder: *VerboseBuilder, path: *const Paths) !void {
 }
 
 fn updateFn(pkg_builder: *VerboseBuilder) !void {
-    const path = Paths.init(pkg_builder);
-
-    inline for (@typeInfo(@TypeOf(path)).@"struct".fields) |field| {
-        try pkg_builder.remove(&.{@field(path, field.name)});
-        try pkg_builder.make(&.{@field(path, field.name)});
+    for ([_][]const []const u8{ &.{"GL"}, &.{"X11"}, &.{ "X11", "include" }, &.{ "X11", "include", "X11" }, &.{ "X11", "include", "X11", "Xtrans" }, &.{ "X11", "include", "X11", "Xcursor" }, &.{ "X11", "include", "X11", "extensions" }, &.{ "X11", "src" }, &.{ "X11", "modules" }, &.{"xkbcommon"}, &.{"xcb"}, &.{ "xcb", "xcb" }, &.{"Xau"} }) |path| {
+        try pkg_builder.remove(path);
+        try pkg_builder.make(path);
     }
 
-    try update_xkbcommon(pkg_builder, &path);
-    try update_X11(pkg_builder, &path);
-    try update_Xcursor(pkg_builder, &path);
-    try update_Xrandr(pkg_builder, &path);
-    try update_Xfixes(pkg_builder, &path);
-    try update_Xrender(pkg_builder, &path);
-    try update_Xinerama(pkg_builder, &path);
-    try update_Xi(pkg_builder, &path);
-    try update_Xau(pkg_builder, &path);
-    try update_XScrnSaver(pkg_builder, &path);
-    try update_Xext(pkg_builder, &path);
-    try update_Xtrans(pkg_builder, &path);
-    try update_xorgproto(pkg_builder, &path);
-    try update_xcb(pkg_builder, &path);
+    try updateXkbcommon(pkg_builder);
+    try updateX11(pkg_builder);
+    try updateXcursor(pkg_builder);
+    try updateXrandr(pkg_builder);
+    try updateXfixes(pkg_builder);
+    try updateXrender(pkg_builder);
+    try updateXinerama(pkg_builder);
+    try updateXi(pkg_builder);
+    try updateXau(pkg_builder);
+    try updateXScrnSaver(pkg_builder);
+    try updateXext(pkg_builder);
+    try updateXtrans(pkg_builder);
+    try updateXorgproto(pkg_builder);
+    try updateXcb(pkg_builder);
 }
 
 fn buildFn(pkg_builder: *VerboseBuilder) !void {
-    const path = Paths.init(pkg_builder);
-
     const XLOCALELIBDIR = pkg_builder.option([]const u8, pkg_builder.resolve(&.{ "", "usr", "share", "X11", "locale" }), "with-locale-lib-dir", "");
     const XCB_QUEUE_BUFFER_SIZE = pkg_builder.option([]const u8, "16384", "with-queue-size", "");
     _ = try std.fmt.parseUnsigned(u32, XCB_QUEUE_BUFFER_SIZE, 10);
@@ -331,12 +293,12 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
 
     const makekeys = pkg_builder.addExecutable("makekeys");
     pkg_builder.linkLibC(makekeys);
-    pkg_builder.addCSource(makekeys, &.{ path.X11_src, "util", "makekeys.c" }, &.{});
+    pkg_builder.addCSource(makekeys, &.{ "X11", "src", "util", "makekeys.c" }, &.{});
 
     const run_makekeys = pkg_builder.addRunArtifact(makekeys);
     pkg_builder.expectExitCode(run_makekeys, 0);
     pkg_builder.setCwd(run_makekeys, &.{"."});
-    pkg_builder.addArgs(run_makekeys, &.{pkg_builder.resolve(&.{ path.X11_include_X11, "keysymdef.h" })});
+    pkg_builder.addArgs(run_makekeys, &.{pkg_builder.resolve(&.{ "X11", "include", "X11", "keysymdef.h" })});
     const ks_tables_h_content = pkg_builder.captureStdOut(run_makekeys);
     const write_file = pkg_builder.addWriteFiles();
     const ks_tables_h = pkg_builder.addCopyFile(write_file, ks_tables_h_content, &.{ "include", "ks_tables.h" });
@@ -352,9 +314,9 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     pkg_builder.addInclude(lib, &.{ "X11", "src", "xlibi18n", "lcUniConv" });
     pkg_builder.addInclude(lib, &.{"xcb"});
 
-    for ([_][]const u8 { "GL", "X11", "xcb", "xkbcommon"}) |dir| {
-        while (try pkg_builder.walk(&.{ dir })) |*entry| {
-            if (toolbox.isCHeader(entry.basename)) pkg_builder.installHeader(lib, &.{dir, entry.path }, &.{entry.path});
+    for ([_][]const u8{ "GL", "X11", "xcb", "xkbcommon" }) |dir| {
+        while (try pkg_builder.walk(&.{dir})) |*entry| {
+            if (toolbox.isCHeader(entry.basename)) pkg_builder.installHeader(lib, &.{ dir, entry.path }, &.{entry.path});
         }
     }
 
@@ -381,20 +343,20 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     });
 
     const src_flags = [_][]const u8{
-        pkg_builder.concat(&.{ "-DXCMSDIR=\"", pkg_builder.resolve(&.{ path.X11_src, "xcms" }), "\"" }),
+        pkg_builder.concat(&.{ "-DXCMSDIR=\"", pkg_builder.resolve(&.{ "X11", "src", "xcms" }), "\"" }),
         pkg_builder.concat(&.{ "-DXLOCALELIBDIR=\"", XLOCALELIBDIR, "\"" }),
         "-DHAVE_SYS_IOCTL_H=1",
         "-DXKB=1",
     };
 
-    while (try pkg_builder.walk(&.{path.X11_src})) |entry| {
+    while (try pkg_builder.walk(&.{ "X11", "src" })) |entry| {
         switch (entry.kind) {
             .file => {
                 if (toolbox.isCSource(entry.basename) and
                     !std.mem.startsWith(u8, entry.basename, "os2") and
                     !std.mem.eql(u8, entry.path, pkg_builder.resolve(&.{ "util", "makekeys.c" })))
                 {
-                    pkg_builder.addCSource(lib, &.{ path.X11_src, entry.path }, &src_flags);
+                    pkg_builder.addCSource(lib, &.{ "X11", "src", entry.path }, &src_flags);
                 }
             },
             else => {},
@@ -403,9 +365,9 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
 
     const modules_flags = [_][]const u8{ "-DXIM_t=1", "-DTRANS_CLIENT=1" };
 
-    while (try pkg_builder.walk(&.{path.X11_modules})) |entry| {
+    while (try pkg_builder.walk(&.{ "X11", "modules" })) |entry| {
         switch (entry.kind) {
-            .file => if (toolbox.isCSource(entry.basename)) pkg_builder.addCSource(lib, &.{ path.X11_modules, entry.path }, &modules_flags),
+            .file => if (toolbox.isCSource(entry.basename)) pkg_builder.addCSource(lib, &.{ "X11", "modules", entry.path }, &modules_flags),
             else => {},
         }
     }
@@ -415,16 +377,16 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
         pkg_builder.concat(&.{ "-DIOV_MAX=", IOV_MAX }),
     };
 
-    while (try pkg_builder.walk(&.{path.xcb_xcb})) |entry| {
+    while (try pkg_builder.walk(&.{ "xcb", "xcb" })) |entry| {
         switch (entry.kind) {
-            .file => if (toolbox.isCSource(entry.basename)) pkg_builder.addCSource(lib, &.{ path.xcb_xcb, entry.path }, &xcb_flags),
+            .file => if (toolbox.isCSource(entry.basename)) pkg_builder.addCSource(lib, &.{ "xcb", "xcb", entry.path }, &xcb_flags),
             else => {},
         }
     }
 
-    while (try pkg_builder.walk(&.{path.Xau})) |entry| {
+    while (try pkg_builder.walk(&.{"Xau"})) |entry| {
         switch (entry.kind) {
-            .file => if (toolbox.isCSource(entry.basename)) pkg_builder.addCSource(lib, &.{ path.Xau, entry.path }, &.{}),
+            .file => if (toolbox.isCSource(entry.basename)) pkg_builder.addCSource(lib, &.{ "Xau", entry.path }, &.{}),
             else => {},
         }
     }
