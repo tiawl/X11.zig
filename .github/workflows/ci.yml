@@ -10,12 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: mlugg/setup-zig@v2.0.5
+    - uses: mlugg/setup-zig@v2
     - name: Check zig is canonical
       shell: bash
       run: |
         zig fmt --check .
-  build:
+
+  maintainance:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Zig
+      uses: mlugg/setup-zig@v2
+
+    - name: Test updating
+      shell: 'bash'
+      run: |
+        zig build -Dupdate -Dverbose
+
+  user:
     strategy:
       matrix:
         repo:
@@ -27,7 +40,7 @@ jobs:
         repository: "${{ github.repository_owner }}/${{ matrix.repo }}.zig"
 
     - name: Setup Zig
-      uses: mlugg/setup-zig@v2.0.5
+      uses: mlugg/setup-zig@v2
 
     - name: Prepare ${{ matrix.repo }}.zig/build.zig.zon
       env:
@@ -36,24 +49,7 @@ jobs:
       run: |
         zig fetch --save "${URL}"
 
-    - name: Test updating ${{ matrix.repo }}.zig
-      env:
-        REPO: "${{ matrix.repo }}"
-        RUNNER_TMP: "${{ runner.temp }}"
+    - name: Test building ${{ matrix.repo }}.zig
       shell: 'bash'
       run: |
-        zig build -Dupdate
-
-    - name: Test fetching ${{ matrix.repo }}.zig
-      env:
-        REPO: "${{ matrix.repo }}"
-        RUNNER_TMP: "${{ runner.temp }}"
-        PR_BODY: "${{ github.event.pull_request.body }}"
-      shell: 'bash'
-      run: |
-        opts="$(printf '%s' "${PR_BODY}" | sed -n "s/^\[${REPO} fetch opts\] \(.*\)/\1/p")"
-        opts="${opts#"${opts%%[![:space:]]*}"}"
-        opts="${opts%"${opts##*[![:space:]]}"}"
-        set -f
-        zig build -Dfetch ${opts}
-        set +f
+        zig build -Dverbose
