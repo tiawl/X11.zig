@@ -313,6 +313,7 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     pkg_builder.addInclude(lib, &.{ "X11", "src", "xlibi18n" });
     pkg_builder.addInclude(lib, &.{ "X11", "src", "xlibi18n", "lcUniConv" });
     pkg_builder.addInclude(lib, &.{"xcb"});
+    pkg_builder.addInclude(lib, &.{"."});
 
     for ([_][]const u8{ "GL", "X11", "xcb", "xkbcommon" }) |dir| {
         while (try pkg_builder.walk(&.{dir})) |*entry| {
@@ -332,13 +333,13 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     xcursor_version = xcursor_version[std.mem.indexOfAny(u8, xcursor_version, "0123456789").?..];
     const xcursor_version_sem = std.SemanticVersion.parse(xcursor_version) catch unreachable;
 
-    pkg_builder.addConfigHeader(lib, &.{ "X11", "include", "X11", "Xcursor" }, &.{ "Xcursor.h.in" }, .autoconf_undef, .{
+    pkg_builder.addConfigHeader(lib, &.{ "X11", "include" }, &.{ "X11", "Xcursor", "Xcursor.h.in" }, .autoconf_undef, .{
         .XCURSOR_LIB_MAJOR = @as(i64, @intCast(xcursor_version_sem.major)),
         .XCURSOR_LIB_MINOR = @as(i64, @intCast(xcursor_version_sem.minor)),
         .XCURSOR_LIB_REVISION = @as(i64, @intCast(xcursor_version_sem.patch)),
     });
 
-    pkg_builder.addConfigHeader(lib, &.{ "X11", "include", "X11" }, &.{ "Xpoll.h.in" }, .autoconf_at, .{
+    pkg_builder.addConfigHeader(lib, &.{ "X11", "include" }, &.{ "X11", "Xpoll.h.in" }, .autoconf_at, .{
         .USE_FDS_BITS = "__fds_bits",
     });
 
