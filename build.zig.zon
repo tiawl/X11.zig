@@ -63,8 +63,8 @@
             .hash = "N-V-__8AAPSQawCcuTcqIxPOXcScgtciyBHFP_S54FcaFo5L",
         },
         .toolbox = .{
-            .url = "git+https://github.com/tiawl/toolbox#c6cfe66d9c755f225c4bb939304191ace6411a7b",
-            .hash = "toolbox-2.0.0-kRAu4D18AAAPL6Lztgn77bgpbsVhREsV3Morb6rcpGmJ",
+            .url = "git+https://github.com/tiawl/toolbox#8cfe99b13c380c0a0437e9edc05ab4b961b242d6",
+            .hash = "toolbox-2.0.0-kRAu4EF8AAC9LKCNAHFDbj1RzTI4yczjgz7PL_9YjYqb",
         },
     },
     .minimum_zig_version = "0.15.2",
