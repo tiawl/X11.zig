@@ -15,7 +15,20 @@ jobs:
       shell: bash
       run: |
         zig fmt --check .
-  build:
+
+  maintainance:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Zig
+      uses: mlugg/setup-zig@v2
+
+    - name: Test updating
+      shell: 'bash'
+      run: |
+        zig build -Dupdate -Dverbose
+
+  user:
     strategy:
       matrix:
         repo:
@@ -36,24 +49,7 @@ jobs:
       run: |
         zig fetch --save "${URL}"
 
-    - name: Test updating ${{ matrix.repo }}.zig
-      env:
-        REPO: "${{ matrix.repo }}"
-        RUNNER_TMP: "${{ runner.temp }}"
+    - name: Test building ${{ matrix.repo }}.zig
       shell: 'bash'
       run: |
-        zig build -Dupdate -Dverbose
-
-    - name: Test fetching ${{ matrix.repo }}.zig
-      env:
-        REPO: "${{ matrix.repo }}"
-        RUNNER_TMP: "${{ runner.temp }}"
-        PR_BODY: "${{ github.event.pull_request.body }}"
-      shell: 'bash'
-      run: |
-        opts="$(printf '%s' "${PR_BODY}" | sed -n "s/^\[${REPO} fetch opts\] \(.*\)/\1/p")"
-        opts="${opts#"${opts%%[![:space:]]*}"}"
-        opts="${opts%"${opts##*[![:space:]]}"}"
-        set -f
-        zig build -Dfetch -Dverbose ${opts}
-        set +f
+        zig build -Dverbose
