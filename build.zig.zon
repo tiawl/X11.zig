@@ -1,6 +1,6 @@
 .{
     .name = .X11_zig,
-    .version = "1.0.0",
+    .version = "1.0.1",
     .dependencies = .{
         .XScrnSaver = .{
             .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver?ref=libXScrnSaver-1.2.5#60c957ba8a727d01b376da0142aef7e18aa86fe1",
