@@ -226,7 +226,7 @@ fn updateXcb(pkg_builder: *VerboseBuilder) !void {
     try xcbproto_builder.putEnvVar("PYTHONPATH", python_path);
 
     var c_client_out_dir = try xcbproto_builder.openDir(&.{"c_client_out"});
-    defer c_client_out_dir.close();
+    defer c_client_out_dir.close(xcbproto_builder.getIo());
 
     while (try xcbproto_builder.iterate(&.{"src"})) |entry| {
         switch (entry.kind) {

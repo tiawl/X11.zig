@@ -1,6 +1,6 @@
 .{
     .name = .X11_zig,
-    .version = "1.0.0",
+    .version = "1.0.1",
     .dependencies = .{
         .XScrnSaver = .{
             .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver?ref=libXScrnSaver-1.2.5#60c957ba8a727d01b376da0142aef7e18aa86fe1",
@@ -63,11 +63,11 @@
             .hash = "N-V-__8AAPSQawCcuTcqIxPOXcScgtciyBHFP_S54FcaFo5L",
         },
         .toolbox = .{
-            .url = "git+https://github.com/tiawl/toolbox?ref=2.0.0#8cfe99b13c380c0a0437e9edc05ab4b961b242d6",
-            .hash = "toolbox-2.0.0-kRAu4EF8AAC9LKCNAHFDbj1RzTI4yczjgz7PL_9YjYqb",
+            .url = "git+https://github.com/tiawl/toolbox.git?ref=zig-0.16#e3ace01fa3a5885527e193a9f751c150ef2c027f",
+            .hash = "toolbox-2.0.1-kRAu4IaAAADiKSl4-WffNzXtCBRZ7O0-QMvhW7NHQU07",
         },
     },
-    .minimum_zig_version = "0.15.2",
+    .minimum_zig_version = "0.16.0-dev",
     .fingerprint = 0x73d0ebf76c33e052,
     .paths = .{
         "build.zig",
