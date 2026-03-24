@@ -4,29 +4,32 @@ on:
   pull_request:
     branches:
       - zig-stable
+      - zig-nightly
 
 jobs:
   linter:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v6
+      with:
+        ref: "${{ github.event.pull_request.head.ref }}"
     - uses: mlugg/setup-zig@v2
     - name: Check zig is canonical
-      shell: bash
-      run: |
-        zig fmt --check .
+      shell: 'bash'
+      run: zig fmt --check .
 
   maintainance:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v6
+      with:
+        ref: "${{ github.event.pull_request.head.ref }}"
     - name: Setup Zig
       uses: mlugg/setup-zig@v2
 
     - name: Test updating
       shell: 'bash'
-      run: |
-        zig build -Dupdate -Dverbose
+      run: zig build -Dupdate -Dverbose
 
   user:
     strategy:
@@ -38,6 +41,7 @@ jobs:
     - uses: actions/checkout@v6
       with:
         repository: "${{ github.repository_owner }}/${{ matrix.repo }}.zig"
+        ref: "${{ github.event.pull_request.head.ref }}"
 
     - name: Setup Zig
       uses: mlugg/setup-zig@v2
@@ -46,10 +50,8 @@ jobs:
       env:
         URL: "git+${{ github.server_url }}/${{ github.repository }}#${{ github.event.pull_request.head.sha }}"
       shell: 'bash'
-      run: |
-        zig fetch --save "${URL}"
+      run: zig fetch --save "${URL}"
 
     - name: Test building ${{ matrix.repo }}.zig
       shell: 'bash'
-      run: |
-        zig build -Dverbose
+      run: zig build -Dverbose
