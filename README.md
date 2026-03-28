@@ -1,69 +1,28 @@
 # X11.zig
 
-This is a fork of [hexops/x11-headers][1] which itself gather various [xorg][21] headers [GLFW][3] needs.
+This is a fork of [hexops/x11-headers][1] which itself gather various [xorg][6] headers [GLFW][3] needs.
 
 ## Why this forkception ?
 
-The intention under this fork is the same as [hexops][4] had when they opened their repository: gather [xorg][21] headers and package them to compile [GLFW][4] with [Zig][5].
+The intention under this fork is the same as [hexops][4] had when they opened their repository: gather [xorg][6] headers and package them to compile [GLFW][4] with [Zig][5].
 
 However this repository has subtle differences:
-* Add [xorg][21] sources needed for [libX11][2] compilation,
+* Add [xorg][6] sources needed for [libX11][2] compilation,
 * No shell scripting for maintainability tasks,
-* A cron runs every day to check [xorg][21] repositories. Then it updates this repository if a new release is available.
-
-## How to use it
-
-The current usage of this repository is centered around [tiawl/glfw.zig][3] compilation. But you could use it for your own projects. Files are here and there are no planned evolution to modify them. See [tiawl/glfw.zig][3] to see how you can use it. Maybe for your own need, some files are missing. If it happens, open an issue: this repository is open to potential usage evolution.
+* A cron runs every day to check [xorg][6] repositories and other dependencies. Then it updates this repository if a new release is available.
 
 ## Dependencies
 
 The [Zig][5] part of this package is relying on the latest [Zig][5] release (0.15.2) and will only be updated for the next one.
+It you use a more recent [Zig][5] version, please consider the `zig-nightly` branch and `*-nightly` tags.
 
-Here the repositories' version used by this fork:
-* [xorg/lib/libx11](https://github.com/tiawl/X11.zig/blob/trunk/.references/X11)
-* [xorg/lib/libxcb](https://github.com/tiawl/X11.zig/blob/trunk/.references/xcb)
-* [xorg/proto/xcbproto](https://github.com/tiawl/X11.zig/blob/trunk/.references/xcbproto)
-* [xorg/lib/libxcursor](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xcursor)
-* [xorg/lib/libxext](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xext)
-* [xorg/lib/libxfixes](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xfixes)
-* [xorg/lib/libxi](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xi)
-* [xorg/lib/libxinerama](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xinerama)
-* [xkbcommon/libxkbcommon](https://github.com/tiawl/X11.zig/blob/trunk/.references/xkbcommon)
-* [xorg/proto/xorgproto](https://github.com/tiawl/X11.zig/blob/trunk/.references/xorgproto)
-* [xorg/lib/libxrandr](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xrandr)
-* [xorg/lib/libxrender](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xrender)
-* [xorg/lib/libxscrnsaver](https://github.com/tiawl/X11.zig/blob/trunk/.references/XScrnSaver)
-* [xorg/lib/libxtrans](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xtrans)
-* [xorg/lib/libxau](https://github.com/tiawl/X11.zig/blob/trunk/.references/Xau)
-
-## CICD reminder
-
-These repositories are automatically updated when a new release is available:
-* [tiawl/glfw.zig][6]
-
-This repository is automatically updated when a new release is available from these repositories:
-* [xorg/lib/libx11][2]
-* [xorg/lib/libxcb][7]
-* [xorg/proto/xcbproto][8]
-* [xorg/lib/libxcursor][9]
-* [xorg/lib/libxext][10]
-* [xorg/lib/libxfixes][11]
-* [xorg/lib/libxi][12]
-* [xorg/lib/libxinerama][13]
-* [xkbcommon/libxkbcommon][14]
-* [xorg/proto/xorgproto][15]
-* [xorg/lib/libxrandr][16]
-* [xorg/lib/libxrender][17]
-* [xorg/lib/libxscrnsaver][18]
-* [xorg/lib/libxtrans][19]
-* [xorg/lib/libxau][20]
-* [tiawl/toolbox][22]
+For other dependencies see [the build.zig.zon](https://github.com/tiawl/X11.zig/blob/zig-stable/build.zig.zon)
 
 ## `zig build` options
 
-These additional options have been implemented for maintainability tasks:
+These additional options have mainly been implemented for maintainability tasks but they maybe could be useful for edge usecases:
 ```
-  -Dfetch   Update .references folder and build.zig.zon then stop execution
+  -Dfetch   Update build.zig.zon then stop execution
   -Dupdate  Update binding
 ```
 
@@ -79,21 +38,5 @@ The parts of this repository originated from this repository are dedicated to th
 [2]:https://gitlab.freedesktop.org/xorg/lib/libx11
 [3]:https://github.com/glfw/glfw
 [4]:https://github.com/hexops
-[5]:https://github.com/ziglang/zig
-[6]:https://github.com/tiawl/glfw.zig
-[7]:https://gitlab.freedesktop.org/xorg/lib/libxcb
-[8]:https://gitlab.freedesktop.org/xorg/proto/xcbproto
-[9]:https://gitlab.freedesktop.org/xorg/lib/libxcursor
-[10]:https://gitlab.freedesktop.org/xorg/lib/libxext
-[11]:https://gitlab.freedesktop.org/xorg/lib/libxfixes
-[12]:https://gitlab.freedesktop.org/xorg/lib/libxi
-[13]:https://gitlab.freedesktop.org/xorg/lib/libxinerama
-[14]:https://gitlab.freedesktop.org/xkbcommon/libxkbcommon
-[15]:https://gitlab.freedesktop.org/xorg/proto/xorgproto
-[16]:https://gitlab.freedesktop.org/xorg/lib/libxrandr
-[17]:https://gitlab.freedesktop.org/xorg/lib/libxrender
-[18]:https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver
-[19]:https://gitlab.freedesktop.org/xorg/lib/libxtrans
-[20]:https://gitlab.freedesktop.org/xorg/lib/libxau
-[21]:https://gitlab.freedesktop.org/xorg
-[22]:https://github.com/tiawl/toolbox
+[5]:https://codeberg.org/ziglang/zig
+[6]:https://gitlab.freedesktop.org/xorg
