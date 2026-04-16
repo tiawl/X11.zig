@@ -304,7 +304,7 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     const ks_tables_h = pkg_builder.addCopyFile(write_file, ks_tables_h_content, &.{ "include", "ks_tables.h" });
 
     const lib = pkg_builder.addLibrary("X11");
-    pkg_builder.addIncludePath(lib, ks_tables_h.dirname());
+    pkg_builder.addIncludePath(@TypeOf(lib.*), lib, ks_tables_h.dirname());
     pkg_builder.addInclude(lib, &.{ "X11", "include" });
     pkg_builder.addInclude(lib, &.{ "X11", "include", "X11" });
     pkg_builder.addInclude(lib, &.{ "X11", "src" });
@@ -323,7 +323,7 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
 
     pkg_builder.linkLibC(lib);
 
-    pkg_builder.addConfigHeader(lib, &.{ "X11", "include" }, &.{ "X11", "XlibConf.h.in" }, .autoconf_undef, .{
+    pkg_builder.generateConfigHeader(lib, &.{ "X11", "include" }, &.{ "X11", "XlibConf.h.in" }, .autoconf_undef, .{
         .XTHREADS = 1,
         .XUSE_MTSAFE_API = 1,
     });
@@ -333,13 +333,13 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     xcursor_version = xcursor_version[std.mem.indexOfAny(u8, xcursor_version, "0123456789").?..];
     const xcursor_version_sem = std.SemanticVersion.parse(xcursor_version) catch unreachable;
 
-    pkg_builder.addConfigHeader(lib, &.{ "X11", "include" }, &.{ "X11", "Xcursor", "Xcursor.h.in" }, .autoconf_undef, .{
+    pkg_builder.generateConfigHeader(lib, &.{ "X11", "include" }, &.{ "X11", "Xcursor", "Xcursor.h.in" }, .autoconf_undef, .{
         .XCURSOR_LIB_MAJOR = @as(i64, @intCast(xcursor_version_sem.major)),
         .XCURSOR_LIB_MINOR = @as(i64, @intCast(xcursor_version_sem.minor)),
         .XCURSOR_LIB_REVISION = @as(i64, @intCast(xcursor_version_sem.patch)),
     });
 
-    pkg_builder.addConfigHeader(lib, &.{ "X11", "include" }, &.{ "X11", "Xpoll.h.in" }, .autoconf_at, .{
+    pkg_builder.generateConfigHeader(lib, &.{ "X11", "include" }, &.{ "X11", "Xpoll.h.in" }, .autoconf_at, .{
         .USE_FDS_BITS = "__fds_bits",
     });
 
