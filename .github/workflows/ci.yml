@@ -14,18 +14,18 @@ jobs:
           - master
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
-      with:
-        repository: "${{ github.event.pull_request.head.repo.full_name }}"
-        ref: "${{ github.event.pull_request.head.ref }}"
-    - name: Setup Zig
-      uses: mlugg/setup-zig@v2
-      with:
-        version: "${{ matrix.zig-version }}"
-        cache-key: "${{ github.job }}_${{ runner.os }}_zig-${{ matrix.zig-version }}_${{ matrix.repo || '' }}"
-    - name: Check zig is canonical
-      shell: 'bash'
-      run: zig fmt --check .
+      - uses: actions/checkout@v6
+        with:
+          repository: "${{ github.event.pull_request.head.repo.full_name }}"
+          ref: "${{ github.event.pull_request.head.ref }}"
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: "${{ matrix.zig-version }}"
+          cache-key: "${{ github.job }}_${{ runner.os }}_zig-${{ matrix.zig-version }}_${{ matrix.repo || '' }}"
+      - name: Check zig is canonical
+        shell: 'bash'
+        run: zig fmt --check .
 
   maintainance:
     strategy:
@@ -35,19 +35,19 @@ jobs:
           - master
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
-      with:
-        repository: "${{ github.event.pull_request.head.repo.full_name }}"
-        ref: "${{ github.event.pull_request.head.ref }}"
-    - name: Setup Zig
-      uses: mlugg/setup-zig@v2
-      with:
-        version: "${{ matrix.zig-version }}"
-        cache-key: "${{ github.job }}_${{ runner.os }}_zig-${{ matrix.zig-version }}_${{ matrix.repo || '' }}"
+      - uses: actions/checkout@v6
+        with:
+          repository: "${{ github.event.pull_request.head.repo.full_name }}"
+          ref: "${{ github.event.pull_request.head.ref }}"
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: "${{ matrix.zig-version }}"
+          cache-key: "${{ github.job }}_${{ runner.os }}_zig-${{ matrix.zig-version }}_${{ matrix.repo || '' }}"
 
-    - name: Test updating
-      shell: 'bash'
-      run: zig build -Dupdate -Dverbose
+      - name: Test updating
+        shell: 'bash'
+        run: zig build -Dupdate -Dverbose
 
   user:
     strategy:
@@ -59,23 +59,23 @@ jobs:
           - glfw
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
-      with:
-        repository: "${{ github.repository_owner }}/${{ matrix.repo }}.zig"
-        ref: "${{ github.event.pull_request.base.ref }}"
+      - uses: actions/checkout@v6
+        with:
+          repository: "${{ github.repository_owner }}/${{ matrix.repo }}.zig"
+          ref: "${{ github.event.pull_request.base.ref }}"
 
-    - name: Setup Zig
-      uses: mlugg/setup-zig@v2
-      with:
-        version: "${{ matrix.zig-version }}"
-        cache-key: "${{ github.job }}_${{ runner.os }}_zig-${{ matrix.zig-version }}_${{ matrix.repo || '' }}"
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: "${{ matrix.zig-version }}"
+          cache-key: "${{ github.job }}_${{ runner.os }}_zig-${{ matrix.zig-version }}_${{ matrix.repo || '' }}"
 
-    - name: Prepare ${{ matrix.repo }}.zig/build.zig.zon
-      env:
-        URL: "git+${{ github.server_url }}/${{ github.event.pull_request.head.repo.full_name }}#${{ github.event.pull_request.head.sha }}"
-      shell: 'bash'
-      run: zig fetch --save "${URL}"
+      - name: Prepare ${{ matrix.repo }}.zig/build.zig.zon
+        env:
+          URL: "git+${{ github.server_url }}/${{ github.event.pull_request.head.repo.full_name }}#${{ github.event.pull_request.head.sha }}"
+        shell: 'bash'
+        run: zig fetch --save "${URL}"
 
-    - name: Test building ${{ matrix.repo }}.zig
-      shell: 'bash'
-      run: zig build -Dverbose
+      - name: Test building ${{ matrix.repo }}.zig
+        shell: 'bash'
+        run: zig build -Dverbose
