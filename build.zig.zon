@@ -39,8 +39,8 @@
             .hash = "N-V-__8AAFIgAQCJSug37AGy4zypGtiDtUR9wtQa8U74Nm0a",
         },
         .Xi = .{
-            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxi?ref=libXi-1.8.2#3c2d5aedd7708c75710b39268631762de904c304",
-            .hash = "N-V-__8AAPVzDQBJt3bUATh5SVq-T6QI-Ns9v2pSScvG_cwH",
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxi?ref=libXi-1.8.3#f00f7e9140b4707775331950dd67851e55058c40",
+            .hash = "N-V-__8AAPR0DQAuD3_ZopKbezyogf0SLNe6GiYF3RlaaNrh",
         },
         .Xau = .{
             .url = "git+https://gitlab.freedesktop.org/xorg/lib/libXau?ref=libXau-1.0.12#a9c65683e68b3a4349afee5d7673b393fb924d2e",
