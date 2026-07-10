@@ -77,5 +77,6 @@
         "GL",
         "xcb",
         "xkbcommon",
+        "LICENSE",
     },
 }
