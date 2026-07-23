@@ -282,8 +282,9 @@ SOFTWARE.
 #define XKB_KEY_Cancel                        0xff69  /* Cancel, stop, abort, exit */
 #define XKB_KEY_Help                          0xff6a  /* Help */
 #define XKB_KEY_Break                         0xff6b
-#define XKB_KEY_Mode_switch                   0xff7e  /* Character set switch */
-#define XKB_KEY_script_switch                 0xff7e  /* non-deprecated alias for Mode_switch */
+#define XKB_KEY_ISO_Group_Shift               0xff7e
+#define XKB_KEY_Mode_switch                   0xff7e  /* non-deprecated alias for ISO_Group_Shift */
+#define XKB_KEY_script_switch                 0xff7e  /* non-deprecated alias for ISO_Group_Shift */
 #define XKB_KEY_Num_Lock                      0xff7f
 
 /* Keypad functions, keypad numbers cleverly chosen to map to ASCII */
@@ -429,7 +430,7 @@ SOFTWARE.
 #define XKB_KEY_ISO_Level5_Shift              0xfe11
 #define XKB_KEY_ISO_Level5_Latch              0xfe12
 #define XKB_KEY_ISO_Level5_Lock               0xfe13
-#define XKB_KEY_ISO_Group_Shift               0xff7e  /* non-deprecated alias for Mode_switch */
+/*      XKB_KEY_ISO_Group_Shift               0xff7e (see above) */
 #define XKB_KEY_ISO_Group_Latch               0xfe06
 #define XKB_KEY_ISO_Group_Lock                0xfe07
 #define XKB_KEY_ISO_Next_Group                0xfe08
@@ -523,6 +524,7 @@ SOFTWARE.
 
 #define XKB_KEY_dead_greek                    0xfe8c
 #define XKB_KEY_dead_hamza                    0xfe8d
+#define XKB_KEY_dead_apostrophe               0xfe8e
 
 #define XKB_KEY_First_Virtual_Screen          0xfed0
 #define XKB_KEY_Prev_Virtual_Screen           0xfed1
@@ -1074,7 +1076,7 @@ SOFTWARE.
 #define XKB_KEY_kana_N                        0x04dd  /* U+30F3 KATAKANA LETTER N */
 #define XKB_KEY_voicedsound                   0x04de  /* U+309B KATAKANA-HIRAGANA VOICED SOUND MARK */
 #define XKB_KEY_semivoicedsound               0x04df  /* U+309C KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK */
-#define XKB_KEY_kana_switch                   0xff7e  /* non-deprecated alias for Mode_switch */
+#define XKB_KEY_kana_switch                   0xff7e  /* non-deprecated alias for ISO_Group_Shift */
 
 /*
  * Arabic
@@ -1171,7 +1173,7 @@ SOFTWARE.
 #define XKB_KEY_Arabic_farsi_yeh           0x10006cc  /* deprecated alias for Farsi_yeh */
 #define XKB_KEY_Arabic_yeh_baree           0x10006d2  /* U+06D2 ARABIC LETTER YEH BARREE */
 #define XKB_KEY_Arabic_heh_goal            0x10006c1  /* U+06C1 ARABIC LETTER HEH GOAL */
-#define XKB_KEY_Arabic_switch                 0xff7e  /* non-deprecated alias for Mode_switch */
+#define XKB_KEY_Arabic_switch                 0xff7e  /* non-deprecated alias for ISO_Group_Shift */
 
 /*
  * Cyrillic
@@ -1399,7 +1401,7 @@ SOFTWARE.
 #define XKB_KEY_Greek_chi                     0x07f7  /* U+03C7 GREEK SMALL LETTER CHI */
 #define XKB_KEY_Greek_psi                     0x07f8  /* U+03C8 GREEK SMALL LETTER PSI */
 #define XKB_KEY_Greek_omega                   0x07f9  /* U+03C9 GREEK SMALL LETTER OMEGA */
-#define XKB_KEY_Greek_switch                  0xff7e  /* non-deprecated alias for Mode_switch */
+#define XKB_KEY_Greek_switch                  0xff7e  /* non-deprecated alias for ISO_Group_Shift */
 
 /*
  * Technical
@@ -1649,7 +1651,7 @@ SOFTWARE.
 #define XKB_KEY_hebrew_shin                   0x0cf9  /* U+05E9 HEBREW LETTER SHIN */
 #define XKB_KEY_hebrew_taw                    0x0cfa  /* U+05EA HEBREW LETTER TAV */
 #define XKB_KEY_hebrew_taf                    0x0cfa  /* deprecated */
-#define XKB_KEY_Hebrew_switch                 0xff7e  /* non-deprecated alias for Mode_switch */
+#define XKB_KEY_Hebrew_switch                 0xff7e  /* non-deprecated alias for ISO_Group_Shift */
 
 /*
  * Thai
@@ -1762,7 +1764,7 @@ SOFTWARE.
 #define XKB_KEY_Hangul_MultipleCandidate      0xff3d  /* Multiple candidate */
 #define XKB_KEY_Hangul_PreviousCandidate      0xff3e  /* Previous candidate */
 #define XKB_KEY_Hangul_Special                0xff3f  /* Special symbols */
-#define XKB_KEY_Hangul_switch                 0xff7e  /* non-deprecated alias for Mode_switch */
+#define XKB_KEY_Hangul_switch                 0xff7e  /* non-deprecated alias for ISO_Group_Shift */
 
 /* Hangul Consonant Characters */
 #define XKB_KEY_Hangul_Kiyeog                 0x0ea1  /* U+3131 HANGUL LETTER KIYEOK */
@@ -2540,6 +2542,19 @@ SOFTWARE.
 #define XKB_KEY_Sinh_kunddaliya            0x1000df4  /* U+0DF4 SINHALA PUNCTUATION KUNDDALIYA */
 
 /*
+ * German
+ */
+
+#define XKB_KEY_SSHARP                     0x1001e9e  /* U+1E9E LATIN CAPITAL LETTER SHARP S */
+
+/*
+ * General punctuation
+ */
+
+#define XKB_KEY_leftsingleanglequotemark   0x1002039  /* U+2039 SINGLE LEFT-POINTING ANGLE QUOTATION MARK */
+#define XKB_KEY_rightsingleanglequotemark  0x100203a  /* U+203A SINGLE RIGHT-POINTING ANGLE QUOTATION MARK */
+
+/*
  * XFree86 vendor specific keysyms.
  *
  * The XFree86 keysym range is 0x10080001 - 0x1008ffff.
@@ -3056,18 +3071,18 @@ SOFTWARE.
 /* Use: XKB_KEY_braille_dot_8                _EVDEVK(0x1f8)     v2.6.17 KEY_BRL_DOT8 */
 /* Use: XKB_KEY_braille_dot_9                _EVDEVK(0x1f9)     v2.6.23 KEY_BRL_DOT9 */
 /* Use: XKB_KEY_braille_dot_1                _EVDEVK(0x1fa)     v2.6.23 KEY_BRL_DOT10 */
-#define XKB_KEY_XF86Numeric0                 0x10081200      /* v2.6.28 KEY_NUMERIC_0 */
-#define XKB_KEY_XF86Numeric1                 0x10081201      /* v2.6.28 KEY_NUMERIC_1 */
-#define XKB_KEY_XF86Numeric2                 0x10081202      /* v2.6.28 KEY_NUMERIC_2 */
-#define XKB_KEY_XF86Numeric3                 0x10081203      /* v2.6.28 KEY_NUMERIC_3 */
-#define XKB_KEY_XF86Numeric4                 0x10081204      /* v2.6.28 KEY_NUMERIC_4 */
-#define XKB_KEY_XF86Numeric5                 0x10081205      /* v2.6.28 KEY_NUMERIC_5 */
-#define XKB_KEY_XF86Numeric6                 0x10081206      /* v2.6.28 KEY_NUMERIC_6 */
-#define XKB_KEY_XF86Numeric7                 0x10081207      /* v2.6.28 KEY_NUMERIC_7 */
-#define XKB_KEY_XF86Numeric8                 0x10081208      /* v2.6.28 KEY_NUMERIC_8 */
-#define XKB_KEY_XF86Numeric9                 0x10081209      /* v2.6.28 KEY_NUMERIC_9 */
-#define XKB_KEY_XF86NumericStar              0x1008120a      /* v2.6.28 KEY_NUMERIC_STAR */
-#define XKB_KEY_XF86NumericPound             0x1008120b      /* v2.6.28 KEY_NUMERIC_POUND */
+#define XKB_KEY_XF86Numeric0                 0x10081200      /* v2.6.28 KEY_NUMERIC_0 <U+0030 DIGIT ZERO> */
+#define XKB_KEY_XF86Numeric1                 0x10081201      /* v2.6.28 KEY_NUMERIC_1 <U+0031 DIGIT ONE> */
+#define XKB_KEY_XF86Numeric2                 0x10081202      /* v2.6.28 KEY_NUMERIC_2 <U+0032 DIGIT TWO> */
+#define XKB_KEY_XF86Numeric3                 0x10081203      /* v2.6.28 KEY_NUMERIC_3 <U+0033 DIGIT THREE> */
+#define XKB_KEY_XF86Numeric4                 0x10081204      /* v2.6.28 KEY_NUMERIC_4 <U+0034 DIGIT FOUR> */
+#define XKB_KEY_XF86Numeric5                 0x10081205      /* v2.6.28 KEY_NUMERIC_5 <U+0035 DIGIT FIVE> */
+#define XKB_KEY_XF86Numeric6                 0x10081206      /* v2.6.28 KEY_NUMERIC_6 <U+0036 DIGIT SIX> */
+#define XKB_KEY_XF86Numeric7                 0x10081207      /* v2.6.28 KEY_NUMERIC_7 <U+0037 DIGIT SEVEN> */
+#define XKB_KEY_XF86Numeric8                 0x10081208      /* v2.6.28 KEY_NUMERIC_8 <U+0038 DIGIT EIGHT> */
+#define XKB_KEY_XF86Numeric9                 0x10081209      /* v2.6.28 KEY_NUMERIC_9 <U+0039 DIGIT NINE> */
+#define XKB_KEY_XF86NumericStar              0x1008120a      /* v2.6.28 KEY_NUMERIC_STAR <U+002A ASTERISK> */
+#define XKB_KEY_XF86NumericPound             0x1008120b      /* v2.6.28 KEY_NUMERIC_POUND <U+0023 NUMBER SIGN> */
 #define XKB_KEY_XF86NumericA                 0x1008120c      /* v4.1    KEY_NUMERIC_A */
 #define XKB_KEY_XF86NumericB                 0x1008120d      /* v4.1    KEY_NUMERIC_B */
 #define XKB_KEY_XF86NumericC                 0x1008120e      /* v4.1    KEY_NUMERIC_C */
@@ -3108,6 +3123,11 @@ SOFTWARE.
 #define XKB_KEY_XF86DoNotDisturb             0x1008124f      /* v6.10   KEY_DO_NOT_DISTURB */
 #define XKB_KEY_XF86BrightnessMin            0x10081250      /* v3.16   KEY_BRIGHTNESS_MIN */
 #define XKB_KEY_XF86BrightnessMax            0x10081251      /* v3.16   KEY_BRIGHTNESS_MAX */
+#define XKB_KEY_XF86ElectronicPrivacyScreenOn  0x10081252      /* v6.18   KEY_EPRIVACY_SCREEN_ON */
+#define XKB_KEY_XF86ElectronicPrivacyScreenOff 0x10081253      /* v6.18   KEY_EPRIVACY_SCREEN_OFF */
+#define XKB_KEY_XF86ActionOnSelection        0x10081254      /* v7.0    KEY_ACTION_ON_SELECTION */
+#define XKB_KEY_XF86ContextualInsert         0x10081255      /* v7.0    KEY_CONTEXTUAL_INSERT */
+#define XKB_KEY_XF86ContextualQuery          0x10081256      /* v7.0    KEY_CONTEXTUAL_QUERY */
 #define XKB_KEY_XF86KbdInputAssistPrev       0x10081260      /* v3.18   KEY_KBDINPUTASSIST_PREV */
 #define XKB_KEY_XF86KbdInputAssistNext       0x10081261      /* v3.18   KEY_KBDINPUTASSIST_NEXT */
 #define XKB_KEY_XF86KbdInputAssistPrevgroup  0x10081262      /* v3.18   KEY_KBDINPUTASSIST_PREVGROUP */
