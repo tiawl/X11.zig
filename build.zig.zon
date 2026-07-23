@@ -59,8 +59,8 @@
             .hash = "N-V-__8AAFnMDACdXT5YIakLgEMFZ-K7ZICgB18p8xKobHjk",
         },
         .xkbcommon = .{
-            .url = "git+https://github.com/xkbcommon/libxkbcommon?ref=xkbcommon-1.13.0#3049d310694fd70f1269bf48a1200aa4259e79b1",
-            .hash = "N-V-__8AAPSQawCcuTcqIxPOXcScgtciyBHFP_S54FcaFo5L",
+            .url = "git+https://github.com/xkbcommon/libxkbcommon?ref=xkbcommon-1.14.0-beta1#1e11d3afe458ad2efe1d081b3185e42d32c80f56",
+            .hash = "N-V-__8AALn-gAB-uljCEIZlQjv9ZB-qkvcWPYRUGc6NEPlu",
         },
         .toolbox = .{
             .url = "git+https://github.com/tiawl/toolbox?ref=2.2.1#9500ec195e63ef225dc3e7ee8d9362fe6601e684",
