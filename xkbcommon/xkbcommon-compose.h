@@ -14,7 +14,7 @@ extern "C" {
 
 /**
  * @file
- * libxkbcommon Compose API - support for Compose and dead-keys.
+ * xkbcommon Compose API - support for Compose and dead-keys.
  */
 
 /**
@@ -187,8 +187,8 @@ enum xkb_compose_format {
  * 2. `XDG_CONFIG_HOME` - before `$HOME/.XCompose` is checked,
  *    `$XDG_CONFIG_HOME/XCompose` is checked (with a fall back to
  *    `$HOME/.config/XCompose` if `XDG_CONFIG_HOME` is not defined).
- *    This is a libxkbcommon extension to the search procedure in
- *    Compose(5) (since libxkbcommon 1.0.0). Note that other
+ *    This is an xkbcommon extension to the search procedure in
+ *    Compose(5) (since xkbcommon 1.0.0). Note that other
  *    implementations, such as libX11, might not find a Compose file in
  *    this path.
  * 3. `HOME` - see Compose(5).
@@ -253,7 +253,7 @@ xkb_compose_table_new_from_file(struct xkb_context *context,
  * This is just like xkb_compose_table_new_from_file(), but instead of
  * a file, gets the table as one enormous string.
  *
- * @see xkb_compose_table_new_from_file()
+ * @sa xkb_compose_table_new_from_file()
  * @memberof xkb_compose_table
  */
 XKB_EXPORT struct xkb_compose_table *
@@ -560,7 +560,7 @@ xkb_compose_state_reset(struct xkb_compose_state *state);
 /**
  * Get the current status of the compose state machine.
  *
- * @see xkb_compose_status
+ * @sa xkb_compose_status
  * @memberof xkb_compose_state
  **/
 XKB_EXPORT enum xkb_compose_status

@@ -75,10 +75,36 @@ enum xkb_error_code {
      */
     XKB_ERROR_UNSUPPORTED_MODIFIER_MASK = 60,
     /**
+     * Unsupported `xkb_state_mode` value
+     *
+     * Use the following to check if the linked libxkbcommon supports a given
+     * mode:
+     *
+     * ```c
+     * xkb_feature_supported(XKB_FEATURE_ENUM_STATE_MODE, flag)
+     * ```
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_UNSUPPORTED_STATE_MODE = 86,
+    /**
+     * Unsupported `xkb_keymap_key_iterator_flags` value
+     *
+     * Use the following to check if the linked libxkbcommon supports a given
+     * flag:
+     *
+     * ```c
+     * xkb_feature_supported(XKB_FEATURE_ENUM_KEYMAP_KEY_ITERATOR_FLAGS, flag)
+     * ```
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_UNSUPPORTED_KEY_ITERATOR_FLAGS = 138,
+    /**
      * The given layout out-of-range policy is not supported
      *
-     * Use the following to check if the linked libxkbcommon library supports a
-     * given flag:
+     * Use the following to check if the linked libxkbcommon supports a given
+     * flag:
      *
      * ```c
      * xkb_feature_supported(XKB_FEATURE_ENUM_LAYOUT_OUT_OF_RANGE_POLICY, flag)
@@ -90,7 +116,7 @@ enum xkb_error_code {
     /**
      * Layout index is not supported
      *
-     * libxkbcommon supports different *layout index* ranges, depending on the
+     * xkbcommon supports different *layout index* ranges, depending on the
      * target
      * *keymap format*:
      * - `::XKB_KEYMAP_FORMAT_TEXT_V1`: 1..4
@@ -116,8 +142,8 @@ enum xkb_error_code {
     /**
      * Unsupported `xkb_a11y_flags` value
      *
-     * Use the following to check if the linked libxkbcommon library supports a
-     * given flag:
+     * Use the following to check if the linked libxkbcommon supports a given
+     * flag:
      *
      * ```c
      * xkb_feature_supported(XKB_FEATURE_ENUM_A11Y_FLAGS, flag)
@@ -147,6 +173,38 @@ enum xkb_error_code {
      */
     XKB_ERROR_ABI_INVALID_STRUCT_SIZE = 450,
     /**
+     * Cannot allocate memory
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_ALLOCATION_FAILURE = 550,
+    /**
+     * Unsupported `xkb_events_flags` value
+     *
+     * Use the following to check if the linked libxkbcommon supports a given
+     * flag:
+     *
+     * ```c
+     * xkb_feature_supported(XKB_FEATURE_ENUM_EVENTS_FLAGS, flag)
+     * ```
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_UNSUPPORTED_EVENTS_FLAGS = 611,
+    /**
+     * Unsupported `xkb_machine_flags` value
+     *
+     * Use the following to check if the linked libxkbcommon supports a given
+     * flag:
+     *
+     * ```c
+     * xkb_feature_supported(XKB_FEATURE_ENUM_MACHINE_FLAGS, flag)
+     * ```
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_UNSUPPORTED_MACHINE_FLAGS = 755,
+    /**
      * Unsupported keymap serialization flags
      *
      * See `::xkb_keymap_serialize_flags` for the list of valid flags.
@@ -163,6 +221,19 @@ enum xkb_error_code {
      * @since 1.14.0
      */
     XKB_ERROR_ABI_FORWARD_COMPAT = 876,
+    /**
+     * Unsupported `xkb_machine_builder_flags` value
+     *
+     * Use the following to check if the linked libxkbcommon supports a given
+     * flag:
+     *
+     * ```c
+     * xkb_feature_supported(XKB_FEATURE_ENUM_MACHINE_BUILDER_FLAGS, flag)
+     * ```
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_UNSUPPORTED_MACHINE_BUILDER_FLAGS = 899,
     /**
      * ABI backward-compatibility check failed
      *

@@ -44,11 +44,11 @@ extern "C" {
 
 /**
  * @file
- * Main libxkbcommon API.
+ * Main xkbcommon API.
  *
  * @brief Core API for keyboard keymap compilation and state processing.
  *
- * This header provides the primary public API for libxkbcommon. It exposes
+ * This header provides the primary public API for xkbcommon. It exposes
  * facilities for:
  */
 
@@ -84,7 +84,7 @@ struct xkb_keymap;
  * @ingroup state
  * Opaque XKB state machine object.
  *
- * `xkb_machine` is a [Mealy machine]<!-- -->: it is a finite-state machine that
+ * `xkb_machine` is a [Mealy machine]&zwnj;: it is a finite-state machine that
  * takes a stream of raw key events – a pair ([keycode], [direction]) – as input,
  * and produces a stream of atomic [XKB events](@ref xkb_event) as output. Output
  * depends on *both* the input and the current internal state (active modifiers,
@@ -93,14 +93,14 @@ struct xkb_keymap;
  * This is the authoritative object for *server-side* XKB processing.
  *
  * @note To query the resulting keyboard state (active modifiers, current
- * layout, LED states, etc.), pair this object with an `xkb_state` updated via
+ * layout, LED states, etc.), pair this object with an `xkb_state` created via
+ * `xkb_state::xkb_state_new_from_machine()` and updated via
  * `xkb_state::xkb_state_update_event()`. The `xkb_state` object is the
  * *observable state* of the machine and provides the full query API.
  *
  * See @ref server-client-state for details.
  *
- * See the [example for a Wayland server](@ref quick-guide-wayland-server)
- * in the quick guide.
+ * See the [example for a Wayland server] in the quick guide.
  *
  * @since 1.14.0
  *
@@ -108,6 +108,7 @@ struct xkb_keymap;
  * [keycode]: @ref xkb_keycode_t
  * [direction]: @ref xkb_key_direction
  * [keyboard events]: @ref xkb_event
+ * [example for a Wayland server]: @ref quick-guide-wayland-server
  */
 struct xkb_machine;
 
@@ -141,14 +142,14 @@ struct xkb_machine;
  * [Mealy machine] that processes keyboard input; `xkb_state` is its
  * *observable state*, exposing the query API.
  *
- * Use the constructor `xkb_state_new_with_mode()` with
- * `::XKB_STATE_MODE_SERVER_QUERY`.
+ * Use the constructor `xkb_state_new_from_machine()` (mode:
+ * `::XKB_STATE_MODE_SERVER_QUERY`).
  *
  * See [examples](@ref quick-guide-wayland-server) in the quick guide.
  * </dd>
  * <dt>Legacy *server* API</dt>
  * <dd>
- * `xkb_state` is a [Mealy machine]<!-- -->: it is a finite-state machine that
+ * `xkb_state` is a [Mealy machine]&zwnj;: it is a finite-state machine that
  * takes a stream of raw key events – a pair ([keycode], [direction]) – as input,
  * and produces `xkb_state_component` delta with the previous state. Output
  * depends on *both* the input and the current internal state (active modifiers,
@@ -167,11 +168,13 @@ struct xkb_machine;
  * See @ref server-client-state and @ref xkb_state_mode for further details.
  *
  * [Mealy machine]: https://en.wikipedia.org/wiki/Mealy_machine
+ * [keycode]: @ref xkb_keycode_t
+ * [direction]: @ref xkb_key_direction
  */
 struct xkb_state;
 
 /**
- * A number used to represent a physical key on a keyboard.
+ * A number used to represent a **physical key** on a keyboard.
  *
  * A standard PC-compatible keyboard might have 102 keys.  An appropriate
  * keymap would assign each of them a keycode, by which the user should
@@ -193,11 +196,12 @@ struct xkb_state;
  * Historically, the XKB protocol restricts these names to at most 4 (ASCII)
  * characters, but this library does not share this limit.
  *
- * @code
+ * ```c
  * xkb_keycode_t keycode_A = KEY_A + 8;
- * @endcode
+ * ```
  *
- * @sa xkb_keycode_is_legal_ext() xkb_keycode_is_legal_x11()
+ * @sa `xkb_keycode_is_legal_ext()`
+ * @sa `xkb_keycode_is_legal_x11()`
  */
 typedef uint32_t xkb_keycode_t;
 
@@ -206,15 +210,14 @@ typedef uint32_t xkb_keycode_t;
  *
  * A key, represented by a keycode, may generate different symbols according
  * to keyboard state.  For example, on a QWERTY keyboard, pressing the key
- * labled \<A\> generates the symbol ‘a’.  If the Shift key is held, it
+ * labeled \<A\> generates the symbol ‘a’.  If the Shift key is held, it
  * generates the symbol ‘A’.  If a different layout is used, say Greek,
  * it generates the symbol ‘α’.  And so on.
  *
  * Each such symbol is represented by a *keysym* (short for “key symbol”).
  * Note that keysyms are somewhat more general, in that they can also represent
  * some “function”, such as “Left” or “Right” for the arrow keys.  For more
- * information, see: Appendix A [“KEYSYM Encoding”][encoding] of the X Window
- * System Protocol.
+ * information, see: @ref keysym-encoding "".
  *
  * Specifically named keysyms can be found in the
  * xkbcommon/xkbcommon-keysyms.h header file.  Their name does not include
@@ -232,12 +235,14 @@ typedef uint32_t xkb_keycode_t;
  * @note **Encoding:** Keysyms are 32-bit integers with the 3 most significant
  * bits always set to zero.  Thus valid keysyms are in the range
  * `0 .. 0x1fffffff` = @ref XKB_KEYSYM_MAX.
- * See: Appendix A [“KEYSYM Encoding”][encoding] of the X Window System Protocol.
+ * See @ref keysym-encoding "" for further details.
  *
  * [encoding]: https://www.x.org/releases/current/doc/xproto/x11protocol.html#keysym_encoding
  *
  * @ingroup keysyms
  * @sa `::XKB_KEYSYM_MAX`
+ * @sa @ref keysym-encoding ""
+ * @sa @ref predefined-keysyms ""
  */
 typedef uint32_t xkb_keysym_t;
 
@@ -250,6 +255,15 @@ typedef uint32_t xkb_keysym_t;
  *
  * Layout indices are consecutive.  The first layout has index 0.
  *
+ * The maximum number of layouts depends on the [keymap format]:
+ *
+ * <dl>
+ * <dt>`::XKB_KEYMAP_FORMAT_TEXT_V1`</dt>
+ * <dd>**4** (for [X11 compatibility]).</dd>
+ * <dt>`::XKB_KEYMAP_FORMAT_TEXT_V2`</dt>
+ * <dd>**32** (maximum allowed by `xkb_layout_mask_t`).</dd>
+ * </dl>
+ *
  * Each layout is not required to have a name, and the names are not
  * guaranteed to be unique (though they are usually provided and unique).
  * Therefore, it is not safe to use the name as a unique identifier for a
@@ -261,16 +275,25 @@ typedef uint32_t xkb_keysym_t;
  * names are not present in a compiled keymap.
  *
  * If the user selects layouts from a list generated from the XKB registry
- * (using libxkbregistry or directly), and this metadata is needed later on, it
+ * (using xkbregistry or directly), and this metadata is needed later on, it
  * is recommended to store it along with the keymap.
  *
  * Layouts are also called *groups* by XKB.
  *
- * @sa xkb_keymap::xkb_keymap_num_layouts()
- * @sa xkb_keymap::xkb_keymap_num_layouts_for_key()
+ * @sa `xkb_keymap::xkb_keymap_num_layouts()`
+ * @sa `xkb_keymap::xkb_keymap_num_layouts_for_key()`
+ * @sa `::XKB_LAYOUT_INVALID`
+ * @sa `xkb_layout_mask_t`
+ *
+ * [keymap format]: @ref xkb_keymap_format
+ * [X11 compatibility]: @ref xkb-compatibility
  */
 typedef uint32_t xkb_layout_index_t;
-/** A mask of layout indices. */
+/**
+ * A mask of layout indices.
+ *
+ * @sa `xkb_layout_index_t`
+ */
 typedef uint32_t xkb_layout_mask_t;
 
 /**
@@ -284,6 +307,8 @@ typedef uint32_t xkb_layout_mask_t;
  * many such combinations are possible (see `xkb_mod_index_t`).
  *
  * Level indices are consecutive.  The first level has index 0.
+ *
+ * @sa `::XKB_LEVEL_INVALID`
  */
 typedef uint32_t xkb_level_index_t;
 
@@ -309,6 +334,7 @@ typedef uint32_t xkb_level_index_t;
  * header file.  Modifier names are case-sensitive.
  *
  * @sa `xkb_keymap::xkb_keymap_num_mods()`
+ * @sa `::XKB_MOD_INVALID`
  * @sa `xkb_mod_mask_t`
  */
 typedef uint32_t xkb_mod_index_t;
@@ -328,6 +354,7 @@ typedef uint32_t xkb_mod_index_t;
  *
  * @sa `xkb_keymap::xkb_keymap_mod_get_mask()`
  * @sa `xkb_keymap::xkb_keymap_mod_get_mask2()`
+ * @sa `xkb_mod_index_t`
  *
  * [real modifiers]: @ref real-modifier-def
  * [virtual modifiers]: @ref virtual-modifier-def
@@ -360,45 +387,212 @@ typedef uint32_t xkb_mod_mask_t;
  * LEDs are also called *indicators* by XKB.
  *
  * @sa `xkb_keymap::xkb_keymap_num_leds()`
+ * @sa `::XKB_LED_INVALID`
+ * @sa `xkb_led_mask_t`
  */
 typedef uint32_t xkb_led_index_t;
-/** A mask of LED indices. */
+/**
+ * A mask of LED indices.
+ *
+ * @sa `xkb_led_index_t`
+ */
 typedef uint32_t xkb_led_mask_t;
 
-/** Invalid keycode */
+/**
+ * Invalid keycode
+ *
+ * @sa `xkb_keycode_t`
+ */
 #define XKB_KEYCODE_INVALID (0xffffffff)
-/** Invalid layout index */
+/**
+ * Invalid layout index
+ *
+ * @sa `xkb_layout_index_t`
+ */
 #define XKB_LAYOUT_INVALID  (0xffffffff)
-/** Invalid level index */
+/**
+ * Invalid level index
+ *
+ * @sa `xkb_level_index_t`
+ */
 #define XKB_LEVEL_INVALID   (0xffffffff)
-/** Invalid modifier index */
+/**
+ * Invalid modifier index
+ *
+ * @sa `xkb_mod_index_t`
+ */
 #define XKB_MOD_INVALID     (0xffffffff)
-/** Invalid LED index */
+/**
+ * Invalid LED index
+ *
+ * @sa `xkb_led_index_t`
+ */
 #define XKB_LED_INVALID     (0xffffffff)
 
-/** Maximum legal keycode */
+/**
+ * Maximum legal keycode
+ *
+ * @sa `xkb_keycode_t`
+ */
 #define XKB_KEYCODE_MAX     (0xffffffff - 1)
 
 /**
  * Maximum keysym value
+ * @ingroup keysyms
+ *
+ * @sa `xkb_keysym_t`
  *
  * @since 1.6.0
- * @sa xkb_keysym_t
- * @ingroup keysyms
  */
 #define XKB_KEYSYM_MAX      0x1fffffff
 
 /**
  * Test whether a value is a valid extended keycode.
- * @sa xkb_keycode_t
+ * @sa `xkb_keycode_t`
  **/
 #define xkb_keycode_is_legal_ext(key) ((key) <= XKB_KEYCODE_MAX)
 
 /**
  * Test whether a value is a valid X11 keycode.
- * @sa xkb_keycode_t
+ * @sa `xkb_keycode_t`
  */
 #define xkb_keycode_is_legal_x11(key) ((key) >= 8 && (key) <= 255)
+
+/**
+ * @defgroup abi-struct-contract Extensible structure ABI contract
+ *
+ * @brief Explains how extensible structures maintain ABI compatibility
+ * across library releases.
+ *
+ * To guarantee long-term backward and forward compatibility of the ABI,
+ * functions across this library accept **extensible structures** that
+ * share a common **ABI contract**.
+ *
+ * @tableofcontents{html:2}
+ *
+ * @section abi-struct-layout Layout
+ *
+ * Every extensible structure begins with a **mandatory `uint32_t size` first
+ * field** and **must not contain any implicit padding**: every alignment gap
+ * is filled explicitly with a **reserved field**, each sized for the platform
+ * with the strictest alignment requirements and verified via `static_assert`.
+ *
+ * ```c
+ * struct Example {
+ *     uint32_t size;
+ *     uint8_t a;
+ *     uint8_t reserved0[3];
+ *     char *b;
+ *     uint32_t c;
+ *     uint32_t reserved1; // padding for 64-bit platforms
+ * };
+ * ```
+ *
+ * `size` specifies the byte size of the structure, as provided by the caller.
+ * It has a fixed-width type `uint32_t` so that its representation is
+ * independent of the platform’s native `size_t` width.
+ *
+ * A structure’s **reserved** fields (`reserved0`, `reserved1`, …) either
+ * fill an alignment gap or pre-allocate space for a future field. They
+ * are numbered in declaration order; when one is later repurposed (see
+ * @ref abi-struct-guarantees), remaining reserved fields keep their names.
+ *
+ * @section abi-struct-init Structure initialization
+ *
+ * When initializing an extensible structure, callers **must**:
+ * - Set `size` to `sizeof()` of the structure.
+ * - Zero every reserved field, e.g. by omitting them from a designated
+ *   initializer (structures are padded explicitly) or using `memset()`.
+ *
+ * @figure
+ * @figcaption Example with omitted initializer @endfigcaption
+ * ```c
+ * struct Example example = {
+ *     .size = sizeof(example),
+ *     .a = …,
+ *     // .reserved0 is zeroed automatically
+ *     .b = …,
+ *     .c = …,
+ *     // .reserved1 is zeroed automatically
+ * };
+ * ```
+ * @endfigure
+ *
+ * @figure
+ * @figcaption Example with `memset()` @endfigcaption
+ * ```c
+ * struct Example example;
+ * memset(&example, 0, sizeof(example));
+ * example.size = sizeof(example);
+ * example.a = …;
+ * ```
+ * @endfigure
+ *
+ * @section abi-struct-resolution Version resolution
+ *
+ * When a function receives an extensible structure, it uses the caller-
+ * provided `size` to determine which fields are present, and validates
+ * any reserved field covered by that `size`:
+ *
+ * <dl>
+ * <dt>*Backward* compatibility</dt>
+ * <dd>
+ * The caller was built against an older header: *caller’s `size` \< library’s*.
+ * Only the fields covered by `size` are read; the library never accesses memory
+ * past that boundary. Fields beyond it are treated as unset and fall back to
+ * their default behavior.
+ *
+ * In the unlikely case that a missing field has no safe default for the
+ * requested operation, the call fails with `::XKB_ERROR_ABI_BACKWARD_COMPAT`.
+ * </dd>
+ * <dt>*Forward* compatibility</dt>
+ * <dd>
+ * The caller was built against a header identical to or newer than the
+ * library: *caller’s `size` \≥ library’s* (note that equal `size` does not
+ * imply same version: *Reserved fields* below). Only the fields known to
+ * this version of the library are read. The trailing, unrecognized bytes
+ * (if any) are inspected only to check they are zero. If they are all zero,
+ * they are silently ignored: the caller is requesting default behavior
+ * for fields this library predates. If any are non-zero, the caller is
+ * explicitly requesting behavior this library version cannot provide,
+ * and the call fails with `::XKB_ERROR_ABI_FORWARD_COMPAT`.
+ * </dd>
+ * <dt>Reserved fields</dt>
+ * <dd>
+ * Independently of the above, every reserved field covered by `size` must be
+ * zero. A non-zero value means the caller was built against a header where
+ * that field has since been given meaning — behavior this library version
+ * cannot honor — and the call fails with `::XKB_ERROR_ABI_FORWARD_COMPAT`,
+ * the same code used for non-zero trailing bytes beyond `size`.
+ * </dd>
+ * <dt>Invalid</dt>
+ * <dd>
+ * If `size` is smaller than the very first released version of the struct
+ * (e.g. left uninitialized) or excessively big (e.g. corrupted), the call
+ * fails safely with `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`.
+ * </dd>
+ * </dl>
+ *
+ * @section abi-struct-guarantees Compatibility guarantees
+ *
+ * This contract holds as long as fields are only ever **appended** to
+ * an extensible structure: never removed, reordered, or resized.
+ * A reserved field may later be repurposed by renaming it and giving it
+ * a new ABI-compatible type, so that the structure’s layout is unchanged.
+ * Under these rules:
+ *
+ * - A binary built against an *older* header keeps working against a
+ *   *newer* library.
+ * - A binary built against a *newer* header keeps working against an
+ *   *older* library, as long as it does not set any field the library
+ *   predates — including any reserved field — to a non-default value.
+ * - When a reserved field is repurposed, older callers that correctly
+ *   zero-initialized it continue to work unmodified: zero was already
+ *   the only value the contract allowed, and the new release simply
+ *   defines that value as the field’s default.
+ *
+ * @since 1.14.0
+ */
 
 /**
  * @defgroup rules-api Rules
@@ -414,8 +608,9 @@ typedef uint32_t xkb_led_mask_t;
  *
  * It denotes the configuration values by which a user picks a keymap.
  *
- * @see [Introduction to RMLVO][RMLVO]
- * @see @ref rules-api ""
+ * @sa [Introduction to RMLVO][RMLVO]
+ * @sa @ref rules-api ""
+ *
  * @since 1.11.0
  *
  * [RMLVO]: @ref RMLVO-intro
@@ -424,7 +619,7 @@ struct xkb_rmlvo_builder;
 
 /**
  * @enum xkb_rmlvo_builder_flags
- * Flags for `xkb_rmlvo_builder_new()`.
+ * Flags for `xkb_rmlvo_builder::xkb_rmlvo_builder_new()`.
  *
  * @since 1.11.0
  */
@@ -434,11 +629,12 @@ enum xkb_rmlvo_builder_flags {
      *
      * @since 1.11.0
      */
-    XKB_RMLVO_BUILDER_NO_FLAGS = 0
+    XKB_RMLVO_BUILDER_NO_FLAGS = 0,
 };
 
 /**
  * Create a new [RMLVO] builder.
+ * @memberof xkb_rmlvo_builder
  *
  * @param[in] context The context in which to create the builder.
  * @param[in] rules   The ruleset.
@@ -451,21 +647,23 @@ enum xkb_rmlvo_builder_flags {
  * as the default.  Otherwise the system default is used.
  * @param[in] flags   Optional flags for the builder, or 0.
  *
- * @returns A `xkb_rmlvo_builder`, or `NULL` if the compilation failed.
+ * @returns A `xkb_rmlvo_builder`, or `NULL` if the creation failed.
  *
- * @see `xkb_rule_names` for a detailed description of @p rules and @p model.
+ * @sa `struct xkb_rule_names` for a detailed description of @p rules and
+ * @p model.
+ *
  * @since 1.11.0
- * @memberof xkb_rmlvo_builder
  *
  * [RMLVO]: @ref RMLVO-intro
  */
-XKB_EXPORT struct xkb_rmlvo_builder*
+XKB_EXPORT struct xkb_rmlvo_builder *
 xkb_rmlvo_builder_new(struct xkb_context *context,
                       const char *rules, const char *model,
                       enum xkb_rmlvo_builder_flags flags);
 
 /**
  * Append a layout to the given [RMLVO] builder.
+ * @memberof xkb_rmlvo_builder
  *
  * @param[in,out] rmlvo         The builder to modify.
  * @param[in]     layout        The name of the layout.
@@ -474,6 +672,7 @@ xkb_rmlvo_builder_new(struct xkb_context *context,
  * @param[in]     options       An array of options to apply only to this
  *                              layout, or `NULL` if there is no such options.
  * @param[in]     options_len   The length of @p options.
+ *                              Must be 0 if @p options is NULL.
  *
  * @note The options are only effectual if the corresponding ruleset has the
  * proper rules to handle them as *layout-specific* options.
@@ -483,7 +682,6 @@ xkb_rmlvo_builder_new(struct xkb_context *context,
  * @returns `true` if the call succeeded, otherwise `false`.
  *
  * @since 1.11.0
- * @memberof xkb_rmlvo_builder
  *
  * [RMLVO]: @ref RMLVO-intro
  */
@@ -494,6 +692,7 @@ xkb_rmlvo_builder_append_layout(struct xkb_rmlvo_builder *rmlvo,
 
 /**
  * Append an option to the given [RMLVO] builder.
+ * @memberof xkb_rmlvo_builder
  *
  * @param[in,out] rmlvo   The builder to modify.
  * @param[in]     option  The name of the option.
@@ -501,7 +700,6 @@ xkb_rmlvo_builder_append_layout(struct xkb_rmlvo_builder *rmlvo,
  * @returns `true` if the call succeeded, otherwise `false`.
  *
  * @since 1.11.0
- * @memberof xkb_rmlvo_builder
  *
  * [RMLVO]: @ref RMLVO-intro
  */
@@ -511,13 +709,13 @@ xkb_rmlvo_builder_append_option(struct xkb_rmlvo_builder *rmlvo,
 
 /**
  * Take a new reference on a [RMLVO] builder.
+ * @memberof xkb_rmlvo_builder
  *
  * @param[in] rmlvo The builder to reference.
  *
  * @returns The passed in builder.
  *
  * @since 1.11.0
- * @memberof xkb_rmlvo_builder
  *
  * [RMLVO]: @ref RMLVO-intro
  */
@@ -526,11 +724,11 @@ xkb_rmlvo_builder_ref(struct xkb_rmlvo_builder *rmlvo);
 
 /**
  * Release a reference on a [RMLVO] builder, and possibly free it.
+ * @memberof xkb_rmlvo_builder
  *
  * @param[in] rmlvo The builder.  If it is `NULL`, this function does nothing.
  *
  * @since 1.11.0
- * @memberof xkb_rmlvo_builder
  *
  * [RMLVO]: @ref RMLVO-intro
  */
@@ -547,8 +745,8 @@ xkb_rmlvo_builder_unref(struct xkb_rmlvo_builder *rmlvo);
  * If the entire struct is `NULL`, then each field is taken to be `NULL`.
  * You should prefer passing `NULL` instead of choosing your own defaults.
  *
- * @see [Introduction to RMLVO][RMLVO]
- * @see @ref rules-api ""
+ * @sa [Introduction to RMLVO][RMLVO]
+ * @sa @ref rules-api ""
  *
  * [RMLVO]: @ref RMLVO-intro
  */
@@ -625,23 +823,59 @@ struct xkb_rule_names {
  *
  * The components are the result of the [RMLVO] resolution.
  *
- * @see [Introduction to RMLVO][RMLVO]
- * @see [Introduction to KcCGST][KcCGST]
- * @see @ref rules-api ""
+ * @sa [Introduction to RMLVO][RMLVO]
+ * @sa [Introduction to KcCGST][KcCGST]
+ * @sa @ref rules-api ""
  *
  * [RMLVO]: @ref RMLVO-intro
  * [KcCGST]: @ref KcCGST-intro
  */
 struct xkb_component_names {
+    /**
+     * Name of the [keycodes] component.
+     *
+     * @sa @ref the-xkb_keycodes-section ""
+     *
+     * [keycodes]: @ref config-keycodes-def
+     */
     char *keycodes;
+    /**
+     * Name of the [compatibility] component.
+     *
+     * @sa @ref the-xkb_compat-section ""
+     *
+     * [compatibility]: @ref config-compat-def
+     */
     char *compatibility;
+    /**
+     * Name of the [geometry] component.
+     *
+     * @sa @ref the-xkb_geometry-section ""
+     *
+     * [geometry]: @ref config-geometry-def
+     */
     char *geometry;
+    /**
+     * Name of the [symbols] component.
+     *
+     * @sa @ref the-xkb_symbols-section ""
+     *
+     * [symbols]: @ref config-symbols-def
+     */
     char *symbols;
+    /**
+     * Name of the [key types] component.
+     *
+     * @sa @ref the-xkb_types-section ""
+     *
+     * [key types]: @ref config-types-def
+     */
     char *types;
 };
 
 /**
  * Resolve [RMLVO] names to [KcCGST] components.
+ * @memberof xkb_component_names
  *
  * This function is used primarily for *debugging*. See
  * `xkb_keymap::xkb_keymap_new_from_names2()` for creating keymaps from
@@ -662,14 +896,13 @@ struct xkb_component_names {
  *
  * @returns `true` if the [RMLVO] names could be resolved, `false` otherwise.
  *
- * @see [Introduction to RMLVO][RMLVO]
- * @see [Introduction to KcCGST][KcCGST]
- * @see xkb_rule_names
- * @see xkb_component_names
- * @see xkb_keymap::xkb_keymap_new_from_names2()
+ * @sa [Introduction to RMLVO][RMLVO]
+ * @sa [Introduction to KcCGST][KcCGST]
+ * @sa `struct xkb_rule_names`
+ * @sa `struct xkb_component_names`
+ * @sa `xkb_keymap::xkb_keymap_new_from_names2()`
  *
  * @since 1.9.0
- * @memberof xkb_component_names
  *
  * [RMLVO]: @ref RMLVO-intro
  * [KcCGST]: @ref KcCGST-intro
@@ -686,6 +919,9 @@ xkb_components_names_from_rules(struct xkb_context *context,
  * @defgroup keysyms Keysyms
  * Utility functions related to [*keysyms*](@ref xkb_keysym_t) (short for
  * “key symbols”).
+ *
+ * @sa @ref keysym-encoding ""
+ * @sa @ref predefined-keysyms ""
  *
  * @{
  */
@@ -711,7 +947,7 @@ xkb_components_names_from_rules(struct xkb_context *context,
  * <dd>
  * If the **Control** [modifier] is active and was not consumed by the
  * translation process, the string produced is transformed to its matching
- * [ASCII control character]<!-- --> (if applicable). Keysyms are not affected.
+ * [ASCII control character]&zwnj; (if applicable). Keysyms are not affected.
  *
  * This is described in:
  * https://www.x.org/releases/current/doc/kbproto/xkbproto.html#Interpreting_the_Control_Modifier
@@ -759,7 +995,7 @@ enum xkb_keysym_flags {
     /** Do not apply any flags. */
     XKB_KEYSYM_NO_FLAGS = 0,
     /** Find keysym by case-insensitive search. */
-    XKB_KEYSYM_CASE_INSENSITIVE = (1 << 0)
+    XKB_KEYSYM_CASE_INSENSITIVE = (1 << 0),
 };
 
 /**
@@ -783,7 +1019,8 @@ enum xkb_keysym_flags {
  *
  * @returns The keysym. If the name is invalid, returns `XKB_KEY_NoSymbol`.
  *
- * @sa xkb_keysym_t
+ * @sa `xkb_keysym_t`
+ *
  * @since 1.9.0: Enable support for [C0 and C1 control characters] in the Unicode
  * notation.
  *
@@ -797,8 +1034,9 @@ xkb_keysym_from_name(const char *name, enum xkb_keysym_flags flags);
  *
  * @param[in] buffer A buffer to read the UTF-8 encoded codepoint from.
  * @param[in] size   Capacity of @p buffer.
- * @returns The keysym corresponding to the specified Unicode
- * codepoint, or `XKB_KEY_NoSymbol` if there is none.
+ *
+ * @returns The keysym corresponding to the specified Unicode codepoint, or
+ * `XKB_KEY_NoSymbol` if is there is none or if the input is invalid.
  *
  * This function is the inverse of `xkb_keysym_to_utf8()`. In cases
  * where a single codepoint corresponds to multiple keysyms, returns
@@ -809,6 +1047,8 @@ xkb_keysym_from_name(const char *name, enum xkb_keysym_flags flags);
  * have an associated keysym constant (`XKB_KEY_*`).
  *
  * @sa `xkb_keysym_to_utf8()`
+ * @sa `xkb_utf32_to_keysym()`
+ *
  * @since 1.14.0
  */
 XKB_EXPORT xkb_keysym_t
@@ -829,6 +1069,8 @@ xkb_utf8_to_keysym(const char *buffer, size_t size);
  * Therefore, prefer to use `xkb_state::xkb_state_key_get_utf8()` if possible.
  *
  * @sa `xkb_state::xkb_state_key_get_utf8()`
+ * @sa `xkb_utf8_to_keysym()`
+ * @sa `xkb_keysym_to_utf32()`
  */
 XKB_EXPORT int
 xkb_keysym_to_utf8(xkb_keysym_t keysym, char *buffer, size_t size);
@@ -844,6 +1086,8 @@ xkb_keysym_to_utf8(xkb_keysym_t keysym, char *buffer, size_t size);
  * Therefore, prefer to use `xkb_state::xkb_state_key_get_utf32()` if possible.
  *
  * @sa `xkb_state::xkb_state_key_get_utf32()`
+ * @sa `xkb_utf32_to_keysym()`
+ * @sa `xkb_keysym_to_utf8()`
  */
 XKB_EXPORT uint32_t
 xkb_keysym_to_utf32(xkb_keysym_t keysym);
@@ -863,7 +1107,9 @@ xkb_keysym_to_utf32(xkb_keysym_t keysym);
  * have an associated keysym constant (`XKB_KEY_*`).
  *
  * @sa `xkb_keysym_to_utf32()`
- * @since 1.0.0
+ * @sa `xkb_utf8_to_keysym()`
+ *
+ * @since 1.0.0: Initial implementation.
  * @since 1.9.0: Enable support for all noncharacters.
  */
 XKB_EXPORT xkb_keysym_t
@@ -967,69 +1213,64 @@ enum xkb_context_flags {
      *
      * @since 1.5.0
      */
-    XKB_CONTEXT_NO_SECURE_GETENV = (1 << 2)
+    XKB_CONTEXT_NO_SECURE_GETENV = (1 << 2),
 };
 
 /**
  * Create a new context.
+ * @memberof xkb_context
  *
  * @param[in] flags Optional flags for the context, or 0.
  *
  * @returns A new context, or `NULL` on failure.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT struct xkb_context *
 xkb_context_new(enum xkb_context_flags flags);
 
 /**
  * Take a new reference on a context.
+ * @memberof xkb_context
  *
  * @param[in] context The context object.
  *
  * @returns The passed in context.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT struct xkb_context *
 xkb_context_ref(struct xkb_context *context);
 
 /**
  * Release a reference on a context, and possibly free it.
+ * @memberof xkb_context
  *
  * @param[in] context The context.  If it is `NULL`, this function does nothing.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT void
 xkb_context_unref(struct xkb_context *context);
 
 /**
  * Store custom user data in the context.
+ * @memberof xkb_context
  *
  * This may be useful in conjunction with `xkb_context_set_log_fn()`
  * or other callbacks.
  *
  * @param[in,out] context   The context object.
  * @param[in]     user_data User data object.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT void
 xkb_context_set_user_data(struct xkb_context *context, void *user_data);
 
 /**
  * Retrieves stored user data from the context.
+ * @memberof xkb_context
  *
- * @param[in,out] context The context object.
+ * @param[in] context The context object.
  *
  * @returns The stored user data.  If the user data wasn’t set, or the
  * passed in context is `NULL`, returns `NULL`.
  *
  * This may be useful to access private user data from callbacks like a
  * custom logging function.
- *
- * @memberof xkb_context
  **/
 XKB_EXPORT void *
 xkb_context_get_user_data(struct xkb_context *context);
@@ -1083,10 +1324,10 @@ xkb_context_get_user_data(struct xkb_context *context);
  *
  *   @warning Do not modify the system XKB root files, because they will be
  *   overwritten by any update of the `xkeyboard-config`/`xkb-data` package.
- * - Since 1.12.2: if the previous path failed, it fallbacks to the *legacy X11
- *   path* defined at compilation time (usually `/usr/share/X11/xkb`). This
- *   fallback is skipped is `XKB_CONFIG_ROOT` is explicitly set to an empty
- *   string.
+ * - Since 1.12.2: if the previous path failed, it falls back to the *legacy
+ *   X11 path* defined at compilation time (usually `/usr/share/X11/xkb`).
+ *   This fallback is skipped if `XKB_CONFIG_ROOT` is explicitly set to an
+ *   empty string.
  * </dd>
  * </dl>
  *
@@ -1095,41 +1336,37 @@ xkb_context_get_user_data(struct xkb_context *context);
 
 /**
  * Append a new entry to the context’s include path.
+ * @memberof xkb_context
  *
  * @returns 1 on success, or 0 if the include path could not be added or is
  * inaccessible.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT int
 xkb_context_include_path_append(struct xkb_context *context, const char *path);
 
 /**
  * Append the default include paths to the context’s include path.
+ * @memberof xkb_context
  *
  * @returns 1 on success, or 0 if no default include path could be added.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT int
 xkb_context_include_path_append_default(struct xkb_context *context);
 
 /**
  * Reset the context’s include path to the default.
+ * @memberof xkb_context
  *
  * Removes all entries from the context’s include path, and inserts the
  * default paths.
  *
  * @returns 1 on success, or 0 if the primary include path could not be added.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT int
 xkb_context_include_path_reset_defaults(struct xkb_context *context);
 
 /**
  * Remove all entries from the context’s include path.
- *
  * @memberof xkb_context
  */
 XKB_EXPORT void
@@ -1137,7 +1374,6 @@ xkb_context_include_path_clear(struct xkb_context *context);
 
 /**
  * Get the number of paths in the context’s include path.
- *
  * @memberof xkb_context
  */
 XKB_EXPORT unsigned int
@@ -1145,11 +1381,10 @@ xkb_context_num_include_paths(struct xkb_context *context);
 
 /**
  * Get a specific include path from the context’s include path.
+ * @memberof xkb_context
  *
  * @returns The include path at the specified index.  If the index is
  * invalid, returns `NULL`.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT const char *
 xkb_context_include_path_get(struct xkb_context *context, unsigned int index);
@@ -1172,11 +1407,12 @@ enum xkb_log_level {
     XKB_LOG_LEVEL_ERROR = 20,    /**< Log all errors. */
     XKB_LOG_LEVEL_WARNING = 30,  /**< Log warnings and errors. */
     XKB_LOG_LEVEL_INFO = 40,     /**< Log information, warnings, and errors. */
-    XKB_LOG_LEVEL_DEBUG = 50     /**< Log everything. */
+    XKB_LOG_LEVEL_DEBUG = 50,    /**< Log everything. */
 };
 
 /**
  * Set the current logging level.
+ * @memberof xkb_context
  *
  * @param[in,out] context The context in which to set the logging level.
  * @param[in]     level   The logging level to use.  Only messages from this
@@ -1185,8 +1421,6 @@ enum xkb_log_level {
  * The default level is `::XKB_LOG_LEVEL_ERROR`.  The environment variable
  * `XKB_LOG_LEVEL`, if set in the time the context was created, overrides the
  * default value.  It may be specified as a level number or name.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT void
 xkb_context_set_log_level(struct xkb_context *context,
@@ -1194,7 +1428,6 @@ xkb_context_set_log_level(struct xkb_context *context,
 
 /**
  * Get the current logging level.
- *
  * @memberof xkb_context
  */
 XKB_EXPORT enum xkb_log_level
@@ -1202,6 +1435,7 @@ xkb_context_get_log_level(struct xkb_context *context);
 
 /**
  * Sets the current logging verbosity.
+ * @memberof xkb_context
  *
  * The library can generate a number of warnings which are not helpful to
  * ordinary users of the library.  The verbosity may be increased if more
@@ -1216,15 +1450,12 @@ xkb_context_get_log_level(struct xkb_context *context);
  * messages being logged.
  *
  * Most verbose messages are of level `::XKB_LOG_LEVEL_WARNING` or lower.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT void
 xkb_context_set_log_verbosity(struct xkb_context *context, int verbosity);
 
 /**
  * Get the current logging verbosity of the context.
- *
  * @memberof xkb_context
  */
 XKB_EXPORT int
@@ -1232,6 +1463,7 @@ xkb_context_get_log_verbosity(struct xkb_context *context);
 
 /**
  * Set a custom function to handle logging messages.
+ * @memberof xkb_context
  *
  * @param[in,out] context The context in which to use the set logging function.
  * @param[in]     log_fn  The function that will be called for logging messages.
@@ -1247,8 +1479,6 @@ xkb_context_get_log_verbosity(struct xkb_context *context);
  * You may use `xkb_context::xkb_context_set_user_data()` on the context, and
  * then call `xkb_context::xkb_context_get_user_data()` from within the logging
  * function to provide it with additional private context.
- *
- * @memberof xkb_context
  */
 XKB_EXPORT void
 xkb_context_set_log_fn(struct xkb_context *context,
@@ -1285,11 +1515,10 @@ enum xkb_keymap_compile_flags {
      * - unknown compound statement
      * - unknown action/action parameter
      * - invalid action parameter value
-     * - TODO
      *
      * @since 1.14.0
      */
-    XKB_KEYMAP_COMPILE_STRICT_MODE = (1 << 0)
+    XKB_KEYMAP_COMPILE_STRICT_MODE = (1 << 0),
 };
 
 /** @} */
@@ -1319,7 +1548,7 @@ enum xkb_keymap_compile_flags {
  * <thead>
  * <tr>
  * <th colspan="2">Protocol</th>
- * <th colspan="2">libxkbcommon keymap format</th>
+ * <th colspan="2">xkbcommon keymap format</th>
  * </tr>
  * <tr>
  * <th>Name</th>
@@ -1362,7 +1591,7 @@ enum xkb_keymap_compile_flags {
  * At the time of writing (July 2025), the Wayland <code>[xkb_v1]</code> keymap
  * format is only defined as “libxkbcommon compatible”. In theory it enables
  * flexibility, but the set of supported features varies depending on the
- * libxkbcommon version and libxkbcommon keymap format used. Unfortunately there
+ * xkbcommon version and xkbcommon keymap format used. Unfortunately there
  * is currently no Wayland API for keymap format *negotiation*.
  *
  * Therefore the **recommended** serialization format is
@@ -1419,7 +1648,7 @@ enum xkb_keymap_format {
      *
      * [xkb_v1]: https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_keyboard-enum-keymap_format
      */
-    XKB_KEYMAP_FORMAT_TEXT_V2 = 2
+    XKB_KEYMAP_FORMAT_TEXT_V2 = 2,
 };
 
 /**
@@ -1429,6 +1658,7 @@ enum xkb_keymap_format {
 
 /**
  * Create a keymap from a [RMLVO] builder.
+ * @memberof xkb_keymap
  *
  * The primary keymap entry point: creates a new XKB keymap from a set of
  * [RMLVO] \(Rules + Model + Layouts + Variants + Options) names.
@@ -1440,11 +1670,11 @@ enum xkb_keymap_format {
  * @returns A keymap compiled according to the [RMLVO] names, or `NULL` if
  * the compilation failed.
  *
- * @since 1.11.0
- * @since 1.14.0 Parser is lenient by default.
  * @sa `xkb_keymap_new_from_names2()`
- * @sa `xkb_rmlvo_builder`
- * @memberof xkb_keymap
+ * @sa `struct xkb_rmlvo_builder`
+ *
+ * @since 1.11.0: Initial implementation.
+ * @since 1.14.0: Parser is lenient by default.
  *
  * [RMLVO]: @ref RMLVO-intro
  */
@@ -1455,19 +1685,21 @@ xkb_keymap_new_from_rmlvo(const struct xkb_rmlvo_builder *rmlvo,
 
 /**
  * Create a keymap from [RMLVO] names.
+ * @memberof xkb_keymap
  *
  * Same as `xkb_keymap_new_from_names2()`, but with the keymap format fixed to:
  * `::XKB_KEYMAP_FORMAT_TEXT_V2`.
  *
  * @deprecated Use `xkb_keymap_new_from_names2()` instead.
+ *
+ * @sa `xkb_keymap_new_from_names2()`
+ * @sa `struct xkb_rule_names`
+ * @sa `xkb_keymap_new_from_rmlvo()`
+ *
  * @since 1.11.0: Deprecated
  * @since 1.11.0: Use internally `::XKB_KEYMAP_FORMAT_TEXT_V2` instead of
  * `::XKB_KEYMAP_FORMAT_TEXT_V1`
- * @since 1.14.0 Parser is lenient by default.
- * @sa `xkb_keymap_new_from_names2()`
- * @sa `xkb_rule_names`
- * @sa `xkb_keymap_new_from_rmlvo()`
- * @memberof xkb_keymap
+ * @since 1.14.0: Parser is lenient by default.
  *
  * [RMLVO]: @ref RMLVO-intro
  */
@@ -1478,6 +1710,7 @@ xkb_keymap_new_from_names(struct xkb_context *context,
 
 /**
  * Create a keymap from [RMLVO] names.
+ * @memberof xkb_keymap
  *
  * The primary keymap entry point: creates a new XKB keymap from a set of
  * [RMLVO] \(Rules + Model + Layouts + Variants + Options) names.
@@ -1490,11 +1723,11 @@ xkb_keymap_new_from_names(struct xkb_context *context,
  * @returns A keymap compiled according to the [RMLVO] names, or `NULL` if
  * the compilation failed.
  *
- * @since 1.11.0
- * @since 1.14.0 Parser is lenient by default.
- * @sa `xkb_rule_names`
+ * @sa `struct xkb_rule_names`
  * @sa `xkb_keymap_new_from_rmlvo()`
- * @memberof xkb_keymap
+ *
+ * @since 1.11.0: Initial implementation
+ * @since 1.14.0: Parser is lenient by default.
  *
  * [RMLVO]: @ref RMLVO-intro
  */
@@ -1506,6 +1739,7 @@ xkb_keymap_new_from_names2(struct xkb_context *context,
 
 /**
  * Create a keymap from a keymap file.
+ * @memberof xkb_keymap
  *
  * @param[in] context The context in which to create the keymap.
  * @param[in] file    The keymap file to compile.
@@ -1520,9 +1754,7 @@ xkb_keymap_new_from_names2(struct xkb_context *context,
  * top level `%xkb_keymap` section, which in turn contains other required
  * sections.
  *
- * @since 1.14.0 Parser is lenient by default.
- *
- * @memberof xkb_keymap
+ * @since 1.14.0: Parser is lenient by default.
  */
 XKB_EXPORT struct xkb_keymap *
 xkb_keymap_new_from_file(struct xkb_context *context, FILE *file,
@@ -1531,6 +1763,7 @@ xkb_keymap_new_from_file(struct xkb_context *context, FILE *file,
 
 /**
  * Create a keymap from a keymap string.
+ * @memberof xkb_keymap
  *
  * This is just like `xkb_keymap_new_from_file()`, but instead of a file, gets
  * the keymap as one enormous string.
@@ -1538,9 +1771,9 @@ xkb_keymap_new_from_file(struct xkb_context *context, FILE *file,
  * @returns A keymap compiled from the given string, or `NULL` if
  * the compilation failed.
  *
- * @since 1.14.0 Parser is lenient by default.
- * @see `xkb_keymap_new_from_file()`
- * @memberof xkb_keymap
+ * @sa `xkb_keymap_new_from_file()`
+ *
+ * @since 1.14.0: Parser is lenient by default.
  */
 XKB_EXPORT struct xkb_keymap *
 xkb_keymap_new_from_string(struct xkb_context *context, const char *string,
@@ -1549,6 +1782,7 @@ xkb_keymap_new_from_string(struct xkb_context *context, const char *string,
 
 /**
  * Create a keymap from a memory buffer.
+ * @memberof xkb_keymap
  *
  * This is just like `xkb_keymap_new_from_string()`, but takes a @p length
  * argument so the input string does not have to be zero-terminated.
@@ -1556,10 +1790,10 @@ xkb_keymap_new_from_string(struct xkb_context *context, const char *string,
  * @returns A keymap compiled from the given buffer, or `NULL` if
  * the compilation failed.
  *
- * @since 0.3.0
- * @since 1.14.0 Parser is lenient by default.
- * @see `xkb_keymap_new_from_string()`
- * @memberof xkb_keymap
+ * @sa `xkb_keymap_new_from_string()`
+ *
+ * @since 0.3.0: Initial implementation
+ * @since 1.14.0: Parser is lenient by default.
  */
 XKB_EXPORT struct xkb_keymap *
 xkb_keymap_new_from_buffer(struct xkb_context *context, const char *buffer,
@@ -1568,20 +1802,18 @@ xkb_keymap_new_from_buffer(struct xkb_context *context, const char *buffer,
 
 /**
  * Take a new reference on a keymap.
+ * @memberof xkb_keymap
  *
  * @returns The passed in keymap.
- *
- * @memberof xkb_keymap
  */
 XKB_EXPORT struct xkb_keymap *
 xkb_keymap_ref(struct xkb_keymap *keymap);
 
 /**
  * Release a reference on a keymap, and possibly free it.
+ * @memberof xkb_keymap
  *
  * @param[in] keymap The keymap.  If it is `NULL`, this function does nothing.
- *
- * @memberof xkb_keymap
  */
 XKB_EXPORT void
 xkb_keymap_unref(struct xkb_keymap *keymap);
@@ -1653,7 +1885,7 @@ enum xkb_keymap_serialize_flags {
      *
      * @since 1.14.0
      *
-     * [virtual modifiers]: @ref virtual-modifier-def
+     * [virtual modifier]: @ref virtual-modifier-def
      */
     XKB_KEYMAP_SERIALIZE_EXPLICIT_VMODS = (1 << 4),
     /**
@@ -1662,8 +1894,6 @@ enum xkb_keymap_serialize_flags {
      * This is useful mainly for debugging, as it may increase considerably
      * the size of the serialization.
      *
-     * This is useful mainly for debugging.
-     *
      * @since 1.14.0
      */
     XKB_KEYMAP_SERIALIZE_EXPLICIT_KEY_VALUES = (1 << 5),
@@ -1671,27 +1901,30 @@ enum xkb_keymap_serialize_flags {
 
 /**
  * @struct xkb_keymap_serialize_config
+ * @ingroup abi-struct-contract
  *
  * Serialization configuration for `xkb_keymap::xkb_keymap_serialize()`.
  *
- * @sa `::xkb_keymap_serialize_result`
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `struct xkb_keymap_serialize_result`
+ *
  * @since 1.14.0
  */
 struct xkb_keymap_serialize_config {
     /**
-     * Size of this structure, for forward-compatibility.
+     * Size of this structure in bytes.
      *
-     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
-     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
-     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     * @sa @ref abi-struct-contract
      *
      * @since 1.14.0
      */
-    size_t size;
+    uint32_t size;
     /**
      * Mask of [serialization flags].
      *
-     * @sa `xkb_keymap_serialize_flags`
+     * @sa `enum xkb_keymap_serialize_flags`
      *
      * @since 1.14.0
      *
@@ -1701,7 +1934,7 @@ struct xkb_keymap_serialize_config {
     /**
      * Target [keymap format].
      *
-     * @sa `xkb_keymap_format`
+     * @sa `enum xkb_keymap_format`
      *
      * @since 1.14.0
      *
@@ -1709,42 +1942,51 @@ struct xkb_keymap_serialize_config {
      */
     uint32_t format;
     /**
-     * Mask of layouts to serialize.
+     * [Mask of layouts] to serialize.
      *
      * If `0`, then all the keymap layouts are serialized.
      *
+     * @sa `xkb_layout_mask_t`
+     *
      * @since 1.14.0
+     *
+     * [Mask of layouts]: @ref xkb_layout_mask_t
      */
     xkb_layout_mask_t layouts;
-    /**
-     * @private
-     *
-     * Reserved for future extensions.
-     *
-     * @pre Must be set to `0` by the caller.
-     */
-    uint32_t reserved;
 };
 
 /**
  * @struct xkb_keymap_serialize_result
+ * @ingroup abi-struct-contract
  *
- * Result of `xkb_keymap::xkb_keymap_serialize()`
+ * Result of `xkb_keymap::xkb_keymap_serialize()`.
  *
- * @sa `::xkb_keymap_serialize_config`
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `struct xkb_keymap_serialize_config`
+ *
  * @since 1.14.0
  */
 struct xkb_keymap_serialize_result {
     /**
-     * Size of this structure, for forward-compatibility.
+     * Size of this structure in bytes.
      *
-     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
-     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
-     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     * @sa @ref abi-struct-contract
      *
      * @since 1.14.0
      */
-    size_t size;
+    uint32_t size;
+    /**
+     * Mask of the original layouts actually included in #serialized.
+     *
+     * Valid only if the function returns `::XKB_SUCCESS`; otherwise unspecified.
+     *
+     * @sa `xkb_keymap_serialize_config::layouts`
+     *
+     * @since 1.14.0
+     */
+    xkb_layout_mask_t layouts;
     /**
      * A newly *allocated* keymap serialization, or `NULL` on failure.
      *
@@ -1761,32 +2003,15 @@ struct xkb_keymap_serialize_result {
      * @since 1.14.0
      */
     size_t length;
-    /**
-     * Mask of the original layouts actually included in #serialized.
-     *
-     * Valid only if the function returns `::XKB_SUCCESS`; otherwise unspecified.
-     *
-     * @sa `xkb_keymap_serialize_config::layouts`
-     *
-     * @since 1.14.0
-     */
-    xkb_layout_mask_t layouts;
-    /**
-     * @private
-     *
-     * Reserved for future extensions.
-     *
-     * @pre Must be set to `0` by the caller.
-     */
-    uint32_t reserved;
 };
 
 /**
  * Serialize a compiled keymap to a string.
+ * @memberof xkb_keymap
  *
  * On success, returns a newly *allocated* serialized keymap in
  * [`result->serialized`][serialized], together with additional metadata.
- * It is suitable to use with `xkb_keymap_new_from_string2()`.
+ * It is suitable to use with `xkb_keymap_new_from_string()`.
  *
  * Use this function instead of `xkb_keymap_get_as_string()` or
  * `xkb_keymap_get_as_string2()` when more control on serializing
@@ -1804,13 +2029,15 @@ struct xkb_keymap_serialize_result {
  * @param[in,out] result   Result of the serialization.
  *
  * @pre @p config must point to a zero-initialized struct with
- * [`size`](@ref xkb_keymap_serialize_config::size) set to `sizeof(*config)`.
+ * [`size`](@ref xkb_keymap_serialize_config::size) set per
+ * @ref abi-struct-contract.
  *
  * @pre @p result must point to a zero-initialized struct with
- * [`size`](@ref xkb_keymap_serialize_result::size) set to `sizeof(*result)`.
+ * [`size`](@ref xkb_keymap_serialize_result::size) set per
+ * @ref abi-struct-contract.
  *
  * @invariant The library writes only to fields of @p result that fall
- * within `result->size`.
+ * within [`result->size`](@ref xkb_keymap_serialize_result::size).
  *
  * @post If the return value is `::XKB_SUCCESS`, the caller is responsible
  * for freeing [`result->serialized`][serialized].
@@ -1818,15 +2045,22 @@ struct xkb_keymap_serialize_result {
  * @post Otherwise, [`result->serialized`][serialized] is set to `NULL` and
  * all fields of @p result beyond it are left unspecified.
  *
- * @returns `::XKB_SUCCESS` on success; otherwise an
- * [error code](@ref xkb_error_code).
+ * @returns `::XKB_SUCCESS` on success; otherwise an [error code].
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution.
+ * - `::XKB_ERROR_ALLOCATION_FAILURE`
+ * - `::XKB_ERROR_UNSUPPORTED_KEYMAP_SERIALIZATION_FLAGS`
+ * - ::`XKB_ERROR_UNSUPPORTED_KEYMAP_FORMAT`
+ * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX`
+ * - `::XKB_ERROR_LAYOUT_COUNT_LIMIT_EXCEEDED`
  *
  * @since 1.14.0
- * @memberof xkb_keymap
  *
  * [format]: @ref xkb_keymap_serialize_config::format
  * [layouts]: @ref xkb_keymap_serialize_config::layouts
  * [serialized]: @ref xkb_keymap_serialize_result::serialized
+ *
+ * [error code]: @ref xkb_error_code
  */
 XKB_EXPORT enum xkb_error_code
 xkb_keymap_serialize(const struct xkb_keymap *keymap,
@@ -1835,16 +2069,16 @@ xkb_keymap_serialize(const struct xkb_keymap *keymap,
 
 /**
  * Get the compiled keymap as a string.
+ * @memberof xkb_keymap
  *
  * Same as `xkb_keymap::xkb_keymap_get_as_string2()` using
  * `::XKB_KEYMAP_SERIALIZE_NO_FLAGS`.
  *
- * @since 1.12.0: Drop unused types and compatibility entries and do not
- * pretty-print.
- *
  * @sa `xkb_keymap::xkb_keymap_serialize()`
  * @sa `xkb_keymap::xkb_keymap_get_as_string2()`
- * @memberof xkb_keymap
+ *
+ * @since 1.12.0: Drop unused types and compatibility entries and do not
+ * pretty-print.
  */
 XKB_EXPORT char *
 xkb_keymap_get_as_string(struct xkb_keymap *keymap,
@@ -1852,6 +2086,7 @@ xkb_keymap_get_as_string(struct xkb_keymap *keymap,
 
 /**
  * Get the compiled keymap as a string.
+ * @memberof xkb_keymap
  *
  * @param[in] keymap The keymap to get as a string.
  * @param[in] format The keymap format to use for the string.  You can pass
@@ -1868,12 +2103,11 @@ xkb_keymap_get_as_string(struct xkb_keymap *keymap,
  * The returned string is *dynamically allocated* and should be freed by the
  * caller.
  *
- * @since 1.12.0
- *
  * @sa `xkb_keymap_serialize()`
  * @sa `xkb_keymap_get_as_string()`
  * @sa `xkb_keymap_new_from_string()`
- * @memberof xkb_keymap
+ *
+ * @since 1.12.0
  *
  * [xkb_v1]: https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_keyboard-enum-keymap_format
  */
@@ -1893,9 +2127,10 @@ xkb_keymap_get_as_string2(struct xkb_keymap *keymap,
 
 /**
  * Get the minimum keycode in the keymap.
- *
- * @sa xkb_keycode_t
  * @memberof xkb_keymap
+ *
+ * @sa `xkb_keycode_t`
+ *
  * @since 0.3.1
  */
 XKB_EXPORT xkb_keycode_t
@@ -1903,9 +2138,10 @@ xkb_keymap_min_keycode(struct xkb_keymap *keymap);
 
 /**
  * Get the maximum keycode in the keymap.
- *
- * @sa xkb_keycode_t
  * @memberof xkb_keymap
+ *
+ * @sa `xkb_keycode_t`
+ *
  * @since 0.3.1
  */
 XKB_EXPORT xkb_keycode_t
@@ -1917,20 +2153,24 @@ xkb_keymap_max_keycode(struct xkb_keymap *keymap);
  *
  * @sa `xkb_keycode_t`
  * @sa `xkb_keymap_key_iterator_new()`
- * @sa `xkb_keymap_key_iterator_destroy()`
+ * @sa `xkb_keymap_key_iterator_ref()`
+ * @sa `xkb_keymap_key_iterator_unref()`
+ *
  * @since 1.14.0
  */
 struct xkb_keymap_key_iterator;
 
 /**
  * @enum xkb_keymap_key_iterator_flags
- * Flags for `xkb_keymap_key_iterator_new()`.
+ * Flags for `xkb_keymap_key_iterator::xkb_keymap_key_iterator_new()`.
  *
  * @since 1.14.0
  */
 enum xkb_keymap_key_iterator_flags {
     /**
-     * Do not apply any flags.
+     * Do not apply any flags:
+     * - iterate keys in *ascending* order;
+     * - iterate only *bound* keys, i.e. keys with some group.
      *
      * @since 1.14.0
      */
@@ -1943,58 +2183,142 @@ enum xkb_keymap_key_iterator_flags {
     XKB_KEYMAP_KEY_ITERATOR_DESCENDING_ORDER = (1 << 0),
     /**
      * @parblock
-     * Skip *unbound* keys, i.e. keys with no groups.
+     * Iterate all keys, including *unbound* keys, i.e. keys with no groups.
      * @endparblock
      *
      * @since 1.14.0
      */
-    XKB_KEYMAP_KEY_ITERATOR_SKIP_UNBOUND = (1 << 1),
+    XKB_KEYMAP_KEY_ITERATOR_INCLUDE_UNBOUND = (1 << 1),
+};
+
+/**
+ * @struct xkb_keymap_key_iterator_config
+ * @ingroup abi-struct-contract
+ *
+ * Options for creating a new `xkb_keymap_key_iterator`.
+ *
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `xkb_keymap_key_iterator::xkb_keymap_key_iterator_new()`
+ *
+ * @since 1.14.0
+ */
+struct xkb_keymap_key_iterator_config {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * [Flags] to control the iterator behavior, or `0`
+     * (`::XKB_KEYMAP_KEY_ITERATOR_NO_FLAGS`) for the default.
+     *
+     * @since 1.14.0
+     *
+     * [Flags]: @ref xkb_keymap_key_iterator_flags
+     */
+    uint32_t flags;
 };
 
 /**
  * Create a new iterator over a keymap’s keys.
+ * @memberof xkb_keymap_key_iterator
  *
- * Intended use:
+ * @figure@figcaption
+ * Intended use
+ * @endfigcaption
+ * @snippet{trimleft} "test/keymap.c" xkb_keymap_key_iterator_new_example
+ * @endfigure
  *
- * ```c
- * struct xkb_keymap_key_iterator *iter = xkb_keymap_key_iterator_new(keymap, 0);
- * xkb_keycode_t kc;
- * while ((kc = xkb_keymap_key_iterator_next(iter)) != XKB_KEYCODE_INVALID) {
- *     // ...
- * }
- * xkb_keymap_key_iterator_destroy(iter);
- * ```
+ * @param[in] keymap
+ *     The keymap to iterate over.
+ * @param[in] config
+ *     Configuration to control the iterator behavior, or `NULL` for the
+ *     defaults: an `xkb_keymap_key_iterator_config` struct with `size`
+ *     set per @ref abi-struct-contract and all other fields zeroed.
+ * @param[out] error
+ *     Pointer to store the resulting [error code], or `NULL` if not needed.
  *
- * @param[in] keymap The keymap to iterate over.
- * @param[in] flags  Flags to control the iterator behavior, or 0.
+ * @pre @p config must point to a zero-initialized struct with
+ * [`config->size`](@ref xkb_keymap_key_iterator_config::size) set per
+ * @ref abi-struct-contract.
  *
  * @returns A new keys iterator, or `NULL` on failure.
  *
- * @sa `xkb_keymap_key_iterator`
- * @sa `xkb_keymap_key_iterator_flags`
+ * @post if `error` is not `NULL`, `*error` is set to `::XKB_SUCCESS`
+ * on *success* or to an [error code] corresponding to the failure.
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution
+ * - `::XKB_ERROR_ALLOCATION_FAILURE`
+ * - `::XKB_ERROR_UNSUPPORTED_KEY_ITERATOR_FLAGS`
+ *
+ * @sa `struct xkb_keymap_key_iterator`
+ * @sa `enum xkb_keymap_key_iterator_flags`
  * @sa `xkb_keymap_key_iterator_next()`
- * @sa `xkb_keymap_key_iterator_destroy()`
+ * @sa `xkb_keymap_key_iterator_ref()`
+ * @sa `xkb_keymap_key_iterator_unref()`
+ * @sa `xkb_keymap_key_iterator_reset()`
+ *
  * @since 1.14.0
- * @memberof xkb_keymap_key_iterator
+ *
+ * [error code]: @ref xkb_error_code
  */
 XKB_EXPORT struct xkb_keymap_key_iterator *
-xkb_keymap_key_iterator_new(struct xkb_keymap *keymap,
-                            enum xkb_keymap_key_iterator_flags flags);
+xkb_keymap_key_iterator_new(
+    struct xkb_keymap *keymap,
+    const struct xkb_keymap_key_iterator_config *config,
+    enum xkb_error_code *error
+);
 
 /**
- * Free a keymap’s keys iterator.
+ * Take a new reference on a keymap’s [keys] [iterator] object.
+ * @memberof xkb_keymap_key_iterator
  *
- * @param[in] iter The iterator to free. If it is `NULL`, do nothing.
+ * @note The [iterator]’s cursor is a *shared* state: advancing it via
+ * `xkb_keymap_key_iterator_next()` through *any* reference advances it
+ * for *every* reference to the same iterator.
+ *
+ * @param[in] iter The [iterator] to reference.
+ *
+ * @returns The passed-in [iterator].
  *
  * @sa `xkb_keymap_key_iterator_new()`
+ * @sa `xkb_keymap_key_iterator_unref()`
+ *
  * @since 1.14.0
+ *
+ * [keys]: @ref xkb_keycode_t
+ * [iterator]: @ref xkb_keymap_key_iterator
+ */
+XKB_EXPORT struct xkb_keymap_key_iterator *
+xkb_keymap_key_iterator_ref(struct xkb_keymap_key_iterator *iter);
+
+/**
+ * Release a reference on a keymap’s [keys] [iterator], and possibly free it.
  * @memberof xkb_keymap_key_iterator
+ *
+ * @param[in] iter
+ *     The iterator object.
+ *     If it is `NULL`, this function does nothing.
+ *
+ * @sa `xkb_keymap_key_iterator_new()`
+ * @sa `xkb_keymap_key_iterator_ref()`
+ *
+ * @since 1.14.0
+ *
+ * [keys]: @ref xkb_keycode_t
+ * [iterator]: @ref xkb_keymap_key_iterator
  */
 XKB_EXPORT void
-xkb_keymap_key_iterator_destroy(struct xkb_keymap_key_iterator *iter);
+xkb_keymap_key_iterator_unref(struct xkb_keymap_key_iterator *iter);
 
 /**
  * Get the next [keycode] from a keymap’s keys iterator.
+ * @memberof xkb_keymap_key_iterator
  *
  * The keycodes are returned in *ascending* order unless
  * `::XKB_KEYMAP_KEY_ITERATOR_DESCENDING_ORDER` was used to create the iterator.
@@ -2008,8 +2332,9 @@ xkb_keymap_key_iterator_destroy(struct xkb_keymap_key_iterator *iter);
  * are no more entries.
  *
  * @sa `xkb_keycode_t`
+ * @sa `xkb_keymap_key_iterator_reset()`
+ *
  * @since 1.14.0
- * @memberof xkb_keymap_key_iterator
  *
  * [keycode]: @ref xkb_keycode_t
  */
@@ -2017,10 +2342,55 @@ XKB_EXPORT xkb_keycode_t
 xkb_keymap_key_iterator_next(struct xkb_keymap_key_iterator *iter);
 
 /**
+ * Reset a keymap’s [keys] [iterator] to its initial position.
+ * @memberof xkb_keymap_key_iterator
+ *
+ * @note The [iterator]’s cursor and configuration are *shared* state:
+ * resetting or reconfiguring it via *any* reference affects *every*
+ * reference to the same iterator.
+ *
+ * @param[in,out] iter
+ *   The [iterator] to reset.
+ * @param[in] config
+ *   Configuration to control the iterator behavior, replacing the one
+ *   used at [construction] or by a previous call, or `NULL` to keep the
+ *   iterator’s current configuration unchanged and only reset the cursor
+ *   position.
+ *
+ * @pre If @p config is not `NULL`, it must point to a zero-initialized struct
+ * with [`config->size`](@ref xkb_keymap_key_iterator_config::size) set per
+ * @ref abi-struct-contract.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code]:
+ * - Errors from ABI @ref abi-struct-resolution
+ * - `::XKB_ERROR_UNSUPPORTED_KEY_ITERATOR_FLAGS`
+ *
+ * @post On *failure*, the iterator is left *unchanged*: neither the cursor
+ * position nor the configuration are modified.
+ *
+ * @sa `struct xkb_keymap_key_iterator_config`
+ * @sa `xkb_keymap_key_iterator_new()`
+ * @sa `xkb_keymap_key_iterator_next()`
+ *
+ * @since 1.14.0
+ *
+ * [keys]: @ref xkb_keycode_t
+ * [iterator]: @ref xkb_keymap_key_iterator
+ * [error code]: @ref xkb_error_code
+ * [construction]: @ref xkb_keymap_key_iterator_new
+ */
+XKB_EXPORT enum xkb_error_code
+xkb_keymap_key_iterator_reset(
+    struct xkb_keymap_key_iterator *iter,
+    const struct xkb_keymap_key_iterator_config *config
+);
+
+/**
  * The iterator used by `xkb_keymap_key_for_each()`.
+ * @memberof xkb_keymap
  *
  * @sa `xkb_keymap_key_for_each()`
- * @memberof xkb_keymap
+ *
  * @since 0.3.1
  */
 typedef void
@@ -2028,15 +2398,18 @@ typedef void
                          void *data);
 
 /**
- * Run a specified function for every valid keycode in the keymap.  If a
- * keymap is sparse, this function may be called fewer than
+ * Run a specified function for every valid keycode in the keymap.
+ * @memberof xkb_keymap
+ *
+ * If a keymap is sparse, this function may be called fewer than
  * (max_keycode - min_keycode + 1) times with success.
  *
- * @sa `xkb_keymap_key_iterator`, which offers more control on the iteration.
+ * @sa `struct xkb_keymap_key_iterator`, which offers more control on the
+ * iteration.
  * @sa `xkb_keymap_min_keycode()`
  * @sa `xkb_keymap_max_keycode()`
  * @sa `xkb_keycode_t`
- * @memberof xkb_keymap
+ *
  * @since 0.3.1
  */
 XKB_EXPORT void
@@ -2045,6 +2418,7 @@ xkb_keymap_key_for_each(struct xkb_keymap *keymap, xkb_keymap_key_iter_t iter,
 
 /**
  * Find the name of the key with the given keycode.
+ * @memberof xkb_keymap
  *
  * This function always returns the canonical name of the key (see
  * description in `xkb_keycode_t`).
@@ -2055,8 +2429,8 @@ xkb_keymap_key_for_each(struct xkb_keymap *keymap, xkb_keymap_key_iter_t iter,
  * @returns The key name. If no key with this keycode exists,
  * returns `NULL`.
  *
- * @sa xkb_keycode_t
- * @memberof xkb_keymap
+ * @sa `xkb_keycode_t`
+ *
  * @since 0.6.0
  */
 XKB_EXPORT const char *
@@ -2064,14 +2438,15 @@ xkb_keymap_key_get_name(struct xkb_keymap *keymap, xkb_keycode_t key);
 
 /**
  * Find the keycode of the key with the given name.
+ * @memberof xkb_keymap
  *
  * The name can be either a canonical name or an alias.
  *
  * @returns The keycode. If no key with this name exists,
  * returns `::XKB_KEYCODE_INVALID`.
  *
- * @sa xkb_keycode_t
- * @memberof xkb_keymap
+ * @sa `xkb_keycode_t`
+ *
  * @since 0.6.0
  */
 XKB_EXPORT xkb_keycode_t
@@ -2079,47 +2454,48 @@ xkb_keymap_key_by_name(struct xkb_keymap *keymap, const char *name);
 
 /**
  * Get the number of modifiers in the keymap.
- *
- * @sa xkb_mod_index_t
  * @memberof xkb_keymap
+ *
+ * @sa `xkb_mod_index_t`
  */
 XKB_EXPORT xkb_mod_index_t
 xkb_keymap_num_mods(struct xkb_keymap *keymap);
 
 /**
  * Get the name of a modifier by index.
+ * @memberof xkb_keymap
  *
  * @returns The name.  If the index is invalid, returns `NULL`.
  *
- * @sa xkb_mod_index_t
- * @memberof xkb_keymap
+ * @sa `xkb_mod_index_t`
  */
 XKB_EXPORT const char *
 xkb_keymap_mod_get_name(struct xkb_keymap *keymap, xkb_mod_index_t idx);
 
 /**
  * Get the index of a modifier by name.
+ * @memberof xkb_keymap
  *
  * @returns The index.  If no modifier with this name exists, returns
  * `::XKB_MOD_INVALID`.
  *
- * @sa xkb_mod_index_t
- * @memberof xkb_keymap
+ * @sa `xkb_mod_index_t`
  */
 XKB_EXPORT xkb_mod_index_t
 xkb_keymap_mod_get_index(struct xkb_keymap *keymap, const char *name);
 
 /**
  * Get the encoding of a modifier by name.
+ * @memberof xkb_keymap
  *
  * In X11 terminology it corresponds to the mapping to the <em>[real modifiers]</em>.
  *
  * @returns The encoding of a modifier.  Note that it may be 0 if the name does
  * not exist or if the modifier is not mapped.
  *
- * @since 1.10.0
  * @sa `xkb_keymap_mod_get_mask2()`
- * @memberof xkb_keymap
+ *
+ * @since 1.10.0
  *
  * [real modifiers]: @ref real-modifier-def
  */
@@ -2128,15 +2504,16 @@ xkb_keymap_mod_get_mask(struct xkb_keymap *keymap, const char *name);
 
 /**
  * Get the encoding of a modifier by index.
+ * @memberof xkb_keymap
  *
  * In X11 terminology it corresponds to the mapping to the <em>[real modifiers]</em>.
  *
  * @returns The encoding of a modifier.  Note that it may be 0 if the modifier is
  * not mapped.
  *
- * @since 1.11.0
  * @sa `xkb_keymap_mod_get_mask()`
- * @memberof xkb_keymap
+ *
+ * @since 1.11.0
  *
  * [real modifiers]: @ref real-modifier-def
  */
@@ -2145,78 +2522,76 @@ xkb_keymap_mod_get_mask2(struct xkb_keymap *keymap, xkb_mod_index_t idx);
 
 /**
  * Get the number of layouts in the keymap.
+ * @memberof xkb_keymap
  *
  * @sa `xkb_layout_index_t`
- * @sa `xkb_rule_names`
+ * @sa `struct xkb_rule_names`
  * @sa `xkb_keymap_num_layouts_for_key()`
- * @memberof xkb_keymap
  */
 XKB_EXPORT xkb_layout_index_t
 xkb_keymap_num_layouts(struct xkb_keymap *keymap);
 
 /**
  * Get the name of a layout by index.
+ * @memberof xkb_keymap
  *
  * @returns The name.  If the index is invalid, or the layout does not have
  * a name, returns `NULL`.
  *
- * @sa xkb_layout_index_t
- *     For notes on layout names.
- * @memberof xkb_keymap
+ * @sa `xkb_layout_index_t` for notes on layout names.
  */
 XKB_EXPORT const char *
 xkb_keymap_layout_get_name(struct xkb_keymap *keymap, xkb_layout_index_t idx);
 
 /**
  * Get the index of a layout by name.
+ * @memberof xkb_keymap
  *
  * @returns The index.  If no layout exists with this name, returns
  * `::XKB_LAYOUT_INVALID`.  If more than one layout in the keymap has this name,
  * returns the lowest index among them.
  *
  * @sa `xkb_layout_index_t` for notes on layout names.
- * @memberof xkb_keymap
  */
 XKB_EXPORT xkb_layout_index_t
 xkb_keymap_layout_get_index(struct xkb_keymap *keymap, const char *name);
 
 /**
  * Get the number of LEDs in the keymap.
+ * @memberof xkb_keymap
  *
  * @warning The range [ 0...`xkb_keymap_num_leds()` ) includes all of the LEDs
  * in the keymap, but may also contain inactive LEDs.  When iterating over
  * this range, you need the handle this case when calling functions such as
  * `xkb_keymap_led_get_name()` or `xkb_state::xkb_state_led_index_is_active()`.
  *
- * @sa xkb_led_index_t
- * @memberof xkb_keymap
+ * @sa `xkb_led_index_t`
  */
 XKB_EXPORT xkb_led_index_t
 xkb_keymap_num_leds(struct xkb_keymap *keymap);
 
 /**
  * Get the name of a LED by index.
+ * @memberof xkb_keymap
  *
  * @returns The name.  If the index is invalid, returns `NULL`.
- *
- * @memberof xkb_keymap
  */
 XKB_EXPORT const char *
 xkb_keymap_led_get_name(struct xkb_keymap *keymap, xkb_led_index_t idx);
 
 /**
  * Get the index of a LED by name.
+ * @memberof xkb_keymap
  *
  * @returns The index.  If no LED with this name exists, returns
  * `::XKB_LED_INVALID`.
- *
- * @memberof xkb_keymap
  */
 XKB_EXPORT xkb_led_index_t
 xkb_keymap_led_get_index(struct xkb_keymap *keymap, const char *name);
 
 /**
  * Get the number of layouts for a specific key.
+ * @memberof xkb_keymap
  *
  * This number can be different from `xkb_keymap_num_layouts()`, but is always
  * smaller.  It is the appropriate value to use when iterating over the
@@ -2228,22 +2603,21 @@ xkb_keymap_led_get_index(struct xkb_keymap *keymap, const char *name);
  * @returns The number of layouts corresponding to the given key if it is valid
  * in the given keymap, otherwise 0 if the key is undefined or unbound.
  *
- * @sa xkb_layout_index_t
- * @memberof xkb_keymap
+ * @sa `xkb_layout_index_t`
  */
 XKB_EXPORT xkb_layout_index_t
 xkb_keymap_num_layouts_for_key(struct xkb_keymap *keymap, xkb_keycode_t key);
 
 /**
  * Get the number of shift levels for a specific key and layout.
+ * @memberof xkb_keymap
  *
  * If @c layout is out of range for this key (that is, larger or equal to
  * the value returned by `xkb_keymap_num_layouts_for_key()`), it is brought
  * back into range in a manner consistent with
  * `xkb_state::xkb_state_key_get_layout()`.
  *
- * @sa xkb_level_index_t
- * @memberof xkb_keymap
+ * @sa `xkb_level_index_t`
  */
 XKB_EXPORT xkb_level_index_t
 xkb_keymap_num_levels_for_key(struct xkb_keymap *keymap, xkb_keycode_t key,
@@ -2252,6 +2626,7 @@ xkb_keymap_num_levels_for_key(struct xkb_keymap *keymap, xkb_keycode_t key,
 /**
  * Retrieves every possible modifier mask that produces the specified
  * shift level for a specific key and layout.
+ * @memberof xkb_keymap
  *
  * This API is useful for inverse key transformation; i.e. finding out
  * which modifiers need to be active in order to be able to type the
@@ -2261,16 +2636,19 @@ xkb_keymap_num_levels_for_key(struct xkb_keymap *keymap, xkb_keycode_t key,
  * buffer passed is too small, some of the possible modifier combinations
  * will not be returned.
  *
- * @param[in] keymap      The keymap.
- * @param[in] key         The keycode of the key.
- * @param[in] layout      The layout for which to get modifiers.
- * @param[in] level       The shift level in the layout for which to get the
- * modifiers. This should be smaller than:
- * @code xkb_keymap_num_levels_for_key(keymap, key) @endcode
- * @param[out] masks_out  A buffer in which the requested masks should be
- * stored.
- * @param[in] masks_size The capacity of the buffer pointed to by
- * @p masks_out.
+ * @param[in] keymap
+ *   The keymap.
+ * @param[in] key
+ *   The keycode of the key.
+ * @param[in] layout
+ *   The layout for which to get modifiers.
+ * @param[in] level
+ *   The shift level in the layout for which to get the modifiers.
+ *   This should be smaller than: `xkb_keymap_num_levels_for_key(keymap, key)`.
+ * @param[out] masks_out
+ *   A buffer in which the requested masks should be stored.
+ * @param[in] masks_size
+ *   The capacity of the buffer pointed to by @p masks_out.
  *
  * If @c layout is out of range for this key (that is, larger or equal to
  * the value returned by `xkb_keymap_num_layouts_for_key()`), it is brought
@@ -2281,10 +2659,11 @@ xkb_keymap_num_levels_for_key(struct xkb_keymap *keymap, xkb_keycode_t key,
  * If the key is not in the keymap or if the specified shift level cannot
  * be reached it returns 0 and does not modify the @p masks_out buffer.
  *
- * @sa xkb_level_index_t
- * @sa xkb_mod_mask_t
- * @memberof xkb_keymap
+ * @sa `xkb_level_index_t`
+ * @sa `xkb_mod_mask_t`
+ *
  * @since 1.0.0
+ *
  */
 XKB_EXPORT size_t
 xkb_keymap_key_get_mods_for_level(struct xkb_keymap *keymap,
@@ -2297,19 +2676,24 @@ xkb_keymap_key_get_mods_for_level(struct xkb_keymap *keymap,
 /**
  * Get the keysyms obtained from pressing a key in a given layout and
  * shift level.
+ * @memberof xkb_keymap
  *
  * This function is like `xkb_state::xkb_state_key_get_syms()`, only the layout
  * and shift level are not derived from the keyboard state but are instead
  * specified explicitly.
  *
- * @param[in] keymap    The keymap.
- * @param[in] key       The keycode of the key.
- * @param[in] layout    The layout for which to get the keysyms.
- * @param[in] level     The shift level in the layout for which to get the
- * keysyms. This should be smaller than:
- * @code xkb_keymap_num_levels_for_key(keymap, key) @endcode
- * @param[out] syms_out An immutable array of keysyms corresponding to the
- * key in the given layout and shift level.
+ * @param[in] keymap
+ *   The keymap.
+ * @param[in] key
+ *   The keycode of the key.
+ * @param[in] layout
+ *   The layout for which to get the keysyms.
+ * @param[in] level
+ *   The shift level in the layout for which to get the keysyms.
+ *   This should be smaller than: `xkb_keymap_num_levels_for_key(keymap, key)`.
+ * @param[out] syms_out
+ *   An immutable array of keysyms corresponding to the key in the given layout
+ *   and shift level.
  *
  * If @c layout is out of range for this key (that is, larger or equal to
  * the value returned by `xkb_keymap_num_layouts_for_key()`), it is brought
@@ -2321,17 +2705,18 @@ xkb_keymap_key_get_mods_for_level(struct xkb_keymap *keymap,
  * and sets @p syms_out to `NULL`.
  *
  * @sa `xkb_state::xkb_state_key_get_syms()`
- * @memberof xkb_keymap
  */
 XKB_EXPORT int
 xkb_keymap_key_get_syms_by_level(struct xkb_keymap *keymap,
                                  xkb_keycode_t key,
                                  xkb_layout_index_t layout,
                                  xkb_level_index_t level,
+
                                  const xkb_keysym_t **syms_out);
 
 /**
  * Determine whether a key should repeat or not.
+ * @memberof xkb_keymap
  *
  * A keymap may specify different repeat behaviors for different keys.
  * Most keys should generally exhibit repeat behavior; for example, holding
@@ -2342,8 +2727,6 @@ xkb_keymap_key_get_syms_by_level(struct xkb_keymap *keymap,
  * is not generally useful or desired.
  *
  * @returns 1 if the key should repeat, 0 otherwise.
- *
- * @memberof xkb_keymap
  */
 XKB_EXPORT int
 xkb_keymap_key_repeats(struct xkb_keymap *keymap, xkb_keycode_t key);
@@ -2389,16 +2772,15 @@ xkb_keymap_key_repeats(struct xkb_keymap *keymap, xkb_keycode_t key);
  * <dt>`xkb_machine`: the *server* API</dt>
  * <dd>
  * This is the recommended API for **server** applications. It enables the full
- * feature set that libxkbcommon supports.
+ * feature set that xkbcommon supports.
  *
- * `xkb_machine` is a [Mealy machine]<!-- -->: it is a finite-state machine that takes a
+ * `xkb_machine` is a [Mealy machine]&zwnj;: it is a finite-state machine that takes a
  * stream of raw key events – a pair ([keycode], [direction]) – as input, and
  * produces a stream of atomic [XKB events](@ref xkb_event) as output.
  *
  * The observable state of the machine is exposed via a companion `xkb_state`
  * object:
- * - Create it with `xkb_state::xkb_state_new_with_mode()` using
- *   `::XKB_STATE_MODE_SERVER_QUERY`.
+ * - Create it with `xkb_state::xkb_state_new_from_machine()`.
  * - Update it with `xkb_state::xkb_state_update_event()`.
  * - Query it (keysyms, modifiers, layout, LEDs) via the `xkb_state` query API.
  *
@@ -2406,8 +2788,7 @@ xkb_keymap_key_repeats(struct xkb_keymap *keymap, xkb_keycode_t key);
  * components changes, such as key press/release events, so that it enables
  * handling most of the XKB [key actions](@ref key-action-def).
  *
- * See the [example for a Wayland server](@ref quick-guide-wayland-server)
- * in the quick guide.
+ * See the [example for a Wayland server] in the quick guide.
  *
  * @since 1.14.0
  * </dd>
@@ -2457,11 +2838,12 @@ xkb_keymap_key_repeats(struct xkb_keymap *keymap, xkb_keycode_t key);
  * [keyboard events]: @ref xkb_event
  * [event batch]: @ref xkb_events
  * [event]: @ref xkb_event
+ * [example for a Wayland server]: @ref quick-guide-wayland-server
  */
 
 /**
  * @struct xkb_event
- * Opaque keyboard state event object.
+ * Opaque keyboard **state event** object.
  *
  * Events are produced by `xkb_machine::xkb_machine_process_key()` and
  * `xkb_machine::xkb_machine_process_synthetic()` and collected into an
@@ -2469,18 +2851,26 @@ xkb_keymap_key_repeats(struct xkb_keymap *keymap, xkb_keycode_t key);
  * action within a frame.
  *
  * Inspect the event type with `xkb_event::xkb_event_get_type()`, then extract
- * data with the appropriate `xkb_event::xkb_event_get_*()` or
- * `xkb_event::xkb_event_serialize_*()` functions.
+ * data with the appropriate function:
+ *
+ * | Event type                                  | Getter |
+ * | ------------------------------------------- | ------ |
+ * | `::XKB_EVENT_TYPE_KEY`                      | `xkb_event::xkb_event_get_keycode()` |
+ * | `::XKB_EVENT_TYPE_STATE_COMPONENTS`         | `xkb_event::xkb_event_get_components()` |
+ * | `::XKB_EVENT_TYPE_POINTER_MOTION`           | `xkb_event::xkb_event_get_pointer_motion()` |
+ * | `::XKB_EVENT_TYPE_POINTER_BUTTON`           | `xkb_event::xkb_event_get_pointer_button()` |
+ * | `::XKB_EVENT_TYPE_TERMINATE_DISPLAY_SERVER` | (no getter) |
+ * | `::XKB_EVENT_TYPE_SWITCH_VIRTUAL_CONSOLE`   | `xkb_event::xkb_event_get_virtual_console()` |
  *
  * @warning Event pointers are only valid until the next call to
  * `xkb_machine::xkb_machine_process_key()` or
  * `xkb_machine::xkb_machine_process_synthetic()` on the
  * same state machine. Do not store them beyond that point.
  *
- * @since 1.14.0
+ * @sa `enum xkb_event_type`
+ * @sa `struct xkb_events`
  *
- * @sa `xkb_event_type`
- * @sa `xkb_events`
+ * @since 1.14.0
  */
 struct xkb_event;
 
@@ -2488,70 +2878,141 @@ struct xkb_event;
  * @enum xkb_event_type
  * Denotes the type of a [state event](@ref xkb_event).
  *
+ * @sa `xkb_event::xkb_event_get_type()`
+ *
  * @since 1.14.0
  */
 enum xkb_event_type {
     /**
-     * **Key _down_** event
+     * **Invalid** event.
+     *
+     * This is *not* a real event type but an *error* indicator.
      *
      * @since 1.14.0
      */
-    XKB_EVENT_TYPE_KEY_DOWN = 1,
+    XKB_EVENT_TYPE_INVALID = 0,
     /**
-     * **Key _repeated_** event
+     * **Key** event
+     *
+     * @sa `xkb_event::xkb_event_get_keycode()`
      *
      * @since 1.14.0
      */
-    XKB_EVENT_TYPE_KEY_REPEATED,
+    XKB_EVENT_TYPE_KEY,
     /**
-     * **Key _up_** event
+     * **State components** change event
+     *
+     * @sa `xkb_event::xkb_event_get_components()`
      *
      * @since 1.14.0
      */
-    XKB_EVENT_TYPE_KEY_UP,
+    XKB_EVENT_TYPE_STATE_COMPONENTS,
     /**
-     * **Components** change event
+     * **Pointer _motion_** event
+     *
+     * @sa `xkb_event::xkb_event_get_pointer_motion()`
      *
      * @since 1.14.0
      */
-    XKB_EVENT_TYPE_COMPONENTS_CHANGE,
+    XKB_EVENT_TYPE_POINTER_MOTION,
+    /**
+     * **Pointer _button_** event
+     *
+     * @sa `xkb_event::xkb_event_get_pointer_button()`
+     *
+     * @since 1.14.0
+     */
+    XKB_EVENT_TYPE_POINTER_BUTTON,
+    /**
+     * **_Terminate_ display server** event
+     *
+     * This event is only generated by a [state machine] if it was created with
+     * `::XKB_MACHINE_SERVER_ACTIONS` set.
+     * See `xkb_machine_builder_config::machine_flags` for further details.
+     *
+     * @since 1.14.0
+     *
+     * [state machine]: @ref xkb_machine
+     */
+    XKB_EVENT_TYPE_TERMINATE_DISPLAY_SERVER,
+    /**
+     * **Switch virtual console** event
+     *
+     * This event is only generated by a [state machine] if it was created with
+     * `::XKB_MACHINE_SERVER_ACTIONS` set.
+     * See `xkb_machine_builder_config::machine_flags` for further details.
+     *
+     * @since 1.14.0
+     *
+     * [state machine]: @ref xkb_machine
+     */
+    XKB_EVENT_TYPE_SWITCH_VIRTUAL_CONSOLE,
 };
 
 /**
  * Get the [type](@ref xkb_event_type) of an event.
+ * @memberof xkb_event
  *
  * @param[in] event The event to process.
  *
- * @returns The event’s type.
+ * @returns The event’s type on success, otherwise `::XKB_EVENT_TYPE_INVALID`.
  *
  * @since 1.14.0
- *
- * @memberof xkb_event
  */
 XKB_EXPORT enum xkb_event_type
 xkb_event_get_type(const struct xkb_event *event);
 
 /**
- * Get the keycode associated to a [state event](@ref xkb_event) of type
- * `::XKB_EVENT_TYPE_KEY_DOWN`, `::XKB_EVENT_TYPE_KEY_REPEATED` or
- * `::XKB_EVENT_TYPE_KEY_UP`.
+ * @enum xkb_key_direction
+ * Specifies the direction of the key (press / release) or a repetition.
+ */
+enum xkb_key_direction {
+    /** The key was *released*. */
+    XKB_KEY_UP,
+    /** The key was *pressed*. */
+    XKB_KEY_DOWN,
+    /**
+     * The key was *repeated*.
+     *
+     * This should be used by the compositor only if it handles key repetition
+     * itself.
+     *
+     * @since 1.14.0
+     */
+    XKB_KEY_REPEATED,
+};
+
+/**
+ * Get the [keycode] and [direction] associated to a [state event][event]
+ * of type `::XKB_EVENT_TYPE_KEY`.
+ * @memberof xkb_event
  *
- * @param[in] event The event object to process.
+ * @param[in]  event
+ *   The event object to process.
+ * @param[out] keycode
+ *   A pointer to store the [keycode] of the key event.
+ * @param[out] direction
+ *   A pointer to store the [direction] of the key event.
  *
- * @pre The event must be of one of the following types:
- * - `::XKB_EVENT_TYPE_KEY_DOWN`
- * - `::XKB_EVENT_TYPE_KEY_REPEATED`
- * - `::XKB_EVENT_TYPE_KEY_UP`
- * Otherwise the result is *undefined*.
+ * @pre The event must be `::XKB_EVENT_TYPE_KEY`.
+ * Otherwise @p keycode and @p direction are *not* updated.
  *
- * @returns The keycode corresponding to the event.
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code]&zwnj;:
+ * - `::XKB_ERROR_INVALID` if the [event] type is incorrect.
+ *
+ * @sa `xkb_machine::xkb_machine_process_key()`
  *
  * @since 1.14.0
  *
- * @memberof xkb_event
+ * [keycode]: @ref xkb_keycode_t
+ * [direction]: @ref xkb_key_direction
+ * [event]: @ref xkb_event
+ * [error code]: @ref xkb_error_code
  */
-XKB_EXPORT xkb_keycode_t
-xkb_event_get_keycode(const struct xkb_event *event);
+XKB_EXPORT enum xkb_error_code
+xkb_event_get_keycode(const struct xkb_event *event,
+                      xkb_keycode_t *keycode,
+                      enum xkb_key_direction *direction);
 
 /**
  * @enum xkb_state_component
@@ -2568,12 +3029,24 @@ xkb_event_get_keycode(const struct xkb_event *event);
  *
  * In XKB, the `DEPRESSED` components are also known as *base*.
  *
+ * @remark Values `0x200..0x800` are reserved for future use.
+ *
  * [modifier]: @ref modifier-def
  * [layout]: @ref layout-def
  * [indicator]: @ref indicator-def
  * [keyboard global control]: @ref xkb_keyboard_control_flags
  */
 enum xkb_state_component {
+    /**
+     * Represents the *empty* set of state components.
+     *
+     * This is the identity value for state component bitmask operations.
+     * It corresponds also to the result of updates operation when the state
+     * components remain unchanged.
+     *
+     * @since 1.14.0
+     */
+    XKB_STATE_NO_COMPONENT = 0,
     /**
      * @parblock
      * [Depressed modifiers], i.e. a key is physically holding them.
@@ -2651,38 +3124,18 @@ enum xkb_state_component {
      */
     XKB_STATE_LEDS = (1 << 8),
     /**
-     * Effective [keyboard controls]
+     * Effective [keyboard controls].
      *
      * @since 1.14.0
      *
      * [keyboard controls]: @ref xkb_keyboard_control_flags
      */
-    XKB_STATE_CONTROLS = (1 << 9)
+    XKB_STATE_CONTROLS_EFFECTIVE = (1 << 12),
 };
 
 /**
- * Get the [state components](@ref xkb_state_component) changes corresponding
- * to a [state event](@ref xkb_event) of type
- * `::XKB_EVENT_TYPE_COMPONENTS_CHANGE` .
- *
- * @param[in] event The event object to process.
- *
- * @pre The event must be of type `::XKB_EVENT_TYPE_COMPONENTS_CHANGE`.
- * Otherwise the result is *undefined*.
- *
- * @returns The corresponding mask of state components that have changed.
- * If nothing in the state has changed, returns 0.
- *
- * @since 1.14.0
- *
- * @memberof xkb_event
- */
-XKB_EXPORT enum xkb_state_component
-xkb_event_get_changed_components(const struct xkb_event *event);
-
-/**
  * @enum xkb_keyboard_control_flags
- * _Boolean_ **global keyboard controls**, which affect the way libxkbcommon
+ * _Boolean_ **global keyboard controls**, which affect the way xkbcommon
  * handles the keyboard as a whole.
  *
  * This enumeration is bit-maskable.
@@ -2708,6 +3161,7 @@ enum xkb_keyboard_control_flags {
      * key.
      *
      * @sa `::XKB_A11Y_STICKY_KEYS_LATCH_TO_LOCK`
+     *
      * @since 1.14.0
      *
      * [set]:   @ref depressed-mod-def
@@ -2715,129 +3169,481 @@ enum xkb_keyboard_control_flags {
      */
     XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS = (1 << 0),
     /**
-     * Enable the [keyboard overlay](@ref key-behavior-overlay) **1**.
+     * Enable **mouse keys** for controlling the mouse functions from the
+     * keyboard.
+     *
+     * When mouse keys are enabled, all keys with [pointer actions] bound to
+     * them generate pointer events instead of normal key press and release
+     * events.
      *
      * @since 1.14.0
-     */
-    XKB_KEYBOARD_CONTROL_OVERLAY1 = (1 << 1),
-    /**
-     * Enable the [keyboard overlay](@ref key-behavior-overlay) **2**.
      *
-     * @since 1.14.0
+     * [pointer actions]: @ref mouse-emulation-actions
      */
-    XKB_KEYBOARD_CONTROL_OVERLAY2 = (1 << 2),
-    /**
-     * Enable the [keyboard overlay](@ref key-behavior-overlay) **3**.
-     *
-     * @since 1.14.0
-     */
-    XKB_KEYBOARD_CONTROL_OVERLAY3 = (1 << 3),
-    /**
-     * Enable the [keyboard overlay](@ref key-behavior-overlay) **4**.
-     *
-     * @since 1.14.0
-     */
-    XKB_KEYBOARD_CONTROL_OVERLAY4 = (1 << 4),
-    /**
-     * Enable the [keyboard overlay](@ref key-behavior-overlay) **5**.
-     *
-     * @since 1.14.0
-     */
-    XKB_KEYBOARD_CONTROL_OVERLAY5 = (1 << 5),
-    /**
-     * Enable the [keyboard overlay](@ref key-behavior-overlay) **6**.
-     *
-     * @since 1.14.0
-     */
-    XKB_KEYBOARD_CONTROL_OVERLAY6 = (1 << 6),
-    /**
-     * Enable the [keyboard overlay](@ref key-behavior-overlay) **7**.
-     *
-     * @since 1.14.0
-     */
-    XKB_KEYBOARD_CONTROL_OVERLAY7 = (1 << 7),
-    /**
-     * Enable the [keyboard overlay](@ref key-behavior-overlay) **8**.
-     *
-     * @since 1.14.0
-     */
-    XKB_KEYBOARD_CONTROL_OVERLAY8 = (1 << 8),
+    XKB_KEYBOARD_CONTROL_MOUSE_KEYS = (1 << 1),
 };
 
 /**
- * Serialization of the *boolean* [global keyboard controls]
- * corresponding to a [state event](@ref xkb_event) of type
- * `::XKB_EVENT_TYPE_COMPONENTS_CHANGE` .
+ * @struct xkb_event_components
+ * @ingroup abi-struct-contract
  *
- * @param[in] event      The event object to process.
- * @param[in] components A mask of the keyboard control state components to
- * serialize. State components other than `::XKB_STATE_CONTROLS` are ignored.
+ * Serialized [state components].
  *
- * @pre The event must be of type `::XKB_EVENT_TYPE_COMPONENTS_CHANGE`.
- * Otherwise the result is *undefined*.
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
  *
- * @returns The corresponding [control mask](@ref xkb_keyboard_control_flags)
- * representing the given components of the *boolean controls* state.
+ * @sa `enum xkb_state_component`
+ * @sa `xkb_event::xkb_event_get_components()`
+ * @sa `::XKB_EVENT_TYPE_STATE_COMPONENTS`
  *
  * @since 1.14.0
  *
- * @memberof xkb_event
- *
- * [global keyboard controls]: @ref xkb_keyboard_control_flags
+ * [state components]: @ref xkb_state_component
  */
-XKB_EXPORT enum xkb_keyboard_control_flags
-xkb_event_serialize_enabled_controls(const struct xkb_event *event,
-                                     enum xkb_state_component components);
+struct xkb_event_components {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Mask of the changed [state components].
+     *
+     * @sa `enum xkb_state_component`
+     *
+     * @since 1.14.0
+     *
+     * [state components]: @ref xkb_state_component
+     */
+    uint32_t changed;
+    /**
+     * Serialized *depressed* [modifiers].
+     *
+     * @sa `::XKB_STATE_MODS_DEPRESSED`
+     *
+     * @since 1.14.0
+     *
+     * [modifiers]: @ref xkb_mod_mask_t
+     */
+    xkb_mod_mask_t depressed_mods;
+    /**
+     * Serialized *latched* [modifiers].
+     *
+     * @sa `::XKB_STATE_MODS_LATCHED`
+     *
+     * @since 1.14.0
+     *
+     * [modifiers]: @ref xkb_mod_mask_t
+     */
+    xkb_mod_mask_t latched_mods;
+    /**
+     * Serialized *locked* [modifiers].
+     *
+     * @sa `::XKB_STATE_MODS_LOCKED`
+     *
+     * @since 1.14.0
+     *
+     * [modifiers]: @ref xkb_mod_mask_t
+     */
+    xkb_mod_mask_t locked_mods;
+    /**
+     * Serialized *effective* [modifiers].
+     *
+     * @sa `::XKB_STATE_MODS_EFFECTIVE`
+     *
+     * @since 1.14.0
+     *
+     * [modifiers]: @ref xkb_mod_mask_t
+     */
+    xkb_mod_mask_t mods;
+    /**
+     * Serialized *depressed* [layout].
+     *
+     * @sa `::XKB_STATE_LAYOUT_DEPRESSED`
+     *
+     * @since 1.14.0
+     *
+     * [layout]: @ref xkb_layout_index_t
+     */
+    xkb_layout_index_t depressed_layout;
+    /**
+     * Serialized *latched* [layout].
+     *
+     * @sa `::XKB_STATE_LAYOUT_LATCHED`
+     *
+     * @since 1.14.0
+     *
+     * [layout]: @ref xkb_layout_index_t
+     */
+    xkb_layout_index_t latched_layout;
+    /**
+     * Serialized *locked* [layout].
+     *
+     * @sa `::XKB_STATE_LAYOUT_LOCKED`
+     *
+     * @since 1.14.0
+     *
+     * [layout]: @ref xkb_layout_index_t
+     */
+    xkb_layout_index_t locked_layout;
+    /**
+     * Serialized *effective* [layout].
+     *
+     * @sa `::XKB_STATE_LAYOUT_EFFECTIVE`
+     *
+     * @since 1.14.0
+     *
+     * [layout]: @ref xkb_layout_index_t
+     */
+    xkb_layout_index_t layout;
+    /**
+     * Serialized [keyboard LEDs].
+     *
+     * @sa `::XKB_STATE_LEDS`
+     *
+     * @since 1.14.0
+     *
+     * [keyboard LEDs]: @ref xkb_led_mask_t
+     */
+    xkb_led_mask_t leds;
+    /**
+     * Serialized [keyboard controls].
+     *
+     * @sa `enum xkb_keyboard_control_flags`
+     * @sa `::XKB_STATE_CONTROLS_EFFECTIVE`
+     *
+     * @since 1.14.0
+     *
+     * [keyboard controls]: @ref xkb_keyboard_control_flags
+     */
+    uint32_t controls;
+};
 
 /**
- * Serialization of the [modifiers](@ref xkb_mod_mask_t)
- * corresponding to a [state event](@ref xkb_event) of type
- * `::XKB_EVENT_TYPE_COMPONENTS_CHANGE` .
+ * Serialization of the [state components] corresponding to a
+ * [state event][event] of type `::XKB_EVENT_TYPE_STATE_COMPONENTS`.
+ * @memberof xkb_event
  *
- * @param[in] event      The event object to process.
- * @param[in] components A mask of the modifier state components to serialize.
- * State components other than `XKB_STATE_MODS_*` are ignored.
- * If `::XKB_STATE_MODS_EFFECTIVE` is included, all other state components are
- * ignored.
+ * @param[in] event
+ *   The event object to process.
+ * @param[in,out] components
+ *   A pointer to an [event components] object to update with the [event].
  *
- * @pre The event must be of type `::XKB_EVENT_TYPE_COMPONENTS_CHANGE`.
- * Otherwise the result is *undefined*.
+ * @pre The event must be of type `::XKB_EVENT_TYPE_STATE_COMPONENTS`.
+ * Otherwise @p components is *not* updated.
  *
- * @returns The corresponding [modifier mask](@ref xkb_mod_mask_t) representing
- * the given components of the *modifier* state.
+ * @pre @p components must point to a zero-initialized struct with
+ * [`components->size`](@ref xkb_event_components::size) set per
+ * @ref abi-struct-contract.
+ *
+ * @invariant The library writes only to fields of @p components that fall
+ * within [`components->size`](@ref xkb_event_components::size).
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code]&zwnj;:
+ * - Errors from ABI @ref abi-struct-resolution.
+ * - `::XKB_ERROR_INVALID` if the [event] type is incorrect.
+ *
+ * @sa `::XKB_EVENT_TYPE_STATE_COMPONENTS`
+ * @sa `struct xkb_event_components`
  *
  * @since 1.14.0
  *
- * @memberof xkb_event
+ * [event]: @ref xkb_event
+ * [state components]: @ref xkb_state_component
+ * [event components]: @ref xkb_event_components
+ * [error code]: @ref xkb_error_code
  */
-XKB_EXPORT xkb_mod_mask_t
-xkb_event_serialize_mods(const struct xkb_event *event,
-                         enum xkb_state_component components);
+XKB_EXPORT enum xkb_error_code
+xkb_event_get_components(const struct xkb_event *event,
+                         struct xkb_event_components *components);
 
 /**
- * Serialization of the [layout](@ref xkb_layout_index_t)
- * corresponding to a [state event](@ref xkb_event) of type
- * `::XKB_EVENT_TYPE_COMPONENTS_CHANGE` .
+ * @enum xkb_pointer_motion_flags
+ * Pointer motion flags for `xkb_event_pointer_motion`.
  *
- * @param[in] event      The event object to process.
- * @param[in] components A mask of the layout state components to serialize.
- * State components other than `XKB_STATE_LAYOUT_*` are ignored.
- * If `::XKB_STATE_LAYOUT_EFFECTIVE` is included, all other state components are
- * ignored.
+ * @since 1.14.0
+ */
+enum xkb_pointer_motion_flags {
+    /**
+     * Do not apply any flags; the corresponding [pointer motion]&zwnj;:
+     * - has relative coordinates,
+     * - repeats.
+     *
+     * @since 1.14.0
+     *
+     * [pointer motion]: @ref xkb_event_pointer_motion
+     */
+    XKB_POINTER_MOTION_NO_FLAGS = 0,
+    /**
+     * The [pointer motion] repeats.
+     *
+     * @since 1.14.0
+     *
+     * [pointer motion]: @ref xkb_event_pointer_motion
+     *
+     */
+    XKB_POINTER_MOTION_REPEATS = (1 << 0),
+    /**
+     * The [x coordinate] is absolute.
+     *
+     * @since 1.14.0
+     *
+     * [x coordinate]: @ref xkb_event_pointer_motion::x
+     *
+     */
+    XKB_POINTER_MOTION_ABSOLUTE_X = (1 << 1),
+    /**
+     * The [y coordinate] is absolute.
+     *
+     * @since 1.14.0
+     *
+     * [y coordinate]: @ref xkb_event_pointer_motion::y
+     *
+     */
+    XKB_POINTER_MOTION_ABSOLUTE_Y  = (1 << 2),
+};
+
+/**
+ * @struct xkb_event_pointer_motion
+ * @ingroup abi-struct-contract
  *
- * @pre The event must be of type `::XKB_EVENT_TYPE_COMPONENTS_CHANGE`.
- * Otherwise the result is *undefined*.
+ * Description of a pointer motion.
  *
- * @returns The corresponding [layout index](@ref xkb_layout_index_t)
- * representing the given components of the *layout* state.
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `enum xkb_pointer_motion_flags`
+ * @sa `xkb_event::xkb_event_get_pointer_motion()`
+ * @sa `::XKB_EVENT_TYPE_POINTER_MOTION`
+ *
+ * @since 1.14.0
+ */
+struct xkb_event_pointer_motion {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * [Motions flags](@ref xkb_pointer_motion_flags)
+     *
+     * @sa `enum xkb_pointer_motion_flags`
+     *
+     * @since 1.14.0
+     */
+    uint32_t flags;
+    /**
+     * **x** coordinate
+     *
+     * @sa `::XKB_POINTER_MOTION_ABSOLUTE_X`
+     *
+     * @since 1.14.0
+     */
+    int32_t x;
+    /**
+     * **y** coordinate
+     *
+     * @sa `::XKB_POINTER_MOTION_ABSOLUTE_Y`
+     *
+     * @since 1.14.0
+     */
+    int32_t y;
+};
+
+/**
+ * Get the [pointer motion] corresponding to a [state event][event] of type
+ * `::XKB_EVENT_TYPE_POINTER_MOTION`.
+ * @memberof xkb_event
+ *
+ * @param[in] event
+ *   The event object to process.
+ * @param[in,out] motion
+ *   A pointer to a [pointer motion] object to update with the [event].
+ *
+ * @pre The event must have the type `::XKB_EVENT_TYPE_POINTER_MOTION`.
+ * Otherwise @p motion is *not* updated.
+ *
+ * @pre @p motion must point to a zero-initialized struct with
+ * [`motion->size`](@ref xkb_event_pointer_motion::size) set per
+ * @ref abi-struct-contract.
+ *
+ * @invariant The library writes only to fields of @p motion that fall
+ * within [`motion->size`](@ref xkb_event_pointer_motion::size).
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code]&zwnj;:
+ * - Errors from ABI @ref abi-struct-resolution.
+ * - `::XKB_ERROR_INVALID` if the [event] type is incorrect.
+ *
+ * @sa `::XKB_EVENT_TYPE_POINTER_MOTION`
+ * @sa `struct xkb_event_pointer_motion`
  *
  * @since 1.14.0
  *
- * @memberof xkb_event
+ * [pointer motion]: @ref xkb_event_pointer_motion
+ * [event]: @ref xkb_event
+ * [error code]: @ref xkb_error_code
  */
-XKB_EXPORT xkb_layout_index_t
-xkb_event_serialize_layout(const struct xkb_event *event,
-                           enum xkb_state_component components);
+XKB_EXPORT enum xkb_error_code
+xkb_event_get_pointer_motion(const struct xkb_event *event,
+                             struct xkb_event_pointer_motion *motion);
+
+/**
+ * @enum xkb_pointer_button_direction
+ * Specifies the direction of a button (press/release).
+ *
+ * @sa `struct xkb_event_pointer_button`
+ *
+ * @since 1.14.0
+ */
+enum xkb_pointer_button_direction {
+    /**
+     * The pointer button was *pressed*.
+     *
+     * @since 1.14.0
+     */
+    XKB_POINTER_BUTTON_DOWN = (1 << 0),
+    /**
+     * The pointer button was *released*.
+     *
+     * @since 1.14.0
+     */
+    XKB_POINTER_BUTTON_UP = (1 << 1),
+    /**
+     * The pointer button was *clicked* (pressed then released).
+     *
+     * Equals `XKB_POINTER_BUTTON_DOWN | XKB_POINTER_BUTTON_UP`.
+     *
+     * @since 1.14.0
+     */
+    XKB_POINTER_BUTTON_CLICK = ( XKB_POINTER_BUTTON_UP
+                               | XKB_POINTER_BUTTON_DOWN ),
+};
+
+/**
+ * @struct xkb_event_pointer_button
+ * @ingroup abi-struct-contract
+ *
+ * Description of a pointer button action.
+ *
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `xkb_event::xkb_event_get_pointer_button()`
+ * @sa `::XKB_EVENT_TYPE_POINTER_BUTTON`
+ *
+ * @since 1.14.0
+ */
+struct xkb_event_pointer_button {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Button index
+     *
+     * @since 1.14.0
+     */
+    uint32_t button;
+    /**
+     * Button [direction](@ref xkb_pointer_button_direction)
+     *
+     * @sa `enum xkb_pointer_button_direction`
+     *
+     * @since 1.14.0
+     */
+    uint8_t direction;
+    /**
+     * Button count
+     *
+     * @since 1.14.0
+     */
+    uint8_t count;
+    /**
+     * @private
+     *
+     * Reserved for future extensions.
+     *
+     * @pre Must be set to `0` by the caller.
+     */
+    uint8_t reserved0[2];
+};
+
+/**
+ * Get the [pointer button] corresponding to a [state event][event] of type
+ * `::XKB_EVENT_TYPE_POINTER_BUTTON`.
+ * @memberof xkb_event
+ *
+ * @param[in] event
+ *   The event object to process.
+ * @param[in,out] button
+ *   A pointer to a [pointer button] object to update with the [event].
+ *
+ * @pre The event must have the type `::XKB_EVENT_TYPE_POINTER_BUTTON`.
+ * Otherwise @p button is *not* updated.
+ *
+ * @pre @p button must point to a zero-initialized struct with
+ * [`button->size`](@ref xkb_event_pointer_button::size) set per
+ * @ref abi-struct-contract.
+ *
+ * @invariant The library writes only to fields of @p button that fall
+ * within [`button->size`](@ref xkb_event_pointer_button::size).
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code]&zwnj;:
+ * - Errors from ABI @ref abi-struct-resolution.
+ * - `::XKB_ERROR_INVALID` if the [event] type is incorrect.
+ *
+ * @sa `::XKB_EVENT_TYPE_POINTER_BUTTON`.
+ * @sa `struct xkb_event_pointer_button`
+ *
+ * @since 1.14.0
+ *
+ * [pointer button]: @ref xkb_event_pointer_button
+ * [event]: @ref xkb_event
+ * [error code]: @ref xkb_error_code
+ */
+XKB_EXPORT enum xkb_error_code
+xkb_event_get_pointer_button(const struct xkb_event *event,
+                             struct xkb_event_pointer_button *button);
+
+/**
+ * Get the virtual console index or offset associated to a [state event][event]
+ * of type `::XKB_EVENT_TYPE_SWITCH_VIRTUAL_CONSOLE`.
+ * @memberof xkb_event
+ *
+ * @param[in]  event
+ *   The event object to process.
+ * @param[out] index_or_offset
+ *   A pointer to store the absolute or relative virtual console target.
+ * @param[out] is_offset
+ *   A pointer to store whether @p index_or_offset is an *index* (`false`)
+ *   or an *offset* (`true`).
+ *
+ * @pre The event must be `::XKB_EVENT_TYPE_SWITCH_VIRTUAL_CONSOLE`.
+ * Otherwise @p index_or_offset and @p is_offset are *not* updated.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code]&zwnj;:
+ * - `::XKB_ERROR_INVALID` if the [event] type is incorrect.
+ *
+ * @sa `xkb_machine::xkb_machine_process_key()`
+ *
+ * @since 1.14.0
+ *
+ * [event]: @ref xkb_event
+ * [error code]: @ref xkb_error_code
+ */
+XKB_EXPORT enum xkb_error_code
+xkb_event_get_virtual_console(const struct xkb_event *event,
+                              int8_t *index_or_offset, bool *is_offset);
 
 /**
  * @struct xkb_events
@@ -2849,77 +3655,174 @@ xkb_event_serialize_layout(const struct xkb_event *event,
  * sequentially via `xkb_events_next()`. The collection is reset on each
  * `process_*` call.
  *
- * @since 1.14.0
- *
- * @sa `xkb_events_new_batch()`
+ * @sa `xkb_events_new()`
  * @sa `xkb_events_next()`
- * @sa `xkb_events_destroy()`
+ * @sa `xkb_events_ref()`
+ * @sa `xkb_events_unref()`
  * @sa `xkb_machine::xkb_machine_process_key()`
  * @sa `xkb_machine::xkb_machine_process_synthetic()`
+ *
+ * @since 1.14.0
  */
 struct xkb_events;
 
 /**
  * @enum xkb_events_flags
  *
- * Flags for `xkb_events::xkb_events_new_batch()`.
+ * Flags for `xkb_events_config::flags`.
+ *
+ * @sa `xkb_events::xkb_events_new()`.
  *
  * @since 1.14.0
  */
 enum xkb_events_flags {
     /**
-     * Do not apply any flags.
+     * Do not apply any flags: the corresponding [event collection]
+     * will behave as a **batch** of [events].
      *
      * @since 1.14.0
+     *
+     * [event collection]: @ref xkb_events
+     * [events]: @ref xkb_event
      */
-    XKB_EVENTS_NO_FLAGS = 0
+    XKB_EVENTS_NO_FLAGS = 0,
 };
 
 /**
- * Create a new [event](@ref xkb_event) batch.
+ * @struct xkb_events_config
+ * @ingroup abi-struct-contract
  *
- * @param[in] context The context in which to create the batch.
- * @param[in] flags   Optional flags for the batch, or 0.
+ * Configuration for `xkb_events::xkb_events_new()`.
  *
- * @returns A new event batch, or `NULL` on failure.
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `xkb_events::xkb_events_new()`
  *
  * @since 1.14.0
+ */
+struct xkb_events_config {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * [Flags] to control the behavior of [events collections], or `0`
+     * (`::XKB_EVENTS_NO_FLAGS`) for the default.
+     *
+     * @sa `enum xkb_events_flags`
+     *
+     * @since 1.14.0
+     *
+     * [Flags]: @ref xkb_events_flags
+     * [events collections]: @ref xkb_events
+     */
+    uint32_t flags;
+};
+
+/**
+ * Create a new [event] collection object.
+ * @memberof xkb_events
  *
- * @sa `xkb_events_destroy()`
+ * @param[in] context
+ *   The context in which to create the object.
+ * @param[in] config
+ *   Configuration to control the collection behavior, or `NULL` for
+ *   the defaults: an `xkb_events_config` struct with `size` set per
+ *   @ref abi-struct-contract and all other fields zeroed.
+ * @param[out] error
+ *   Pointer to store the resulting [error code], or `NULL` if not needed.
+ *
+ * @pre @p config must point to a zero-initialized struct with
+ * [`config->size`](@ref xkb_events_config::size) set per
+ * @ref abi-struct-contract.
+ *
+ * @returns A new [event] collection, or `NULL` on failure.
+ *
+ * @post if `error` is not `NULL`, `*error` is set to `::XKB_SUCCESS`
+ * on *success* or to an [error code] corresponding to the failure.
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution.
+ * - `::XKB_ERROR_ALLOCATION_FAILURE`
+ * - `::XKB_ERROR_UNSUPPORTED_EVENTS_FLAGS`
+ *
+ * @sa `struct xkb_events_config`
+ * @sa `xkb_events_ref()`
+ * @sa `xkb_events_unref()`
  * @sa `xkb_events_next()`
  * @sa `xkb_machine::xkb_machine_process_key()`
  *
- * @memberof xkb_events
+ * @since 1.14.0
+ *
+ * [event]: @ref xkb_event
+ * [error code]: @ref xkb_error_code
  */
 XKB_EXPORT struct xkb_events *
-xkb_events_new_batch(struct xkb_context *context, enum xkb_events_flags flags);
+xkb_events_new(struct xkb_context *context,
+               const struct xkb_events_config *config,
+               enum xkb_error_code *error);
 
 /**
- * Free an event collection.
+ * Take a new reference on an [event](@ref xkb_event) collection object.
+ * @memberof xkb_events
+ *
+ * @note In case the collection is a **batch** of events, it is reset on each
+ * `process_*` function call, such as `xkb_machine::xkb_machine_process_key()`
+ * or `xkb_machine::xkb_machine_process_synthetic()`. A reference does not
+ * preserve the collection’s contents: if the [machine] processes another
+ * frame while a reference is held, the events visible through *every*
+ * reference are replaced by that frame’s events. Do not hold a reference
+ * past the next `process_*` call if you still need to read the current
+ * frame's events.
+ *
+ * @param[in] events The collection to reference.
+ *
+ * @returns The passed-in collection.
+ *
+ * @sa `xkb_events_new()`
+ * @sa `xkb_events_unref()`
+ *
+ * @since 1.14.0
+ *
+ * [machine]: @ref xkb_machine
+ */
+XKB_EXPORT struct xkb_events *
+xkb_events_ref(struct xkb_events *events);
+
+/**
+ * Release a reference on an [event] collection object,
+ * and possibly free it.
+ * @memberof xkb_events
  *
  * @param[in] events
- *     The event collection to free.
+ *     The [event] collection object.
  *     If it is `NULL`, this function does nothing.
  *
+ * @sa `xkb_events_new()`
+ * @sa `xkb_events_ref()`
+ *
  * @since 1.14.0
  *
- * @sa `xkb_events_new_batch()`
- *
- * @memberof xkb_events
+ * [event]: @ref xkb_event
  */
 XKB_EXPORT void
-xkb_events_destroy(struct xkb_events *events);
+xkb_events_unref(struct xkb_events *events);
 
 /**
- * Get the next event from an event collection.
+ * Get the next [event] from an [event] collection.
+ * @memberof xkb_events
  *
- * @param[in] events The event collection.
+ * @param[in] events The [event] collection.
  *
- * @returns The next event, or `NULL` if there are no more events to read.
+ * @returns The next [event], or `NULL` if there are no more events to read.
  *
  * @since 1.14.0
  *
- * @memberof xkb_events
+ * [event]: @ref xkb_event
  */
 XKB_EXPORT const struct xkb_event *
 xkb_events_next(struct xkb_events *events);
@@ -2929,23 +3832,26 @@ xkb_events_next(struct xkb_events *events);
  * Opaque builder object to configure an `xkb_machine`.
  *
  * Create with `xkb_machine_builder_new()`, configure with the
- * `xkb_machine_builder_*` functions, then build the state machine with
+ * `xkb_machine_builder_*()` functions, then build the state machine with
  * `xkb_machine::xkb_machine_new()`.
  * The builder object may be reused to create multiple `xkb_machine` objects
  * and destroyed when no longer needed. If a single `xkb_machine` object is
  * built, then the builder may be destroyed immediately after
  * `xkb_machine::xkb_machine_new()` returns.
  *
- * @since 1.14.0
- *
+ * @sa `struct xkb_machine_builder_config`
  * @sa `xkb_machine_builder::xkb_machine_builder_new()`
  * @sa `xkb_machine::xkb_machine_new()`
+ *
+ * @since 1.14.0
  */
 struct xkb_machine_builder;
 
 /**
  * @enum xkb_machine_builder_flags
- * Flags for `xkb_machine_builder::xkb_machine_builder_new()`.
+ * Flags for `xkb_machine_builder_config::flags`.
+ *
+ * @sa `xkb_machine_builder::xkb_machine_builder_new()`
  *
  * @since 1.14.0
  */
@@ -2959,43 +3865,156 @@ enum xkb_machine_builder_flags {
 };
 
 /**
+ * @enum xkb_machine_flags
+ * Flags for `xkb_machine_builder_config::machine_flags`.
+ *
+ * @sa `xkb_machine_builder::xkb_machine_builder_new()`
+ *
+ * @since 1.14.0
+ */
+enum xkb_machine_flags {
+    /**
+     * Do not apply any flags.
+     *
+     * @since 1.14.0
+     */
+    XKB_MACHINE_NO_FLAGS = 0,
+    /**
+     * Enable **server actions**.
+     *
+     * When this flag is enabled, all keys with [server actions] bound to
+     * them generate server events instead of usual key press and release
+     * events.
+     *
+     * @since 1.14.0
+     *
+     * [server actions]: @ref server-actions
+     */
+    XKB_MACHINE_SERVER_ACTIONS = (1 << 0),
+};
+
+/**
+ * @struct xkb_machine_builder_config
+ * @ingroup abi-struct-contract
+ *
+ * Configuration for `xkb_machine_builder::xkb_machine_builder_new()`.
+ *
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `struct xkb_machine_builder`
+ *
+ * @since 1.14.0
+ */
+struct xkb_machine_builder_config {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * [Flags] to control the behavior of [state machine builders], or `0`
+     * (`::XKB_MACHINE_BUILDER_NO_FLAGS`) for the default.
+     *
+     * @sa `enum xkb_machine_builder_flags`
+     *
+     * @since 1.14.0
+     *
+     * [Flags]: @ref xkb_machine_builder_flags
+     * [state machine builders]: @ref xkb_machine_builder
+     */
+    uint32_t builder_flags;
+    /**
+     * [Flags] to control the behavior of [state machines], or `0`
+     * (`::XKB_MACHINE_NO_FLAGS`) for the default.
+     *
+     * @sa `enum xkb_machine_flags`
+     *
+     * @since 1.14.0
+     *
+     * [Flags]: @ref xkb_machine_flags
+     * [state machines]: @ref xkb_machine
+     */
+    uint32_t machine_flags;
+};
+
+/**
  * Create a new `xkb_machine` builder object.
  * `xkb_machine` objects can then be created from the builder using
  * `xkb_machine::xkb_machine_new()`.
+ * @memberof xkb_machine_builder
  *
- * @param[in] keymap  The keymap which the state machine will use.
- * @param[in] flags   Flags to control the builder behavior, or 0.
+ * @param[in] keymap
+ *   The keymap which the state machine will use.
+ * @param[in] config
+ *   Configuration to control the builder behavior, or `NULL` for
+ *   the defaults: an `xkb_machine_builder_config` struct with `size`
+ *   set per @ref abi-struct-contract and all other fields zeroed.
+ * @param[out] error
+ *   Pointer to store the resulting [error code], or `NULL` if not needed.
+ *
+ * @pre @p config must point to a zero-initialized struct with
+ * [`config->size`](@ref xkb_machine_builder_config::size) set per
+ * @ref abi-struct-contract.
  *
  * @returns A new `xkb_machine` builder object, or `NULL` on failure.
  *
- * @since 1.14.0
+ * @post if `error` is not `NULL`, `*error` is set to `::XKB_SUCCESS`
+ * on *success* or to an [error code] corresponding to the failure.
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution.
+ * - `::XKB_ERROR_ALLOCATION_FAILURE`
+ * - `::XKB_ERROR_UNSUPPORTED_MACHINE_BUILDER_FLAGS`
+ * - `::XKB_ERROR_UNSUPPORTED_MACHINE_FLAGS`
  *
- * @sa `xkb_machine_builder_destroy()`
+ * @sa `struct xkb_machine_builder_config`
+ * @sa `xkb_machine_builder_ref()`
+ * @sa `xkb_machine_builder_unref()`
  * @sa `xkb_machine::xkb_machine_new()`
  *
- * @memberof xkb_machine_builder
+ * @since 1.14.0
+ *
+ * [error code]: @ref xkb_error_code
  */
 XKB_EXPORT struct xkb_machine_builder *
 xkb_machine_builder_new(struct xkb_keymap *keymap,
-                        enum xkb_machine_builder_flags flags);
+                        const struct xkb_machine_builder_config *config,
+                        enum xkb_error_code *error);
 
 /**
- * Free a `xkb_machine` builder object.
+ * Take a new reference on an `xkb_machine` builder object.
+ * @memberof xkb_machine_builder
+ *
+ * @param[in] builder The builder to reference.
+ *
+ * @returns The passed-in builder.
+ *
+ * @since 1.14.0
+ */
+XKB_EXPORT struct xkb_machine_builder *
+xkb_machine_builder_ref(struct xkb_machine_builder *builder);
+
+/**
+ * Release a reference on an `xkb_machine` builder object, and possibly free it.
+ * @memberof xkb_machine_builder
  *
  * @param[in] builder The `xkb_machine` builder. If it is `NULL`, this function
  *                    does nothing.
  *
- * @since 1.14.0
- *
  * @sa `xkb_machine_builder_new()`
+ * @sa `xkb_machine_builder_ref()`
  *
- * @memberof xkb_machine_builder
+ * @since 1.14.0
  */
 XKB_EXPORT void
-xkb_machine_builder_destroy(struct xkb_machine_builder *builder);
+xkb_machine_builder_unref(struct xkb_machine_builder *builder);
 
 /**
  * Get the keymap which a `xkb_machine_builder` object is using.
+ * @memberof xkb_machine_builder
  *
  * @param[in] builder The state machine builder object.
  *
@@ -3007,16 +4026,13 @@ xkb_machine_builder_destroy(struct xkb_machine_builder *builder);
  * lifetime of the `xkb_machine_builder` object.
  *
  * @since 1.14.0
- *
- * @memberof xkb_machine_builder
  */
 XKB_EXPORT struct xkb_keymap *
 xkb_machine_builder_get_keymap(const struct xkb_machine_builder *builder);
 
 /**
  * @enum xkb_a11y_flags
- * Flags for
- * `xkb_machine_builder::xkb_machine_builder_update_a11y_flags()`.
+ * Flags for `xkb_machine_builder_a11y_update::flags`.
  *
  * These flags configure the accessibility (*a11y*) features.
  *
@@ -3036,10 +4052,10 @@ enum xkb_a11y_flags {
      * simultaneously.
      *
      * @sa `::XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS`
+     *
      * @since 1.14.0
      *
      * [sticky keys]: @ref XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS
-     * @since 1.14.0
      */
     XKB_A11Y_STICKY_KEYS_NO_SIMULTANEOUS_KEYS = (1 << 0),
     /**
@@ -3050,6 +4066,7 @@ enum xkb_a11y_flags {
      * then unlock it by pressing it one more time.
      *
      * @sa `::XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS`
+     *
      * @since 1.14.0
      *
      * [latch]: @ref latched-mod-def
@@ -3093,28 +4110,85 @@ enum xkb_a11y_flags {
 };
 
 /**
+ * @struct xkb_machine_builder_a11y_update
+ * @ingroup abi-struct-contract
+ *
+ * Accessibility update for
+ * `xkb_machine_builder::xkb_machine_builder_update_a11y()`.
+ *
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `enum xkb_a11y_flags`
+ * @sa `xkb_machine_builder::xkb_machine_builder_update_a11y()`
+ *
+ * @since 1.14.0
+ */
+struct xkb_machine_builder_a11y_update {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Mask of [accessibility flags] to modify.
+     *
+     * @since 1.14.0
+     *
+     * [accessibility flags]: @ref xkb_a11y_flags
+     */
+    uint32_t affect_flags;
+    /**
+     * Mask of [accessibility flags] to set or unset.
+     *
+     * Flags in #affect_flags but not in #flags are cleared.
+     * Flags outside #affect_flags are not changed.
+     *
+     * @since 1.14.0
+     *
+     * [accessibility flags]: @ref xkb_a11y_flags
+     */
+    uint32_t flags;
+};
+
+/**
  * Update the accessibility flags of an `xkb_machine_builder` object.
+ * @memberof xkb_machine_builder
  *
  * @param[in,out] builder The `xkb_machine` builder object to modify.
- * @param[in]     affect  Accessibility flags to modify.
- * @param[in]     flags   Accessibility flags to set or unset.
- *                        Flags in @p affect but not in @p flags are cleared.
- *                        Flags outside @p affect are not changed.
+ * @param[in]     update  Accessibility update object.
  *
- * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ * @pre @p update must point to a zero-initialized struct with
+ * [`update->size`](@ref xkb_machine_builder_a11y_update::size) set per
+ * @ref abi-struct-contract.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code].
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution
+ * - `::XKB_ERROR_UNSUPPORTED_A11Y_FLAGS`
+ *
+ * @sa `struct xkb_machine_builder_a11y_update`
  *
  * @since 1.14.0
  *
- * @memberof xkb_machine_builder
+ * [error code]: @ref xkb_error_code
  */
 XKB_EXPORT enum xkb_error_code
-xkb_machine_builder_update_a11y_flags(
+xkb_machine_builder_update_a11y(
     struct xkb_machine_builder *builder,
-    enum xkb_a11y_flags affect,
-    enum xkb_a11y_flags flags
+    const struct xkb_machine_builder_a11y_update *update
 );
 
 /**
+ * @struct xkb_machine_builder_mods_remap_update
+ * @ingroup abi-struct-contract
+ *
+ * Modifiers remapping update for
+ * `xkb_machine_builder::xkb_machine_builder_update_mods_remap()`.
+ *
  * Remap a modifier combination, e.g. to make `Control+Alt` act as
  * `LevelThree` (`AltGr`). This helps improve *compatibility* across platforms.
  *
@@ -3128,99 +4202,212 @@ xkb_machine_builder_update_a11y_flags(
  * - There is no other remapping entry with the source modifiers being a
  *   superset of this entry. E.g. `Control+Alt` has priority over `Control`.
  *
- * @param[in,out] builder The `xkb_machine` builder object to modify.
- * @param[in]     source  Modifier combination to remap, using their [encoding].
- *                        Must be non-zero, unless both @p source and @p target
- *                        are 0 to clear all entries.
- * @param[in]     target  Modifier combination to remap to, using their
- *                        [encoding], or 0 to remove the entry for @p source.
- *                        If both @p source and @p target are 0, all entries are
- *                        cleared.
+ * @figure@figcaption
+ * Example: remap `Control+Alt` to `LevelThree`.
+ * @endfigcaption
+ * @snippet{trimleft} "test/server-state.c" xkb_machine_builder_mods_remap_update_example
+ * @endfigure
  *
- * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
  *
- * Example:
- *
- * ```c
- * struct xkb_keymap *keymap = xkb_machine_builder_get_keymap(builder);
- * // Remap Control+Alt to LevelThree (AltGr)
- * const xkb_mod_mask_t ctrl = xkb_keymap_mod_get_mask(keymap, XKB_MOD_NAME_CTRL);
- * const xkb_mod_mask_t alt = xkb_keymap_mod_get_mask(keymap, XKB_VMOD_NAME_ALT);
- * const xkb_mod_mask_t level3 = xkb_keymap_mod_get_mask(keymap, XKB_VMOD_NAME_LEVEL3);
- * if (xkb_machine_builder_remap_mods(builder, ctrl | alt, level3)) {
- *     // handle error
- *     …
- * }
- * ```
+ * @sa `xkb_keymap::xkb_keymap_mod_get_mask()`
+ * @sa `xkb_machine_builder::xkb_machine_builder_update_mods_remap()`
  *
  * @since 1.14.0
- *
+ */
+struct xkb_machine_builder_mods_remap_update {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Modifier combination to remap, using their [encoding].
+     * Must be non-zero, unless both #source and #target are 0 to clear all
+     * entries.
+     *
+     * @since 1.14.0
+     *
+     * [encoding]: @ref modifiers-encoding
+     */
+    xkb_mod_mask_t source;
+    /**
+     * Modifier combination to remap to, using their [encoding], or 0 to remove
+     * the entry for #source. If both #source and #target are 0, all
+     * entries are cleared.
+     *
+     * @since 1.14.0
+     *
+     * [encoding]: @ref modifiers-encoding
+     */
+    xkb_mod_mask_t target;
+};
+
+/**
+ * Update the modifiers remapping of an `xkb_machine_builder` object.
  * @memberof xkb_machine_builder
  *
- * [encoding]: @ref modifiers-encoding
+ * @param[in,out] builder The `xkb_machine` builder object to modify.
+ * @param[in]     update  Modifiers remapping update object.
+ *
+ * @pre @p update must point to a zero-initialized struct with
+ * [`update->size`](@ref xkb_machine_builder_mods_remap_update::size)
+ * set per @ref abi-struct-contract.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution.
+ * - `::XKB_ERROR_ALLOCATION_FAILURE`
+ * - `::XKB_ERROR_UNSUPPORTED_MODIFIER_MASK`
+ *
+ * @sa `struct xkb_machine_builder_mods_remap_update`
+ *
+ * @since 1.14.0
  */
 XKB_EXPORT enum xkb_error_code
-xkb_machine_builder_remap_mods(
+xkb_machine_builder_update_mods_remap(
     struct xkb_machine_builder *builder,
-    xkb_mod_mask_t source,
-    xkb_mod_mask_t target
+    const struct xkb_machine_builder_mods_remap_update *update
 );
 
 /**
- * Set the modifiers that trigger the keyboard shortcut overrides.
+ * @struct xkb_machine_builder_shortcut_override_update
+ * @ingroup abi-struct-contract
  *
- * When any of the specified modifiers is active, the effective layout
- * is substituted according to the mapping set by
- * `xkb_machine_builder_remap_shortcut_layout()`.
- * This ensures a consistent user experience with keyboard shortcuts
- * across the layouts.
+ * Update a layout substitution of the shortcut layout overrides for
+ * `xkb_machine_builder::xkb_machine_builder_update_shortcut_override()`
  *
- * @param[in,out] builder The `xkb_machine` builder object to modify.
- * @param[in]     affect  Modifiers to consider, using their [encoding].
- * @param[in]     mask    Modifiers to set or unset, using their [encoding].
- *                        Modifiers in @p affect but not in @p mask are cleared.
- *                        Modifiers outside @p affect are not changed.
+ * When any of the specified modifiers (see #mods and #affect_mods) is active,
+ * the effective layout #source is substituted with layout #target in key
+ * processing. This ensures a consistent user experience with keyboard
+ * shortcuts across the layouts.
  *
- * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ * @figure@figcaption
+ * Example: substitute layout #0 with layout #1 when any of the modifiers
+ * `Control`, `Alt` and `Super` triggers shortcut overrides.
+ * @endfigcaption
+ * @snippet{trimleft} "test/server-state.c" shortcut_layout_update_example_1
+ * @endfigure
  *
- * @sa `xkb_machine_builder_remap_shortcut_layout()`
- * @sa `xkb_keymap::xkb_keymap_mod_get_mask2()`
+ * @figure@figcaption
+ * Example: all layouts will behave as if using the *first* layout any of the
+ * modifiers `Control`, `Alt` and `Super` triggers shortcut overrides.
+ * @endfigcaption
+ * @snippet{trimleft} "test/server-state.c" shortcut_layout_update_example_2
+ * @endfigure
+ *
+ * @figure@figcaption
+ * Example: substitute layout #0 with #2 for modifiers `Control` and `Alt`,
+ * substitute layout #1 with #3 for modifier `Super`.
+ * @endfigcaption
+ * @snippet{trimleft} "test/server-state.c" shortcut_layout_update_example_3
+ * @endfigure
+ *
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `xkb_layout_index_t`
+ * @sa @ref modifiers-encoding
+ * @sa `xkb_machine_builder::xkb_machine_builder_update_shortcut_override()`
+ *
  * @since 1.14.0
- * @memberof xkb_machine_builder
- *
- * [encoding]: @ref modifiers-encoding
  */
-XKB_EXPORT enum xkb_error_code
-xkb_machine_builder_update_shortcut_mods(struct xkb_machine_builder *builder,
-                                         xkb_mod_mask_t affect,
-                                         xkb_mod_mask_t mask);
+struct xkb_machine_builder_shortcut_override_update {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Source layout to substitute.
+     *
+     * If set to `::XKB_LAYOUT_INVALID`, then #source and #target are ignored
+     * and all the active substitution entries are modified with the other
+     * fields.
+     *
+     * @since 1.14.0
+     */
+    xkb_layout_index_t source;
+    /**
+     * Target layout to substitute to #source when any of the specified
+     * modifiers (see #mods and #affect_mods) are active.
+     *
+     * If set to `::XKB_LAYOUT_INVALID` or #source, then the substitution is
+     * deactivated for layout #source.
+     *
+     * @since 1.14.0
+     */
+    xkb_layout_index_t target;
+    /**
+     * Modifiers affected by the update, using their [encoding].
+     *
+     * If set to `0`, then #affect_mods and #mods are ignored.
+     *
+     * See #mods.
+     *
+     * @since 1.14.0
+     *
+     * [encoding]: @ref modifiers-encoding
+     */
+    xkb_mod_mask_t affect_mods;
+    /**
+     * Modifiers triggering the layout substitution, using their [encoding].
+     *
+     * - If there was no previous mapping (#source, #target):
+     *   - Modifiers in both #affect_mods and #mods are set.
+     * - Otherwise:
+     *   - Previous modifiers in #affect_mods but not in #mods are cleared.
+     *   - Previous modifiers outside #affect_mods are left unchanged.
+     *   - Modifiers in #affect_mods and #mods but not in previous modifiers
+     *     are added.
+     *
+     * @since 1.14.0
+     *
+     * [encoding]: @ref modifiers-encoding
+     */
+    xkb_mod_mask_t mods;
+};
 
 /**
- * Set a layout substitution for the shortcut layout override.
- *
- * When any modifier set via `xkb_machine_builder_update_shortcut_mods()` is
- * active, the effective layout @p source is substituted with layout @p target
- * in key processing. This allows shortcuts defined in layout @p target
- * (typically a Latin layout) to remain reachable when layout @p source is
- * active.
+ * Update layout substitution of the shortcut layout overrides.
+ * @memberof xkb_machine_builder
  *
  * @param[in,out] builder The `xkb_machine` builder object to modify.
- * @param[in]     source  Source layout to substitute.
- * @param[in]     target  Target layout to use instead of @p source.
+ * @param[in]     update  Shortcut layout substitution update object.
  *
- * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ * @pre @p update must point to a zero-initialized struct with
+ * [`update->size`](@ref xkb_machine_builder_shortcut_override_update::size)
+ * set per @ref abi-struct-contract.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code].
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution.
+ * - `::XKB_ERROR_ALLOCATION_FAILURE`
+ * - `::XKB_ERROR_UNSUPPORTED_MODIFIER_MASK`
+ * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX`
+ *
+ * @sa `struct xkb_machine_builder_shortcut_override_update`
  *
  * @since 1.14.0
- * @sa `xkb_machine_builder_update_shortcut_mods()`
- * @memberof xkb_machine_builder
+ *
+ * [error code]: @ref xkb_error_code
  */
 XKB_EXPORT enum xkb_error_code
-xkb_machine_builder_remap_shortcut_layout(struct xkb_machine_builder *builder,
-                                          xkb_layout_index_t source,
-                                          xkb_layout_index_t target);
+xkb_machine_builder_update_shortcut_override(
+    struct xkb_machine_builder *builder,
+    const struct xkb_machine_builder_shortcut_override_update *update
+);
 
 /**
  * Create a new keyboard state machine object.
+ * @memberof xkb_machine
  *
  * This entry point is intended for *server* applications; *client* applications
  * should not run a state machine locally: instead they should use the
@@ -3228,48 +4415,56 @@ xkb_machine_builder_remap_shortcut_layout(struct xkb_machine_builder *builder,
  * `xkb_state::xkb_state_update_mask()`.
  * See @ref server-client-state for further information.
  *
- * @param[in] builder The [builder](@ref xkb_machine_builder) object from which
- *                    to create the state machine.
+ * @param[in] builder
+ *   The [builder](@ref xkb_machine_builder) object from which
+ *   to create the state machine.
+ * @param[out] error
+ *   Pointer to store the resulting [error code], or `NULL` if not needed.
  *
  * @returns A new keyboard state machine object, or `NULL` on failure.
  *
- * @since 1.14.0
+ * @post if `error` is not `NULL`, `*error` is set to `::XKB_SUCCESS`
+ * on *success* or to an [error code] corresponding to the failure.
+ * Possible errors are:
+ * - `::XKB_ERROR_ALLOCATION_FAILURE`
  *
  * @sa `xkb_machine_builder::xkb_machine_builder_new()`
  *
- * @memberof xkb_machine
+ * @since 1.14.0
+ *
+ * [error code]: @ref xkb_error_code
  */
 XKB_EXPORT struct xkb_machine *
-xkb_machine_new(const struct xkb_machine_builder *builder);
+xkb_machine_new(const struct xkb_machine_builder *builder,
+                enum xkb_error_code *error);
 
 /**
  * Take a new reference on a `xkb_machine` object.
+ * @memberof xkb_machine
  *
  * @param[in] machine The state machine.
  *
  * @returns The passed in object.
  *
  * @since 1.14.0
- *
- * @memberof xkb_machine
  */
 XKB_EXPORT struct xkb_machine *
 xkb_machine_ref(struct xkb_machine *machine);
 
 /**
  * Release a reference on a `xkb_machine` object, and possibly free it.
+ * @memberof xkb_machine
  *
  * @param[in] machine The state machine.  If it is `NULL`, this function does nothing.
  *
  * @since 1.14.0
- *
- * @memberof xkb_machine
  */
 XKB_EXPORT void
 xkb_machine_unref(struct xkb_machine *machine);
 
 /**
  * Get the keymap which a `xkb_machine` object is using.
+ * @memberof xkb_machine
  *
  * @param[in] machine The state machine.
  *
@@ -3283,36 +4478,15 @@ xkb_machine_unref(struct xkb_machine *machine);
  * lifetime of the `xkb_machine` object.
  *
  * @since 1.14.0
- *
- * @memberof xkb_machine
  */
 XKB_EXPORT struct xkb_keymap *
 xkb_machine_get_keymap(const struct xkb_machine *machine);
 
 /**
- * @enum xkb_key_direction
- * Specifies the direction of the key (press / release) or a repetition.
- */
-enum xkb_key_direction {
-    /** The key was *released*. */
-    XKB_KEY_UP,
-    /** The key was *pressed*. */
-    XKB_KEY_DOWN,
-    /**
-     * The key was *repeated*.
-     *
-     * This should be used by the compositor only if it handles key repetition
-     * itself.
-     *
-     * @since 1.14.0
-     */
-    XKB_KEY_REPEATED
-};
-
-/**
  * Process a key event – a pair ([keycode], [direction]) – through the XKB
  * [state machine], and collect the resulting [keyboard events] into an
  * [event batch].
+ * @memberof xkb_machine
  *
  * The produced events form a single *frame*.
  *
@@ -3334,11 +4508,9 @@ enum xkb_key_direction {
  *
  * @returns `::XKB_SUCCESS` on success, otherwise an error code.
  *
- * @since 1.14.0
- *
  * @sa `xkb_machine_process_synthetic()`
  *
- * @memberof xkb_machine
+ * @since 1.14.0
  *
  * [keycode]: @ref xkb_keycode_t
  * [direction]: @ref xkb_key_direction
@@ -3353,6 +4525,7 @@ xkb_machine_process_key(struct xkb_machine *machine,
 
 /**
  * @struct xkb_state_components_update
+ * @ingroup abi-struct-contract
  * Latched and locked state components for an out-of-band state update.
  *
  * Carries the modifier, layout and boolean controls assignments for
@@ -3361,54 +4534,29 @@ xkb_machine_process_key(struct xkb_machine *machine,
  * `xkb_machine::xkb_machine_process_synthetic()`.
  *
  * Which fields are considered is determined by `components`:
- * - `::XKB_STATE_MODS_LATCHED`   → `affect_latched_mods`, `latched_mods`
- * - `::XKB_STATE_MODS_LOCKED`    → `affect_locked_mods`, `locked_mods`
- * - `::XKB_STATE_LAYOUT_LATCHED` → `latched_layout`
- * - `::XKB_STATE_LAYOUT_LOCKED`  → `locked_layout`
- * - `::XKB_STATE_CONTROLS`       → `affect_controls`, `controls`
+ * - `::XKB_STATE_MODS_LATCHED`       → `affect_latched_mods`, `latched_mods`
+ * - `::XKB_STATE_MODS_LOCKED`        → `affect_locked_mods`, `locked_mods`
+ * - `::XKB_STATE_LAYOUT_LATCHED`     → `latched_layout`
+ * - `::XKB_STATE_LAYOUT_LOCKED`      → `locked_layout`
+ * - `::XKB_STATE_CONTROLS_EFFECTIVE` → `affect_controls`, `controls`
  *
- * @note This struct uses a **size-based versioning** scheme to allow
- * forward and compatibility between callers and the library:
- * <dl>
- * <dt>Older callers (smaller struct)</dt>
- * <dd>
- *   Trailing fields unknown to the caller default to zero in the library.
- * </dd>
- * <dt>Newer callers (larger struct)</dt>
- * <dd>
- *   Accepted only if all trailing bytes unknown to the library are zero.
- * </dd>
- * </dl>
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
  *
- * @pre The struct MUST be initialized with `memset()` before setting any
- * fields:
- * ```c
- * struct xkb_state_components_update update;
- * memset(&update, 0, sizeof(update));
- * update.size = sizeof(update);
- * update.components = …;
- * ```
- *
- * @invariant #size MUST be explicitly set to
- * `sizeof(struct xkb_state_components_update)`.
- * @invariant All bytes of the struct, including padding, MUST remain zero
- * except for *explicitly* assigned fields.
+ * @sa `struct xkb_state_update`
+ * @sa `xkb_machine::xkb_machine_process_synthetic()`
  *
  * @since 1.14.0
- *
- * @sa `xkb_state_update`
  */
 struct xkb_state_components_update {
     /**
-     * Size of this structure, for forward-compatibility.
+     * Size of this structure in bytes.
      *
-     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
-     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
-     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     * @sa @ref abi-struct-contract
      *
      * @since 1.14.0
      */
-    size_t size;
+    uint32_t size;
     /**
      * Mask of [state components](@ref xkb_state_component) to update.
      *
@@ -3417,11 +4565,11 @@ struct xkb_state_components_update {
      * - `::XKB_STATE_MODS_LOCKED`
      * - `::XKB_STATE_LAYOUT_LATCHED`
      * - `::XKB_STATE_LAYOUT_LOCKED`
-     * - `::XKB_STATE_CONTROLS`
+     * - `::XKB_STATE_CONTROLS_EFFECTIVE`
      *
      * Other components are ignored.
      *
-     * @sa `xkb_state_component`
+     * @sa `enum xkb_state_component`
      *
      * @since 1.14.0
      */
@@ -3430,8 +4578,8 @@ struct xkb_state_components_update {
      * Mask of [latched modifiers] to affect.
      *
      * Only modifiers present in this mask are considered when updating
-     * `latched_mods`. Only considered if `::XKB_STATE_MODS_LATCHED` is
-     * set in `components`.
+     * `#latched_mods`. Only considered if `::XKB_STATE_MODS_LATCHED` is
+     * set in `#components`.
      *
      * @since 1.14.0
      *
@@ -3441,8 +4589,8 @@ struct xkb_state_components_update {
     /**
      * Modifiers to set as [latched] or unlatched.
      *
-     * Only modifiers in `affect_latched_mods` are considered. Only
-     * considered if `::XKB_STATE_MODS_LATCHED` is set in `components`.
+     * Only modifiers in `#affect_latched_mods` are considered. Only
+     * considered if `::XKB_STATE_MODS_LATCHED` is set in `#components`.
      *
      * @since 1.14.0
      *
@@ -3453,8 +4601,8 @@ struct xkb_state_components_update {
      * Mask of [locked modifiers] to affect.
      *
      * Only modifiers present in this mask are considered when updating
-     * `locked_mods`. Only considered if `::XKB_STATE_MODS_LOCKED` is
-     * set in `components`.
+     * `#locked_mods`. Only considered if `::XKB_STATE_MODS_LOCKED` is
+     * set in `#components`.
      *
      * @since 1.14.0
      *
@@ -3464,8 +4612,8 @@ struct xkb_state_components_update {
     /**
      * Modifiers to set as [locked] or unlocked.
      *
-     * Only modifiers in `affect_locked_mods` are considered. Only
-     * considered if `::XKB_STATE_MODS_LOCKED` is set in `components`.
+     * Only modifiers in `#affect_locked_mods` are considered. Only
+     * considered if `::XKB_STATE_MODS_LOCKED` is set in `#components`.
      *
      * @since 1.14.0
      *
@@ -3477,7 +4625,7 @@ struct xkb_state_components_update {
      *
      * May be out of range (including negative); the layout is brought into
      * range according to the current out-of-range layout policy. Only
-     * considered if `::XKB_STATE_LAYOUT_LATCHED` is set in `components`.
+     * considered if `::XKB_STATE_LAYOUT_LATCHED` is set in `#components`.
      *
      * @sa `xkb_layout_index_t`
      *
@@ -3489,7 +4637,7 @@ struct xkb_state_components_update {
      *
      * May be out of range (including negative); the layout is brought into
      * range according to the current out-of-range layout policy. Only
-     * considered if `::XKB_STATE_LAYOUT_LOCKED` is set in `components`.
+     * considered if `::XKB_STATE_LAYOUT_LOCKED` is set in `#components`.
      *
      * @sa `xkb_layout_index_t`
      *
@@ -3500,10 +4648,10 @@ struct xkb_state_components_update {
      * Mask of boolean [keyboard controls] to affect.
      *
      * Only controls present in this mask are considered when updating
-     * `controls`. Only considered if `::XKB_STATE_CONTROLS` is set in
-     * `components`.
+     * `#controls`. Only considered if `::XKB_STATE_CONTROLS_EFFECTIVE` is set in
+     * `#components`.
      *
-     * @sa `xkb_keyboard_control_flags`
+     * @sa `enum xkb_keyboard_control_flags`
      *
      * @since 1.14.0
      *
@@ -3513,32 +4661,28 @@ struct xkb_state_components_update {
     /**
      * Mask of boolean [keyboard controls] to enable or disable.
      *
-     * Only controls in `affect_controls` are considered. Only considered
-     * if `::XKB_STATE_CONTROLS` is set in `components`.
+     * Only controls in `#affect_controls` are considered. Only considered
+     * if `::XKB_STATE_CONTROLS_EFFECTIVE` is set in `#components`.
      *
-     * @sa `xkb_keyboard_control_flags`
+     * @sa `enum xkb_keyboard_control_flags`
      *
      * @since 1.14.0
      *
      * [keyboard controls]: @ref xkb_keyboard_control_flags
      */
     uint32_t controls;
-
-    /**
-     * @private
-     *
-     * Reserved for future extensions.
-     *
-     * @pre Must be set to `0` by the caller.
-     */
-    uint32_t reserved;
 };
 
 /**
  * @enum xkb_layout_out_of_range_policy
- * Policies defining how to bring out-of-range layout indices into range.
+ * Policies defining how to bring out-of-range [layout indices] into range.
+ *
+ * @sa `struct xkb_state_update`
+ * @sa `xkb_machine::xkb_machine_process_synthetic()`
  *
  * @since 1.14.0
+ *
+ * [layout indices]: @ref xkb_layout_index_t
  */
 enum xkb_layout_out_of_range_policy {
     /**
@@ -3548,8 +4692,10 @@ enum xkb_layout_out_of_range_policy {
      */
     XKB_LAYOUT_OUT_OF_RANGE_WRAP = 0,
     /**
+     * @parblock
      * Clamp into range, i.e. invalid indices are corrected to the closest
-     * valid bound (0 or highest layout index).
+     * valid bound (0 or highest [layout index](@ref xkb_layout_index_t)).
+     * @endparblock
      *
      * @since 1.14.0
      */
@@ -3559,63 +4705,40 @@ enum xkb_layout_out_of_range_policy {
      *
      * @since 1.14.0
      */
-    XKB_LAYOUT_OUT_OF_RANGE_REDIRECT
+    XKB_LAYOUT_OUT_OF_RANGE_REDIRECT,
 };
 
 /**
  * @struct xkb_layout_policy_update
+ * @ingroup abi-struct-contract
  * Configures the policy used to bring out-of-range layout indices into range.
  *
  * If `policy` is `::XKB_LAYOUT_OUT_OF_RANGE_REDIRECT`, `redirect` specifies
  * the target layout index; otherwise `redirect` is ignored.
  *
- * @note This struct uses a **size-based versioning** scheme to allow
- * forward and backward compatibility between callers and the library:
- * <dl>
- * <dt>Older callers (smaller struct)</dt>
- * <dd>
- *   Trailing fields unknown to the caller default to zero in the library.
- * </dd>
- * <dt>Newer callers (larger struct)</dt>
- * <dd>
- *   Accepted only if all trailing bytes unknown to the library are zero.
- * </dd>
- * </dl>
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
  *
- * @pre The struct MUST be initialized with `memset()` before setting any
- * fields:
- * ```c
- * struct xkb_layout_policy_update update;
- * memset(&update, 0, sizeof(update));
- * update.size = sizeof(update);
- * update.policy = …;
- * ```
- *
- * @invariant #size MUST be explicitly set to
- * `sizeof(struct xkb_layout_policy_update)`.
- * @invariant All bytes of the struct, including padding, MUST remain zero
- * except for *explicitly* assigned fields.
+ * @sa `enum xkb_layout_out_of_range_policy`
+ * @sa `xkb_state_update::layout_policy`
+ * @sa `struct xkb_state_update`
+ * @sa `xkb_machine::xkb_machine_process_synthetic()`
  *
  * @since 1.14.0
- *
- * @sa `xkb_layout_out_of_range_policy`
- * @sa `xkb_state_update::layout_policy`
  */
 struct xkb_layout_policy_update {
     /**
-     * Size of this structure, for forward-compatibility.
+     * Size of this structure in bytes.
      *
-     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
-     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
-     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     * @sa @ref abi-struct-contract
      *
      * @since 1.14.0
      */
-    size_t size;
+    uint32_t size;
     /**
      * [Policy] to use to handle out-of-range layout indices.
      *
-     * @sa `xkb_layout_out_of_range_policy`
+     * @sa `enum xkb_layout_out_of_range_policy`
      *
      * @since 1.14.0
      *
@@ -3623,16 +4746,21 @@ struct xkb_layout_policy_update {
      */
     uint32_t policy;
     /**
-     * Layout index to redirect to when `policy` is
+     * [Layout index to redirect] to when `policy` is
      * `::XKB_LAYOUT_OUT_OF_RANGE_REDIRECT`. Ignored otherwise.
      *
+     * @sa `xkb_layout_index_t`
+     *
      * @since 1.14.0
+     *
+     * [Layout index to redirect]: @ref xkb_layout_index_t
      */
     xkb_layout_index_t redirect;
 };
 
 /**
  * @struct xkb_state_update
+ * @ingroup abi-struct-contract
  * Request to process an out-of-band atomic update through an `xkb_machine` or
  * `xkb_state`.
  *
@@ -3645,54 +4773,37 @@ struct xkb_layout_policy_update {
  *
  * A `NULL` pointer means “not set / no change”.
  *
- * @note This struct uses a **size-based versioning** scheme to allow
- * forward and backward compatibility between callers and the library:
- * <dl>
- * <dt>Older callers (smaller struct)</dt>
- * <dd>
- *   Trailing fields unknown to the caller default to zero in the library.
- * </dd>
- * <dt>Newer callers (larger struct)</dt>
- * <dd>
- *   Accepted only if all trailing bytes unknown to the library are zero.
- * </dd>
- * </dl>
- *
- * @pre The struct MUST be initialized with `memset()` before setting any
- * fields:
- * ```c
- * struct xkb_state_update update;
- * memset(&update, 0, sizeof(update));
- * update.size = sizeof(update);
- * update.components = …;
- * ```
- *
- * @invariant #size MUST be explicitly set to `sizeof(struct xkb_state_update)`.
- * @invariant All bytes of the struct, including padding, MUST remain zero
- * except for *explicitly* assigned fields.
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
  *
  * @sa `xkb_state::xkb_state_update_synthetic()`
  * @sa `xkb_machine::xkb_machine_process_synthetic()`
- * @sa `xkb_state_components_update`
- * @sa `xkb_layout_policy_update`
+ * @sa `struct xkb_state_components_update`
+ * @sa `struct xkb_layout_policy_update`
  *
  * @since 1.14.0
  */
 struct xkb_state_update {
     /**
-     * Size of this structure, for forward-compatibility.
+     * Size of this structure in bytes.
      *
-     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
-     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
-     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     * @sa @ref abi-struct-contract
      *
      * @since 1.14.0
      */
-    size_t size;
+    uint32_t size;
+    /**
+     * @private
+     *
+     * Reserved for future extensions.
+     *
+     * @pre Must be set to `0` by the caller.
+     */
+    uint32_t reserved0;
     /**
      * Components updates, or `NULL` for no change.
      *
-     * @sa `xkb_state_component`
+     * @sa `enum xkb_state_component`
      *
      * @since 1.14.0
      */
@@ -3700,7 +4811,7 @@ struct xkb_state_update {
     /**
      * Out-of-range layout policy update, or `NULL` for no change.
      *
-     * @sa `xkb_layout_out_of_range_policy`
+     * @sa `enum xkb_layout_out_of_range_policy`
      *
      * @since 1.14.0
      */
@@ -3711,6 +4822,7 @@ struct xkb_state_update {
  * Process a *synthetic* (out-of-band) atomic update through the XKB
  * [state machine], and collect the resulting [keyboard events] into an
  * [event batch].
+ * @memberof xkb_machine
  *
  * Use this function to update the state machine in response to
  * out-of-band (non-device) inputs, such as UI layout switchers or
@@ -3720,7 +4832,7 @@ struct xkb_state_update {
  * All changes specified in @p update are applied atomically as a single
  * *frame*: the resulting events reflect the **net** state change at the
  * end of the frame, not intermediate steps. In particular, a
- * `::XKB_EVENT_TYPE_COMPONENTS_CHANGE` event in the batch represents the
+ * `::XKB_EVENT_TYPE_STATE_COMPONENTS` event in the batch represents the
  * cumulative state change for the entire frame — individual intermediate
  * state transitions are not observable.
  *
@@ -3738,17 +4850,25 @@ struct xkb_state_update {
  *
  * @param[in,out] machine The XKB [state machine] object.
  * @param[in]     update  The update to apply.
- *                        Must have `xkb_state_update::size` set.
  * @param[out]    events  The event batch to collect events into. It will be
  *                        reset before collecting.
  *
+ * @pre @p update must point to a zero-initialized struct with
+ * [`update->size`](@ref xkb_state_update::size) set per
+ * @ref abi-struct-contract.
+ *
  * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution.
+ * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX`
+ * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_OUT_OF_RANGE_POLICY`
+ *
+ * @sa `struct xkb_state_update`
+ * @sa `struct xkb_state_components_update`
+ * @sa `struct xkb_layout_policy_update`
+ * @sa `xkb_machine_process_key()`
  *
  * @since 1.14.0
- *
- * @sa `xkb_state_update`
- * @sa `xkb_machine_process_key()`
- * @memberof xkb_machine
  *
  * [state machine]: @ref xkb_machine
  * [keyboard events]: @ref xkb_event
@@ -3763,8 +4883,9 @@ xkb_machine_process_synthetic(struct xkb_machine *machine,
  * @enum xkb_state_mode
  * Mode for creating a [keyboard state object](@ref xkb_state).
  *
- * @since 1.14.0
  * @sa `xkb_state::xkb_state_new_with_mode()`
+ *
+ * @since 1.14.0
  */
 enum xkb_state_mode {
     /**
@@ -3794,9 +4915,9 @@ enum xkb_state_mode {
      * Use this mode for an observable state companion to an `xkb_machine` in
      * *server* applications using the `xkb_machine` API.
      *
-     * This is the *recommended* mode for new server applications, as it creates
-     * `xkb_state` objects with much *smaller* memory footprint than with
-     * `xkb_state::xkb_state_new()`.
+     * This is the *recommended* mode for new server applications using the
+     * `xkb_machine` API, as it creates `xkb_state` objects with much *smaller*
+     * memory footprint than with `xkb_state::xkb_state_new()`.
      *
      * @important `xkb_state` objects created with this mode cannot be used
      * with the following API:
@@ -3804,6 +4925,16 @@ enum xkb_state_mode {
      * - `xkb_state::xkb_state_update_key()`
      * - `xkb_state::xkb_state_update_synthetic()`
      * - `xkb_state::xkb_state_update_latched_locked()` *(deprecated)*
+     *
+     * @warning Do not pass this value to `xkb_state::xkb_state_new_with_mode()`
+     * directly, unless the corresponding `xkb_machine` has not processed any
+     * input event yet: the result would not be initialized from the machine’s
+     * current state, and cannot be brought back into sync afterward if the
+     * machine already processed events.
+     * Use `xkb_state::xkb_state_new_from_machine()` instead.
+     *
+     * @sa `struct xkb_machine`
+     * @sa `xkb_state::xkb_state_new_from_machine()`
      *
      * @since 1.14.0
      *
@@ -3833,25 +4964,82 @@ enum xkb_state_mode {
 };
 
 /**
- * Create a new keyboard state object with an explicit mode.
+ * Create a new keyboard state object with an explicit [mode].
+ * @memberof xkb_state
  *
  * This entry point is intended for both server and client applications.
  * It enables using the optimal implementation for the intended use.
  *
- * @param[in] keymap The keymap which the state will use.
- * @param[in] mode   The [state mode](@ref xkb_state_mode) to use.
+ * @param[in] keymap
+ *   The keymap which the state will use.
+ * @param[in] mode
+ *   The [state mode][mode] to use.
+ * @param[out] error
+ *     Pointer to store the resulting [error code], or `NULL` if not needed.
  *
  * @returns A new keyboard state object, or `NULL` on failure.
  *
+ * @post if `error` is not `NULL`, `*error` is set to `::XKB_SUCCESS`
+ * on *success* or to an [error code] corresponding to the failure.
+ * Possible errors are:
+ * - `::XKB_ERROR_ALLOCATION_FAILURE`
+ * - `::XKB_ERROR_UNSUPPORTED_STATE_MODE`
+ *
+ * @sa `enum xkb_state_mode`
+ *
  * @since 1.14.0
- * @sa `xkb_state_mode`
- * @memberof xkb_state
+ *
+ * [mode]: @ref xkb_state_mode
+ * [error code]: @ref xkb_error_code
  */
 XKB_EXPORT struct xkb_state *
-xkb_state_new_with_mode(struct xkb_keymap *keymap, enum xkb_state_mode mode);
+xkb_state_new_with_mode(struct xkb_keymap *keymap,
+                        enum xkb_state_mode mode,
+                        enum xkb_error_code *error);
+
+/**
+ * Create a new keyboard state object as an observer of an `xkb_machine`.
+ * @memberof xkb_state
+ *
+ * Constructor for *server* applications using the `xkb_machine` API:
+ * - state mode set to `::XKB_STATE_MODE_SERVER_QUERY`;
+ * - keymap referenced from @p machine’s keymap;
+ * - initialized with @p machine’s state.
+ * See @ref server-client-state for further information.
+ *
+ * @note The created state must be kept in sync with the machine using
+ * `xkb_state_update_event()`.
+ *
+ * @note The returned state is independent of the machine’s lifetime.
+ *
+ * @param[in] machine
+ *   The [state machine] whose keymap the new state will use.
+ * @param[out] error
+ *   Pointer to store the resulting [error code], or `NULL` if not needed.
+ *
+ * @returns A new keyboard state object, or `NULL` on failure.
+ *
+ * @post if `error` is not `NULL`, `*error` is set to `::XKB_SUCCESS`
+ * on *success* or to an [error code] corresponding to the failure.
+ * Possible errors are:
+ * - `::XKB_ERROR_ALLOCATION_FAILURE`
+ *
+ * @sa `xkb_state_new_with_mode()`
+ * @sa `::XKB_STATE_MODE_SERVER_QUERY`
+ * @sa `struct xkb_machine`
+ *
+ * @since 1.14.0
+ *
+ * [state machine]: @ref xkb_machine
+ * [error code]: @ref xkb_error_code
+ */
+XKB_EXPORT struct xkb_state *
+xkb_state_new_from_machine(const struct xkb_machine *machine,
+                           enum xkb_error_code *error);
 
 /**
  * Create a new keyboard state object.
+ * @memberof xkb_state
  *
  * @note This is the legacy constructor, predating the `xkb_machine` API.
  * It imposes no restrictions on which update functions may be called,
@@ -3862,36 +5050,33 @@ xkb_state_new_with_mode(struct xkb_keymap *keymap, enum xkb_state_mode mode);
  * @param[in] keymap The keymap which the state will use.
  *
  * @returns A new keyboard state object, or `NULL` on failure.
- *
- * @memberof xkb_state
  */
 XKB_EXPORT struct xkb_state *
 xkb_state_new(struct xkb_keymap *keymap);
 
 /**
  * Take a new reference on a keyboard state object.
+ * @memberof xkb_state
  *
  * @param[in] state The [state](@ref xkb_state) to reference.
  *
  * @returns The passed-in object.
- *
- * @memberof xkb_state
  */
 XKB_EXPORT struct xkb_state *
 xkb_state_ref(struct xkb_state *state);
 
 /**
  * Release a reference on a keyboard state object, and possibly free it.
+ * @memberof xkb_state
  *
  * @param[in] state The state.  If it is `NULL`, this function does nothing.
- *
- * @memberof xkb_state
  */
 XKB_EXPORT void
 xkb_state_unref(struct xkb_state *state);
 
 /**
  * Get the keymap which a keyboard state object is using.
+ * @memberof xkb_state
  *
  * @param[in] state  The keyboard state object.
  *
@@ -3901,17 +5086,16 @@ xkb_state_unref(struct xkb_state *state);
  * @warning This function does not take a new reference on the keymap; you must
  * explicitly reference it yourself if you plan to use it beyond the
  * lifetime of the state.
- *
- * @memberof xkb_state
  */
 XKB_EXPORT struct xkb_keymap *
 xkb_state_get_keymap(struct xkb_state *state);
 
 /**
  * Update a keyboard state from a set of explicit masks.
+ * @memberof xkb_state
  *
- * This entry point is intended for *client* applications; see @ref
- * server-client-state for details. *Server* applications should use
+ * This entry point is intended for *client* applications; see
+ * @ref server-client-state for details. *Server* applications should use
  * either the recommended modern `xkb_machine` API with the corresponding
  * `xkb_state_update_event()` or the legacy `xkb_state_update_synthetic()`
  * API instead.
@@ -3937,13 +5121,15 @@ xkb_state_get_keymap(struct xkb_state *state);
  * a no-op update.
  *
  * @returns A mask of state components that have changed as a result of
- * the update.  If nothing in the state has changed, returns 0.
+ * the update.  If nothing in the state has changed, returns 0
+ * (`::XKB_STATE_NO_COMPONENT`).
  *
- * @sa `xkb_state_component`
+ * @sa `enum xkb_state_component`
  * @sa `xkb_state_update_synthetic()`
  * @sa `xkb_state_update_event()`
  *
- * @memberof xkb_state
+ * @since 1.14.0: Reject call if the [state mode](@ref xkb_state_mode)
+ * is incorrect.
  */
 XKB_EXPORT enum xkb_state_component
 xkb_state_update_mask(struct xkb_state *state,
@@ -3957,6 +5143,7 @@ xkb_state_update_mask(struct xkb_state *state,
 /**
  * Update the keyboard state [components](@ref xkb_state_component) from an
  * [event](@ref xkb_event).
+ * @memberof xkb_state
  *
  * This entry point is intended for *server* applications and should not be used
  * by *client* applications; see @ref server-client-state for details.
@@ -3967,29 +5154,44 @@ xkb_state_update_mask(struct xkb_state *state,
  * `xkb_machine::xkb_machine_process_synthetic()` into this
  * function to keep the observable state in sync.
  *
- * @param[in,out] state The keyboard state object.
- * @param[in]     event The state event to update from.
+ * @param[in,out] state
+ *   The keyboard state object.
+ * @param[in] event
+ *   The state event to update from.
+ * @param[out] changed
+ *   A pointer to the mask of state components that have changed as a result
+ *   of the update, or `NULL` to ignore.  If nothing in the state has changed,
+ *   the mask is set to 0 (`::XKB_STATE_NO_COMPONENT`).
  *
- * @important If @p state was not created with `::XKB_STATE_MODE_SERVER_QUERY`
- * or `xkb_state_new()`, the call is *rejected* without updating the state,
- * and the misuse is logged as `::XKB_ERROR_UNEXPECTED_STATE_MODE`.
- * The return value is `0` in this case, which is indistinguishable from
- * a no-op update.
+ * @pre @p state must be created with `xkb_state_new_from_machine()`
+ * (i.e. with mode `::XKB_STATE_MODE_SERVER_QUERY`) or `xkb_state_new()`,
+ * otherwise the call is *rejected* without updating the state and the misuse
+ * is logged as `::XKB_ERROR_UNEXPECTED_STATE_MODE`.
  *
- * @returns A mask of state components that have changed as a result of
- * the update.  If nothing in the state has changed, returns 0.
+ * @returns
+ * - `::XKB_SUCCESS` on success;
+ * - `::XKB_ERROR_UNEXPECTED_STATE_MODE` without updating the state if @p state
+ *   was not created with `::XKB_STATE_MODE_SERVER_QUERY` or `xkb_state_new()`.
+ * - Otherwise another [error code](@ref xkb_error_code).
+ *
+ * @note This function returns an error code rather than a state component
+ * delta (unlike other `xkb_state_update_*()` functions), in order to align
+ * with `xkb_state_update_synthetic()` API. The delta is optionally available
+ * via the @p changed parameter.
+ *
+ * @sa `xkb_state_new_from_machine()`
  *
  * @since 1.14.0
- *
- * @memberof xkb_state
  */
-XKB_EXPORT enum xkb_state_component
+XKB_EXPORT enum xkb_error_code
 xkb_state_update_event(struct xkb_state *state,
-                       const struct xkb_event *event);
+                       const struct xkb_event *event,
+                       enum xkb_state_component *changed);
 
 /**
  * Update the keyboard state to reflect a given key being pressed or
  * released.
+ * @memberof xkb_state
  *
  * This entry point is intended for *server* applications and should not be used
  * by *client* applications; see @ref server-client-state for details.
@@ -4007,7 +5209,7 @@ xkb_state_update_event(struct xkb_state *state,
  * conventional behavior.
  *
  * @note This is the legacy server entry point and only supports a restricted
- * set of libxkbcommon features.  Since 1.14.0, prefer `xkb_machine` for new
+ * set of xkbcommon features.  Since 1.14.0, prefer `xkb_machine` for new
  * server applications to enable the full feature set.
  *
  * @param[in,out] state     The keyboard state object.
@@ -4021,11 +5223,13 @@ xkb_state_update_event(struct xkb_state *state,
  * a no-op update.
  *
  * @returns A mask of state components that have changed as a result of
- * the update.  If nothing in the state has changed, returns 0.
- *
- * @memberof xkb_state
+ * the update.  If nothing in the state has changed, returns 0
+ * (`::XKB_STATE_NO_COMPONENT`).
  *
  * @sa `xkb_state_update_mask()`
+ *
+ * @since 1.14.0: Reject call if the [state mode](@ref xkb_state_mode)
+ * is incorrect.
  */
 XKB_EXPORT enum xkb_state_component
 xkb_state_update_key(struct xkb_state *state, xkb_keycode_t key,
@@ -4033,6 +5237,7 @@ xkb_state_update_key(struct xkb_state *state, xkb_keycode_t key,
 
 /**
  * Apply a *synthetic* (out-of-band) atomic update to the keyboard state.
+ * @memberof xkb_state
  *
  * This entry point is intended for *server* applications and should not be used
  * by *client* applications; see @ref server-client-state for details.
@@ -4057,15 +5262,27 @@ xkb_state_update_key(struct xkb_state *state, xkb_keycode_t key,
  * @endparblock
  *
  * @note This entry point serves the legacy server use case and only supports a
- * restricted set of libxkbcommon features.  Since 1.14.0, prefer `xkb_machine`
+ * restricted set of xkbcommon features.  Since 1.14.0, prefer `xkb_machine`
  * for new server applications to enable the full feature set.
  *
- * @param[in,out] state   The keyboard state object.
- * @param[in]     update  The update to apply.
- *                        Must have `xkb_state_update::size` set.
- * @param[out]    changed A pointer to store the mask of state components that
- *                        have changed as a result of the update, or `NULL` to
- *                        ignore. Set to 0 if nothing in the state has changed.
+ * @param[in,out] state
+ *   The keyboard state object.
+ * @param[in] update
+ *   The update to apply.
+ * @param[out] changed
+ *   A pointer to the mask of state components that have changed as a result of
+ *   the update, or `NULL` to ignore.  If nothing in the state has changed, the
+ *   mask is set to 0 (`::XKB_STATE_NO_COMPONENT`).
+ *
+ * @important If @p state was not created with `::XKB_STATE_MODE_SERVER` or
+ * `xkb_state_new()`, the call is *rejected* without updating the state,
+ * and the misuse is logged as `::XKB_ERROR_UNEXPECTED_STATE_MODE`.
+ * The return value is `0` in this case, which is indistinguishable from
+ * a no-op update.
+ *
+ * @pre @p update must point to a zero-initialized struct with
+ * [`update->size`](@ref xkb_state_update::size) set per
+ * @ref abi-struct-contract.
  *
  * @returns
  * - `::XKB_SUCCESS` on success;
@@ -4074,16 +5291,15 @@ xkb_state_update_key(struct xkb_state *state, xkb_keycode_t key,
  * - Otherwise another [error code](@ref xkb_error_code).
  *
  * @note This function returns an error code rather than a state component
- * delta (unlike the other `xkb_state_update_*` functions), in order to align
+ * delta (unlike other `xkb_state_update_*()` functions), in order to align
  * with the `xkb_machine::xkb_machine_process_synthetic()` API. The delta
  * is optionally available via the @p changed parameter.
  *
- * @since 1.14.0
- *
- * @sa `xkb_state_update`
+ * @sa `struct xkb_state_update`
  * @sa `xkb_state_update_key()`
  * @sa `xkb_machine::xkb_machine_process_synthetic()`
- * @memberof xkb_state
+ *
+ * @since 1.14.0
  */
 XKB_EXPORT enum xkb_error_code
 xkb_state_update_synthetic(struct xkb_state *state,
@@ -4093,6 +5309,7 @@ xkb_state_update_synthetic(struct xkb_state *state,
 /**
  * Update the keyboard state to change the latched and locked state of
  * the modifiers and layout.
+ * @memberof xkb_state
  *
  * @deprecated Use `xkb_state_update_synthetic()` instead.
  *
@@ -4136,11 +5353,13 @@ xkb_state_update_synthetic(struct xkb_state *state,
  * a no-op update.
  *
  * @returns A mask of state components that have changed as a result of
- * the update.  If nothing in the state has changed, returns 0.
- *
- * @memberof xkb_state
+ * the update.  If nothing in the state has changed, returns 0
+ * (`::XKB_STATE_NO_COMPONENT`).
  *
  * @sa `xkb_state_update_synthetic()`
+ *
+ * @since 1.14.0: Reject call if the [state mode](@ref xkb_state_mode)
+ * is incorrect.
  */
 XKB_EXPORT enum xkb_state_component
 xkb_state_update_latched_locked(struct xkb_state *state,
@@ -4156,6 +5375,7 @@ xkb_state_update_latched_locked(struct xkb_state *state,
 /**
  * Get the keysyms obtained from pressing a particular key in a given
  * keyboard state.
+ * @memberof xkb_state
  *
  * Get the keysyms for a key according to the current active layout,
  * modifiers and shift level for the key, as determined by a keyboard
@@ -4176,9 +5396,7 @@ xkb_state_update_latched_locked(struct xkb_state *state,
  *
  * This function performs Capitalization @ref keysym-transformations.
  *
- * @memberof xkb_state
- *
- * @since 1.9.0 This function now performs @ref keysym-transformations.
+ * @since 1.9.0: This function now performs @ref keysym-transformations.
  */
 XKB_EXPORT int
 xkb_state_key_get_syms(struct xkb_state *state, xkb_keycode_t key,
@@ -4187,6 +5405,7 @@ xkb_state_key_get_syms(struct xkb_state *state, xkb_keycode_t key,
 /**
  * Get the Unicode/UTF-8 string obtained from pressing a particular key
  * in a given keyboard state.
+ * @memberof xkb_state
  *
  * @param[in]  state  The keyboard state object.
  * @param[in]  key    The keycode of the key.
@@ -4204,10 +5423,9 @@ xkb_state_key_get_syms(struct xkb_state *state, xkb_keycode_t key,
  * You may safely pass `NULL` and 0 to @p buffer and @p size to find the
  * required size (without the `NULL`-byte).
  *
- * This function performs Capitalization and Control @ref
- * keysym-transformations.
+ * This function performs *Capitalization* and *Control*
+ * @ref keysym-transformations "".
  *
- * @memberof xkb_state
  * @since 0.4.1
  */
 XKB_EXPORT int
@@ -4216,7 +5434,8 @@ xkb_state_key_get_utf8(struct xkb_state *state, xkb_keycode_t key,
 
 /**
  * Get the Unicode/UTF-32 codepoint obtained from pressing a particular
- * key in a a given keyboard state.
+ * key in a given keyboard state.
+ * @memberof xkb_state
  *
  * @param[in]  state  The keyboard state object.
  * @param[in]  key    The keycode of the key.
@@ -4224,10 +5443,9 @@ xkb_state_key_get_utf8(struct xkb_state *state, xkb_keycode_t key,
  * @returns The UTF-32 representation for the key, if it consists of only
  * a single codepoint.  Otherwise, returns 0.
  *
- * This function performs Capitalization and Control @ref
- * keysym-transformations.
+ * This function performs *Capitalization* and *Control*
+ * @ref keysym-transformations "".
  *
- * @memberof xkb_state
  * @since 0.4.1
  */
 XKB_EXPORT uint32_t
@@ -4236,6 +5454,7 @@ xkb_state_key_get_utf32(struct xkb_state *state, xkb_keycode_t key);
 /**
  * Get the single keysym obtained from pressing a particular key in a
  * given keyboard state.
+ * @memberof xkb_state
  *
  * This function is similar to `xkb_state_key_get_syms()`, but intended
  * for users which cannot or do not want to handle the case where
@@ -4250,14 +5469,14 @@ xkb_state_key_get_utf32(struct xkb_state *state, xkb_keycode_t key);
  *
  * This function performs Capitalization @ref keysym-transformations.
  *
- * @sa xkb_state_key_get_syms()
- * @memberof xkb_state
+ * @sa `xkb_state_key_get_syms()`
  */
 XKB_EXPORT xkb_keysym_t
 xkb_state_key_get_one_sym(struct xkb_state *state, xkb_keycode_t key);
 
 /**
  * Get the effective layout index for a key in a given keyboard state.
+ * @memberof xkb_state
  *
  * @param[in]  state  The keyboard state object.
  * @param[in]  key    The keycode of the key.
@@ -4267,11 +5486,9 @@ xkb_state_key_get_one_sym(struct xkb_state *state, xkb_keycode_t key);
  * layout at all, returns `::XKB_LAYOUT_INVALID`.
  *
  * @invariant If the returned layout is valid, the following always holds:
- * @code
+ * ```c
  * xkb_state_key_get_layout(state, key) < xkb_keymap_num_layouts_for_key(keymap, key)
- * @endcode
- *
- * @memberof xkb_state
+ * ```
  */
 XKB_EXPORT xkb_layout_index_t
 xkb_state_key_get_layout(struct xkb_state *state, xkb_keycode_t key);
@@ -4279,24 +5496,24 @@ xkb_state_key_get_layout(struct xkb_state *state, xkb_keycode_t key);
 /**
  * Get the effective shift level for a key in a given keyboard state and
  * layout.
+ * @memberof xkb_state
  *
- * @param[in] state The keyboard state.
- * @param[in] key The keycode of the key.
- * @param[in] layout The layout for which to get the shift level.  This must be
- * smaller than:
- * @code xkb_keymap_num_layouts_for_key(keymap, key) @endcode
- * usually it would be:
- * @code xkb_state_key_get_layout(state, key) @endcode
+ * @param[in] state
+ *   The keyboard state.
+ * @param[in] key
+ *   The keycode of the key.
+ * @param[in] layout
+ *   The layout for which to get the shift level.
+ *   This must be smaller than: `xkb_keymap_num_layouts_for_key(keymap, key)`.
+ *   Usually it would be: `xkb_state_key_get_layout(state, key)`
  *
- * @return The shift level index.  If the key or layout are invalid,
+ * @returns The shift level index.  If the key or layout are invalid,
  * returns `::XKB_LEVEL_INVALID`.
  *
  * @invariant If the returned level is valid, the following always holds:
- * @code
+ * ```c
  * xkb_state_key_get_level(state, key, layout) < xkb_keymap_num_levels_for_key(keymap, key, layout)
- * @endcode
- *
- * @memberof xkb_state
+ * ```c
  */
 XKB_EXPORT xkb_level_index_t
 xkb_state_key_get_level(struct xkb_state *state, xkb_keycode_t key,
@@ -4320,40 +5537,40 @@ enum xkb_state_match {
      * modifier not specified in the arguments is active.
      * @endparblock
      */
-    XKB_STATE_MATCH_NON_EXCLUSIVE = (1 << 16)
+    XKB_STATE_MATCH_NON_EXCLUSIVE = (1 << 16),
 };
 
 /**
  * Serialization of the *boolean* [global keyboard controls], to be used on the
  * server side of serialization.
+ * @memberof xkb_state
  *
- * This entry point is intended for *server* applications; see @ref
- * server-client-state for details.
+ * This entry point is intended for *server* applications;
+ * see @ref server-client-state "" for details.
  *
  * @param[in] state      The keyboard state.
  * @param[in] components A mask of the keyboard control state components to
- * serialize. State components other than `::XKB_STATE_CONTROLS` are ignored.
+ * serialize. State components other than `::XKB_STATE_CONTROLS_EFFECTIVE` are ignored.
  *
  * @returns A `xkb_keyboard_control_flags` mask representing the enabled
  * keyboard controls for the given @p components.
  *
  * @since 1.14.0
  *
- * @memberof xkb_state
- *
  * [global keyboard controls]: @ref xkb_keyboard_control_flags
  */
 XKB_EXPORT enum xkb_keyboard_control_flags
-xkb_state_serialize_enabled_controls(const struct xkb_state *state,
-                                     enum xkb_state_component components);
+xkb_state_serialize_controls(const struct xkb_state *state,
+                             enum xkb_state_component components);
 
 /**
  * The counterpart to `xkb_state::xkb_state_update_mask()` for modifiers, to be
  * used on the server side of serialization.
+ * @memberof xkb_state
  *
- * This entry point is intended for *server* applications; see @ref
- * server-client-state for details. *Client* applications should use the
- * `xkb_state_mod_*_is_active` API.
+ * This entry point is intended for *server* applications;
+ * see @ref server-client-state "" for details.
+ * *Client* applications should use the `xkb_state_mod_*_is_active` API.
  *
  * @warning The serialization is lossy and will not survive round trips.
  * It must only be used to feed *client* state objects created with either
@@ -4368,8 +5585,6 @@ xkb_state_serialize_enabled_controls(const struct xkb_state *state,
  *
  * @returns A `xkb_mod_mask_t` representing the given components of the
  * modifier state.
- *
- * @memberof xkb_state
  */
 XKB_EXPORT xkb_mod_mask_t
 xkb_state_serialize_mods(struct xkb_state *state,
@@ -4378,10 +5593,11 @@ xkb_state_serialize_mods(struct xkb_state *state,
 /**
  * The counterpart to `xkb_state::xkb_state_update_mask()` for layouts, to be
  * used on the server side of serialization.
+ * @memberof xkb_state
  *
- * This entry point is intended for *server* applications; see @ref
- * server-client-state for details. *Client* applications should use the
- * xkb_state_layout_*_is_active API.
+ * This entry point is intended for *server* applications;
+ * see @ref server-client-state "" for details.
+ * *Client* applications should use the `xkb_state_layout_*_is_active` API.
  *
  * @warning The serialization is lossy and will not survive round trips.
  * It must only be used to feed *client* state objects created with either
@@ -4396,8 +5612,6 @@ xkb_state_serialize_mods(struct xkb_state *state,
  *
  * @returns A layout index representing the given components of the
  * layout state.
- *
- * @memberof xkb_state
  */
 XKB_EXPORT xkb_layout_index_t
 xkb_state_serialize_layout(struct xkb_state *state,
@@ -4405,6 +5619,7 @@ xkb_state_serialize_layout(struct xkb_state *state,
 
 /**
  * Test whether a modifier is active in a given keyboard state by name.
+ * @memberof xkb_state
  *
  * @warning For [virtual modifiers], this function may *overmatch* in case
  * there are virtual modifiers with overlapping mappings to [real modifiers].
@@ -4416,8 +5631,6 @@ xkb_state_serialize_layout(struct xkb_state *state,
  *
  * @returns 1 if the modifier is active, 0 if it is not.  If the modifier
  * name does not exist in the keymap, returns -1.
- *
- * @memberof xkb_state
  *
  * @since 0.1.0: Works only with *real* modifiers
  * @since 1.8.0: Works also with *virtual* modifiers
@@ -4432,6 +5645,7 @@ xkb_state_mod_name_is_active(struct xkb_state *state, const char *name,
 /**
  * Test whether a set of modifiers are active in a given keyboard state by
  * name.
+ * @memberof xkb_state
  *
  * @warning For [virtual modifiers], this function may *overmatch* in case
  * there are virtual modifiers with overlapping mappings to [real modifiers].
@@ -4441,14 +5655,12 @@ xkb_state_mod_name_is_active(struct xkb_state *state, const char *name,
  * given modifiers.
  * @param[in] match The manner by which to match the state against the
  * given modifiers.
- * @param[in] ...   The set of of modifier names to test, terminated by a `NULL`
+ * @param[in] ...   The set of modifier names to test, terminated by a `NULL`
  * argument (sentinel).
  *
  * @returns 1 if the modifiers are active, 0 if they are not.  If any of
  * the modifier names do not exist in the keymap, returns -1. If @p match
  * contains invalid flags, returns -2.
- *
- * @memberof xkb_state
  *
  * @since 0.1.0: Works only with *real* modifiers
  * @since 1.8.0: Works also with *virtual* modifiers
@@ -4465,6 +5677,7 @@ xkb_state_mod_names_are_active(struct xkb_state *state,
 
 /**
  * Test whether a modifier is active in a given keyboard state by index.
+ * @memberof xkb_state
  *
  * @warning For [virtual modifiers], this function may *overmatch* in case
  * there are virtual modifiers with overlapping mappings to [real modifiers].
@@ -4476,8 +5689,6 @@ xkb_state_mod_names_are_active(struct xkb_state *state,
  *
  * @returns 1 if the modifier is active, 0 if it is not.  If the modifier
  * index is invalid in the keymap, returns -1.
- *
- * @memberof xkb_state
  *
  * @since 0.1.0: Works only with *real* modifiers
  * @since 1.8.0: Works also with *virtual* modifiers
@@ -4492,6 +5703,7 @@ xkb_state_mod_index_is_active(struct xkb_state *state, xkb_mod_index_t idx,
 /**
  * Test whether a set of modifiers are active in a given keyboard state by
  * index.
+ * @memberof xkb_state
  *
  * @warning For [virtual modifiers], this function may *overmatch* in case
  * there are virtual modifiers with overlapping mappings to [real modifiers].
@@ -4501,14 +5713,12 @@ xkb_state_mod_index_is_active(struct xkb_state *state, xkb_mod_index_t idx,
  * given modifiers.
  * @param[in] match The manner by which to match the state against the
  * given modifiers.
- * @param[in] ...   The set of of modifier indices to test, terminated by a
+ * @param[in] ...   The set of modifier indices to test, terminated by a
  * `::XKB_MOD_INVALID` argument (sentinel).
  *
  * @returns 1 if the modifiers are active, 0 if they are not.  If any of
  * the modifier indices are invalid in the keymap, returns -1. If @p match
  * contains invalid flags, returns -2.
- *
- * @memberof xkb_state
  *
  * @since 0.1.0: Works only with *real* modifiers
  * @since 1.8.0: Works also with *virtual* modifiers
@@ -4624,11 +5834,12 @@ enum xkb_consumed_mode {
      *   the key when it is the only active modifier are different from the
      *   keysyms produced when no modifiers are active.
      */
-    XKB_CONSUMED_MODE_GTK
+    XKB_CONSUMED_MODE_GTK,
 };
 
 /**
  * Get the mask of modifiers consumed by translating a given key.
+ * @memberof xkb_state
  *
  * @param[in] state The keyboard state.
  * @param[in] key   The keycode of the key.
@@ -4637,7 +5848,6 @@ enum xkb_consumed_mode {
  *
  * @returns a mask of the consumed [real modifiers] modifiers.
  *
- * @memberof xkb_state
  * @since 0.7.0
  *
  * [real modifiers]: @ref real-modifier-def
@@ -4648,16 +5858,16 @@ xkb_state_key_get_consumed_mods2(struct xkb_state *state, xkb_keycode_t key,
 
 /**
  * Same as `xkb_state_key_get_consumed_mods2()` with mode `::XKB_CONSUMED_MODE_XKB`.
- *
  * @memberof xkb_state
+ *
  * @since 0.4.1
  */
 XKB_EXPORT xkb_mod_mask_t
 xkb_state_key_get_consumed_mods(struct xkb_state *state, xkb_keycode_t key);
 
 /**
- * Test whether a modifier is consumed by keyboard state translation for
- * a key.
+ * Test whether a modifier is consumed by keyboard state translation for a key.
+ * @memberof xkb_state
  *
  * @warning For [virtual modifiers], this function may *overmatch* in case
  * there are virtual modifiers with overlapping mappings to [real modifiers].
@@ -4670,9 +5880,9 @@ xkb_state_key_get_consumed_mods(struct xkb_state *state, xkb_keycode_t key);
  * @returns 1 if the modifier is consumed, 0 if it is not.  If the modifier
  * index is not valid in the keymap, returns -1.
  *
- * @sa xkb_state_mod_mask_remove_consumed()
- * @sa xkb_state_key_get_consumed_mods()
- * @memberof xkb_state
+ * @sa `xkb_state_mod_mask_remove_consumed()`
+ * @sa `xkb_state_key_get_consumed_mods()`
+ *
  * @since 0.7.0: Works only with *real* modifiers
  * @since 1.8.0: Works also with *virtual* modifiers
  *
@@ -4687,11 +5897,11 @@ xkb_state_mod_index_is_consumed2(struct xkb_state *state,
 
 /**
  * Same as `xkb_state_mod_index_is_consumed2()` with mode `::XKB_CONSUMED_MODE_XKB`.
+ * @memberof xkb_state
  *
  * @warning For [virtual modifiers], this function may *overmatch* in case
  * there are virtual modifiers with overlapping mappings to [real modifiers].
  *
- * @memberof xkb_state
  * @since 0.4.1: Works only with *real* modifiers
  * @since 1.8.0: Works also with *virtual* modifiers
  *
@@ -4704,6 +5914,7 @@ xkb_state_mod_index_is_consumed(struct xkb_state *state, xkb_keycode_t key,
 
 /**
  * Remove consumed modifiers from a modifier mask for a key.
+ * @memberof xkb_state
  *
  * @deprecated Use `xkb_state_key_get_consumed_mods2()` instead.
  *
@@ -4712,8 +5923,8 @@ xkb_state_mod_index_is_consumed(struct xkb_state *state, xkb_keycode_t key,
  *
  * @returns a mask of [real modifiers] modifiers.
  *
- * @sa xkb_state_mod_index_is_consumed()
- * @memberof xkb_state
+ * @sa `xkb_state_mod_index_is_consumed()`
+ *
  * @since 0.5.0: Works only with *real* modifiers
  * @since 1.8.0: Works also with *virtual* modifiers
  *
@@ -4725,6 +5936,7 @@ xkb_state_mod_mask_remove_consumed(struct xkb_state *state, xkb_keycode_t key,
 
 /**
  * Test whether a layout is active in a given keyboard state by name.
+ * @memberof xkb_state
  *
  * @param[in] state The keyboard state.
  * @param[in] name  The layout name to test (`NULL`-terminated string).
@@ -4737,8 +5949,7 @@ xkb_state_mod_mask_remove_consumed(struct xkb_state *state, xkb_keycode_t key,
  * If multiple layouts in the keymap have this name, the one with the lowest
  * index is tested.
  *
- * @sa xkb_layout_index_t
- * @memberof xkb_state
+ * @sa `xkb_layout_index_t`
  */
 XKB_EXPORT int
 xkb_state_layout_name_is_active(struct xkb_state *state, const char *name,
@@ -4746,6 +5957,7 @@ xkb_state_layout_name_is_active(struct xkb_state *state, const char *name,
 
 /**
  * Test whether a layout is active in a given keyboard state by index.
+ * @memberof xkb_state
  *
  * @param[in] state The keyboard state.
  * @param[in] idx   The layout index to test.
@@ -4755,8 +5967,7 @@ xkb_state_layout_name_is_active(struct xkb_state *state, const char *name,
  * @returns 1 if the layout is active, 0 if it is not.  If the layout index
  * is not valid in the keymap, returns -1.
  *
- * @sa xkb_layout_index_t
- * @memberof xkb_state
+ * @sa `xkb_layout_index_t`
  */
 XKB_EXPORT int
 xkb_state_layout_index_is_active(struct xkb_state *state,
@@ -4765,6 +5976,7 @@ xkb_state_layout_index_is_active(struct xkb_state *state,
 
 /**
  * Test whether a LED is active in a given keyboard state by name.
+ * @memberof xkb_state
  *
  * @param[in] state The keyboard state.
  * @param[in] name  The LED name to test (`NULL`-terminated string).
@@ -4772,14 +5984,14 @@ xkb_state_layout_index_is_active(struct xkb_state *state,
  * @returns 1 if the LED is active, 0 if it not.  If no LED with this name
  * exists in the keymap, returns -1.
  *
- * @sa xkb_led_index_t
- * @memberof xkb_state
+ * @sa `xkb_led_index_t`
  */
 XKB_EXPORT int
 xkb_state_led_name_is_active(struct xkb_state *state, const char *name);
 
 /**
  * Test whether a LED is active in a given keyboard state by index.
+ * @memberof xkb_state
  *
  * @param[in] state The keyboard state.
  * @param[in] idx   The LED index to test.
@@ -4787,8 +5999,7 @@ xkb_state_led_name_is_active(struct xkb_state *state, const char *name);
  * @returns 1 if the LED is active, 0 if it not.  If the LED index is not
  * valid in the keymap, returns -1.
  *
- * @sa xkb_led_index_t
- * @memberof xkb_state
+ * @sa `xkb_led_index_t`
  */
 XKB_EXPORT int
 xkb_state_led_index_is_active(struct xkb_state *state, xkb_led_index_t idx);
