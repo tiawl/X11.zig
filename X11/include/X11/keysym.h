@@ -69,6 +69,8 @@ SOFTWARE.
 #define XK_MATHEMATICAL
 #define XK_BRAILLE
 #define XK_SINHALA
+#define XK_GERMAN
+#define XK_GENERAL_PUNCTUATION
 
 #include <X11/keysymdef.h>
 

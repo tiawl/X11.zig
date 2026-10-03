@@ -15,8 +15,8 @@
             .hash = "N-V-__8AAGlRAgBdkf1F-Y410qIz6cV4C62ZAUk_SGeUVriw",
         },
         .xorgproto = .{
-            .url = "git+https://gitlab.freedesktop.org/xorg/proto/xorgproto?ref=xorgproto-2025.1#c18d2bc22813793bba7f0e4e603c0104d7724802",
-            .hash = "N-V-__8AAG86ZgA2-SHGTO4n81-Sj8LNvSASCKZ91wOWZ7Sg",
+            .url = "git+https://gitlab.freedesktop.org/xorg/proto/xorgproto?ref=xorgproto-2026.1#6d3907b6d5dc4aa7d7ee6ee5d7d8714e7466630b",
+            .hash = "N-V-__8AAHQ6ZgBYFiNsBTekqmEC6Tqqa3gTJdYOS6bk8IpK",
         },
         .Xinerama = .{
             .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxinerama?ref=libXinerama-1.1.6#cc4ac9cf36fdf3815381b791e47a90b8aebc7e78",
@@ -63,11 +63,11 @@
             .hash = "N-V-__8AAAo6hwC5gSRez6YEBmJSqNo7sszsqZws45yWqCVg",
         },
         .toolbox = .{
-            .url = "git+https://github.com/tiawl/toolbox?ref=2.2.4#da4c8c4a903b306bc5e49938d41ac90bca969a72",
-            .hash = "toolbox-2.0.2-kRAu4CGsAADEIRWl6mGxZkoz4y9BsQfIXA-cRlKCp6Kr",
+            .url = "git+https://github.com/tiawl/toolbox?ref=2.2.5#8a97389edb41c10d3815dc386df30bca9ad2a6c0",
+            .hash = "toolbox-2.2.5-kRAu4EKYAADeYTD8cLQEiC3SUuTDaZUhI9jdU8SUNecU",
         },
     },
-    .minimum_zig_version = "0.16.0",
+    .minimum_zig_version = "0.17.0",
     .fingerprint = 0x73d0ebf76c33e052,
     .paths = .{
         "build.zig",
