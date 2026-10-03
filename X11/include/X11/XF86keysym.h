@@ -516,18 +516,18 @@
 /* Use: XK_braille_dot_8                _EVDEVK(0x1f8)     v2.6.17 KEY_BRL_DOT8 */
 /* Use: XK_braille_dot_9                _EVDEVK(0x1f9)     v2.6.23 KEY_BRL_DOT9 */
 /* Use: XK_braille_dot_1                _EVDEVK(0x1fa)     v2.6.23 KEY_BRL_DOT10 */
-#define XF86XK_Numeric0                 _EVDEVK(0x200)  /* v2.6.28 KEY_NUMERIC_0 */
-#define XF86XK_Numeric1                 _EVDEVK(0x201)  /* v2.6.28 KEY_NUMERIC_1 */
-#define XF86XK_Numeric2                 _EVDEVK(0x202)  /* v2.6.28 KEY_NUMERIC_2 */
-#define XF86XK_Numeric3                 _EVDEVK(0x203)  /* v2.6.28 KEY_NUMERIC_3 */
-#define XF86XK_Numeric4                 _EVDEVK(0x204)  /* v2.6.28 KEY_NUMERIC_4 */
-#define XF86XK_Numeric5                 _EVDEVK(0x205)  /* v2.6.28 KEY_NUMERIC_5 */
-#define XF86XK_Numeric6                 _EVDEVK(0x206)  /* v2.6.28 KEY_NUMERIC_6 */
-#define XF86XK_Numeric7                 _EVDEVK(0x207)  /* v2.6.28 KEY_NUMERIC_7 */
-#define XF86XK_Numeric8                 _EVDEVK(0x208)  /* v2.6.28 KEY_NUMERIC_8 */
-#define XF86XK_Numeric9                 _EVDEVK(0x209)  /* v2.6.28 KEY_NUMERIC_9 */
-#define XF86XK_NumericStar              _EVDEVK(0x20a)  /* v2.6.28 KEY_NUMERIC_STAR */
-#define XF86XK_NumericPound             _EVDEVK(0x20b)  /* v2.6.28 KEY_NUMERIC_POUND */
+#define XF86XK_Numeric0                 _EVDEVK(0x200)  /* v2.6.28 KEY_NUMERIC_0 <U+0030 DIGIT ZERO> */
+#define XF86XK_Numeric1                 _EVDEVK(0x201)  /* v2.6.28 KEY_NUMERIC_1 <U+0031 DIGIT ONE> */
+#define XF86XK_Numeric2                 _EVDEVK(0x202)  /* v2.6.28 KEY_NUMERIC_2 <U+0032 DIGIT TWO> */
+#define XF86XK_Numeric3                 _EVDEVK(0x203)  /* v2.6.28 KEY_NUMERIC_3 <U+0033 DIGIT THREE> */
+#define XF86XK_Numeric4                 _EVDEVK(0x204)  /* v2.6.28 KEY_NUMERIC_4 <U+0034 DIGIT FOUR> */
+#define XF86XK_Numeric5                 _EVDEVK(0x205)  /* v2.6.28 KEY_NUMERIC_5 <U+0035 DIGIT FIVE> */
+#define XF86XK_Numeric6                 _EVDEVK(0x206)  /* v2.6.28 KEY_NUMERIC_6 <U+0036 DIGIT SIX> */
+#define XF86XK_Numeric7                 _EVDEVK(0x207)  /* v2.6.28 KEY_NUMERIC_7 <U+0037 DIGIT SEVEN> */
+#define XF86XK_Numeric8                 _EVDEVK(0x208)  /* v2.6.28 KEY_NUMERIC_8 <U+0038 DIGIT EIGHT> */
+#define XF86XK_Numeric9                 _EVDEVK(0x209)  /* v2.6.28 KEY_NUMERIC_9 <U+0039 DIGIT NINE> */
+#define XF86XK_NumericStar              _EVDEVK(0x20a)  /* v2.6.28 KEY_NUMERIC_STAR <U+002A ASTERISK> */
+#define XF86XK_NumericPound             _EVDEVK(0x20b)  /* v2.6.28 KEY_NUMERIC_POUND <U+0023 NUMBER SIGN> */
 #define XF86XK_NumericA                 _EVDEVK(0x20c)  /* v4.1    KEY_NUMERIC_A */
 #define XF86XK_NumericB                 _EVDEVK(0x20d)  /* v4.1    KEY_NUMERIC_B */
 #define XF86XK_NumericC                 _EVDEVK(0x20e)  /* v4.1    KEY_NUMERIC_C */
@@ -568,6 +568,11 @@
 #define XF86XK_DoNotDisturb             _EVDEVK(0x24f)  /* v6.10   KEY_DO_NOT_DISTURB */
 #define XF86XK_BrightnessMin            _EVDEVK(0x250)  /* v3.16   KEY_BRIGHTNESS_MIN */
 #define XF86XK_BrightnessMax            _EVDEVK(0x251)  /* v3.16   KEY_BRIGHTNESS_MAX */
+#define XF86XK_ElectronicPrivacyScreenOn  _EVDEVK(0x252)  /* v6.18   KEY_EPRIVACY_SCREEN_ON */
+#define XF86XK_ElectronicPrivacyScreenOff _EVDEVK(0x253)  /* v6.18   KEY_EPRIVACY_SCREEN_OFF */
+#define XF86XK_ActionOnSelection        _EVDEVK(0x254)  /* v7.0    KEY_ACTION_ON_SELECTION */
+#define XF86XK_ContextualInsert         _EVDEVK(0x255)  /* v7.0    KEY_CONTEXTUAL_INSERT */
+#define XF86XK_ContextualQuery          _EVDEVK(0x256)  /* v7.0    KEY_CONTEXTUAL_QUERY */
 #define XF86XK_KbdInputAssistPrev       _EVDEVK(0x260)  /* v3.18   KEY_KBDINPUTASSIST_PREV */
 #define XF86XK_KbdInputAssistNext       _EVDEVK(0x261)  /* v3.18   KEY_KBDINPUTASSIST_NEXT */
 #define XF86XK_KbdInputAssistPrevgroup  _EVDEVK(0x262)  /* v3.18   KEY_KBDINPUTASSIST_PREVGROUP */
