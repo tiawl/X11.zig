@@ -291,7 +291,7 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     const IOV_MAX = pkg_builder.option([]const u8, "16", "iov-max", "");
     _ = try std.fmt.parseUnsigned(u32, IOV_MAX, 10);
 
-    const makekeys = pkg_builder.addExecutable("makekeys");
+    const makekeys = pkg_builder.addHostExecutable("makekeys");
     pkg_builder.linkLibC(makekeys);
     pkg_builder.addCSource(makekeys, &.{ "X11", "src", "util", "makekeys.c" }, &.{});
 

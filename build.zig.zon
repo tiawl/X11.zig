@@ -63,8 +63,8 @@
             .hash = "N-V-__8AAAo6hwC5gSRez6YEBmJSqNo7sszsqZws45yWqCVg",
         },
         .toolbox = .{
-            .url = "git+https://github.com/tiawl/toolbox?ref=2.2.5#8a97389edb41c10d3815dc386df30bca9ad2a6c0",
-            .hash = "toolbox-2.2.5-kRAu4EKYAADeYTD8cLQEiC3SUuTDaZUhI9jdU8SUNecU",
+            .url = "git+https://github.com/PaNDa2code/toolbox#f8df579fd57d59f13fd60a264044f4ebc274205d",
+            .hash = "toolbox-2.2.5-kRAu4PWZAADMamXpR2eZFfuJv82cu9fXZ5uXLnXTMvT8",
         },
     },
     .minimum_zig_version = "0.17.0",
