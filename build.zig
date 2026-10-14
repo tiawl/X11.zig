@@ -4,7 +4,7 @@ const toolbox = @import("toolbox");
 const VerboseBuilder = toolbox.VerboseBuilder;
 
 fn updateXkbcommon(pkg_builder: *VerboseBuilder) !void {
-    const xkbcommon_dep = pkg_builder.verboseDependency("xkbcommon");
+    const xkbcommon_dep = pkg_builder.verboseDependency("xkbcommon", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xkbcommon_builder = VerboseBuilder.initFromDependency(xkbcommon_dep);
 
     while (try xkbcommon_builder.iterate(&.{ "include", "xkbcommon" })) |entry| {
@@ -20,7 +20,7 @@ fn updateXkbcommon(pkg_builder: *VerboseBuilder) !void {
 }
 
 fn updateX11(pkg_builder: *VerboseBuilder) !void {
-    const x11_dep = pkg_builder.verboseDependency("X11");
+    const x11_dep = pkg_builder.verboseDependency("X11", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var x11_builder = VerboseBuilder.initFromDependency(x11_dep);
 
     while (try x11_builder.walk(&.{ "include", "X11" })) |entry| {
@@ -64,35 +64,35 @@ fn updateX11(pkg_builder: *VerboseBuilder) !void {
 }
 
 fn updateXcursor(pkg_builder: *VerboseBuilder) !void {
-    const xcursor_dep = pkg_builder.verboseDependency("Xcursor");
+    const xcursor_dep = pkg_builder.verboseDependency("Xcursor", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xcursor_builder = VerboseBuilder.initFromDependency(xcursor_dep);
 
     try pkg_builder.copy(&.{ "X11", "include", "X11", "Xcursor", "Xcursor.h.in" }, &xcursor_builder, &.{ "include", "X11", "Xcursor", "Xcursor.h.in" });
 }
 
 fn updateXrandr(pkg_builder: *VerboseBuilder) !void {
-    const xrandr_dep = pkg_builder.verboseDependency("Xrandr");
+    const xrandr_dep = pkg_builder.verboseDependency("Xrandr", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xrandr_builder = VerboseBuilder.initFromDependency(xrandr_dep);
 
     try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "Xrandr.h" }, &xrandr_builder, &.{ "include", "X11", "extensions", "Xrandr.h" });
 }
 
 fn updateXfixes(pkg_builder: *VerboseBuilder) !void {
-    const xfixes_dep = pkg_builder.verboseDependency("Xfixes");
+    const xfixes_dep = pkg_builder.verboseDependency("Xfixes", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xfixes_builder = VerboseBuilder.initFromDependency(xfixes_dep);
 
     try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "Xfixes.h" }, &xfixes_builder, &.{ "include", "X11", "extensions", "Xfixes.h" });
 }
 
 fn updateXrender(pkg_builder: *VerboseBuilder) !void {
-    const xrender_dep = pkg_builder.verboseDependency("Xrender");
+    const xrender_dep = pkg_builder.verboseDependency("Xrender", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xrender_builder = VerboseBuilder.initFromDependency(xrender_dep);
 
     try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "Xrender.h" }, &xrender_builder, &.{ "include", "X11", "extensions", "Xrender.h" });
 }
 
 fn updateXinerama(pkg_builder: *VerboseBuilder) !void {
-    const xinerama_dep = pkg_builder.verboseDependency("Xinerama");
+    const xinerama_dep = pkg_builder.verboseDependency("Xinerama", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xinerama_builder = VerboseBuilder.initFromDependency(xinerama_dep);
 
     try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "Xinerama.h" }, &xinerama_builder, &.{ "include", "X11", "extensions", "Xinerama.h" });
@@ -100,7 +100,7 @@ fn updateXinerama(pkg_builder: *VerboseBuilder) !void {
 }
 
 fn updateXi(pkg_builder: *VerboseBuilder) !void {
-    const xi_dep = pkg_builder.verboseDependency("Xi");
+    const xi_dep = pkg_builder.verboseDependency("Xi", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xi_builder = VerboseBuilder.initFromDependency(xi_dep);
 
     try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "XInput.h" }, &xi_builder, &.{ "include", "X11", "extensions", "XInput.h" });
@@ -108,7 +108,7 @@ fn updateXi(pkg_builder: *VerboseBuilder) !void {
 }
 
 fn updateXau(pkg_builder: *VerboseBuilder) !void {
-    const xau_dep = pkg_builder.verboseDependency("Xau");
+    const xau_dep = pkg_builder.verboseDependency("Xau", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xau_builder = VerboseBuilder.initFromDependency(xau_dep);
 
     try pkg_builder.copy(&.{ "X11", "include", "X11", "Xauth.h" }, &xau_builder, &.{ "include", "X11", "Xauth.h" });
@@ -126,14 +126,14 @@ fn updateXau(pkg_builder: *VerboseBuilder) !void {
 }
 
 fn updateXScrnSaver(pkg_builder: *VerboseBuilder) !void {
-    const xscrnsaver_dep = pkg_builder.verboseDependency("XScrnSaver");
+    const xscrnsaver_dep = pkg_builder.verboseDependency("XScrnSaver", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xscrnsaver_builder = VerboseBuilder.initFromDependency(xscrnsaver_dep);
 
     try pkg_builder.copy(&.{ "X11", "include", "X11", "extensions", "scrnsaver.h" }, &xscrnsaver_builder, &.{ "include", "X11", "extensions", "scrnsaver.h" });
 }
 
 fn updateXext(pkg_builder: *VerboseBuilder) !void {
-    const xext_dep = pkg_builder.verboseDependency("Xext");
+    const xext_dep = pkg_builder.verboseDependency("Xext", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xext_builder = VerboseBuilder.initFromDependency(xext_dep);
 
     while (try xext_builder.iterate(&.{ "include", "X11", "extensions" })) |entry| {
@@ -149,7 +149,7 @@ fn updateXext(pkg_builder: *VerboseBuilder) !void {
 }
 
 fn updateXtrans(pkg_builder: *VerboseBuilder) !void {
-    const xtrans_dep = pkg_builder.verboseDependency("Xtrans");
+    const xtrans_dep = pkg_builder.verboseDependency("Xtrans", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xtrans_builder = VerboseBuilder.initFromDependency(xtrans_dep);
 
     while (try xtrans_builder.iterate(&.{"."})) |entry| {
@@ -165,7 +165,7 @@ fn updateXtrans(pkg_builder: *VerboseBuilder) !void {
 }
 
 fn updateXorgproto(pkg_builder: *VerboseBuilder) !void {
-    const xorgproto_dep = pkg_builder.verboseDependency("xorgproto");
+    const xorgproto_dep = pkg_builder.verboseDependency("xorgproto", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xorgproto_builder = VerboseBuilder.initFromDependency(xorgproto_dep);
 
     while (try xorgproto_builder.walk(&.{ "include", "X11" })) |entry| {
@@ -197,9 +197,9 @@ fn updateXorgproto(pkg_builder: *VerboseBuilder) !void {
 }
 
 fn updateXcb(pkg_builder: *VerboseBuilder) !void {
-    const xcb_dep = pkg_builder.verboseDependency("xcb");
+    const xcb_dep = pkg_builder.verboseDependency("xcb", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xcb_builder = VerboseBuilder.initFromDependency(xcb_dep);
-    const xcbproto_dep = pkg_builder.verboseDependency("xcbproto");
+    const xcbproto_dep = pkg_builder.verboseDependency("xcbproto", pkg_builder.getOptimize(), pkg_builder.getTarget());
     var xcbproto_builder = VerboseBuilder.initFromDependency(xcbproto_dep);
 
     try xcbproto_builder.remove(&.{"c_client.py"});
@@ -291,7 +291,7 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     const IOV_MAX = pkg_builder.option([]const u8, "16", "iov-max", "");
     _ = try std.fmt.parseUnsigned(u32, IOV_MAX, 10);
 
-    const makekeys = pkg_builder.addHostExecutable("makekeys");
+    const makekeys = pkg_builder.addExecutable("makekeys", pkg_builder.getOptimize(), pkg_builder.getHost());
     pkg_builder.linkLibC(makekeys);
     pkg_builder.addCSource(makekeys, &.{ "X11", "src", "util", "makekeys.c" }, &.{});
 
@@ -303,7 +303,7 @@ fn buildFn(pkg_builder: *VerboseBuilder) !void {
     const write_file = pkg_builder.addWriteFiles();
     const ks_tables_h = pkg_builder.addCopyFile(write_file, ks_tables_h_content, &.{ "include", "ks_tables.h" });
 
-    const lib = pkg_builder.addLibrary("X11");
+    const lib = pkg_builder.addLibrary("X11", pkg_builder.getOptimize(), pkg_builder.getTarget());
     pkg_builder.addIncludePath(@TypeOf(lib.*), lib, ks_tables_h.dirname());
     pkg_builder.addInclude(lib, &.{ "X11", "include" });
     pkg_builder.addInclude(lib, &.{ "X11", "include", "X11" });
