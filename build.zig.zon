@@ -7,8 +7,8 @@
             .hash = "N-V-__8AAMXRAADYeHz48Y1IuZUzOOqRvOO7f0wrdeNkWcBF",
         },
         .Xrender = .{
-            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxrender?ref=libXrender-0.9.12#46e12ff9e8e4d3f0313a2f097df93dbfdc14f92f",
-            .hash = "N-V-__8AANorBADbt-RlITZJofNvQWTiaQlv7r7lWYtxAqGx",
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxrender?ref=libXrender-0.9.13#f30d654658ebf17d41141ed3ec2abf607d8a512e",
+            .hash = "N-V-__8AAPNEBADrWm8hAlDAIjLV2y6OrKLvd83pa8Djhxa2",
         },
         .Xrandr = .{
             .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxrandr?ref=libXrandr-1.5.5#540c3ceef2be3e513b18002a858c7a9591dd749a",
@@ -39,16 +39,16 @@
             .hash = "N-V-__8AAFIgAQCJSug37AGy4zypGtiDtUR9wtQa8U74Nm0a",
         },
         .Xi = .{
-            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxi?ref=libXi-1.8.3#f00f7e9140b4707775331950dd67851e55058c40",
-            .hash = "N-V-__8AAPR0DQAuD3_ZopKbezyogf0SLNe6GiYF3RlaaNrh",
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxi?ref=libXi-1.8.4#9ea632ab9dce9ad6630ef7db9d1850ea3d0a2419",
+            .hash = "N-V-__8AAAqeDQCMlIfSacDfXem_28x6WqSSNlL-SOZnYLhH",
         },
         .Xau = .{
             .url = "git+https://gitlab.freedesktop.org/xorg/lib/libXau?ref=libXau-1.0.12#a9c65683e68b3a4349afee5d7673b393fb924d2e",
             .hash = "N-V-__8AAGTlAABgkQ5gmw2C1xhypMB4PArGI_hNIFTXs3mQ",
         },
         .X11 = .{
-            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libx11?ref=libX11-1.8.13#6c75545a1deb51f5903992c52af6bc35cc9bc103",
-            .hash = "N-V-__8AANL5xACqderCBKpnIFKe282dZAikvyc--kNSKWgd",
+            .url = "git+https://gitlab.freedesktop.org/xorg/lib/libx11?ref=libX11-1.8.14#b8d5a7046a98a244ee8ca3c9c07fd617c800dde2",
+            .hash = "N-V-__8AAAEGxQC3L4518rIZ6B8VrAtYcM8As4gAAoB8pTQ-",
         },
         .xcb = .{
             .url = "git+https://gitlab.freedesktop.org/xorg/lib/libxcb?ref=libxcb-1.17.0#622152ee42a310876f10602601206954b8d0613e",
