@@ -10,14 +10,9 @@ on:
 
 jobs:
   linter:
-    strategy:
-      matrix:
-        zig-version:
-          - latest
-          - master
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: "${{ github.event.pull_request.head.repo.full_name }}"
           ref: "${{ github.event.pull_request.head.ref }}"
@@ -30,21 +25,16 @@ jobs:
       - name: Setup Zig
         uses: mlugg/setup-zig@v2
         with:
-          version: "${{ matrix.zig-version }}"
-          cache-key: "${{ github.job }}_${{ runner.os }}_zig-${{ matrix.zig-version }}_${{ matrix.repo || '' }}_${{ steps.lastcommit.outputs.sha }}"
+          version: 'master'
+          cache-key: "${{ github.job }}_${{ runner.os }}_zig_${{ matrix.repo || '' }}_${{ steps.lastcommit.outputs.sha }}"
       - name: Check zig is canonical
         shell: 'bash'
         run: zig fmt --check .
 
   maintainance:
-    strategy:
-      matrix:
-        zig-version:
-          - latest
-          - master
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: "${{ github.event.pull_request.head.repo.full_name }}"
           ref: "${{ github.event.pull_request.head.ref }}"
@@ -57,8 +47,8 @@ jobs:
       - name: Setup Zig
         uses: mlugg/setup-zig@v2
         with:
-          version: "${{ matrix.zig-version }}"
-          cache-key: "${{ github.job }}_${{ runner.os }}_zig-${{ matrix.zig-version }}_${{ matrix.repo || '' }}_${{ steps.lastcommit.outputs.sha }}"
+          version: 'master'
+          cache-key: "${{ github.job }}_${{ runner.os }}_zig_${{ matrix.repo || '' }}_${{ steps.lastcommit.outputs.sha }}"
 
       - name: Test updating
         shell: 'bash'
@@ -67,14 +57,11 @@ jobs:
   user:
     strategy:
       matrix:
-        zig-version:
-          - latest
-          - master
         repo:
           - glfw
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: "${{ github.repository_owner }}/${{ matrix.repo }}.zig"
           ref: "${{ github.event.pull_request.base.ref }}"
@@ -88,8 +75,8 @@ jobs:
       - name: Setup Zig
         uses: mlugg/setup-zig@v2
         with:
-          version: "${{ matrix.zig-version }}"
-          cache-key: "${{ github.job }}_${{ runner.os }}_zig-${{ matrix.zig-version }}_${{ matrix.repo || '' }}_${{ steps.lastcommit.outputs.sha }}"
+          version: 'master'
+          cache-key: "${{ github.job }}_${{ runner.os }}_zig_${{ matrix.repo || '' }}_${{ steps.lastcommit.outputs.sha }}"
 
       - name: Prepare ${{ matrix.repo }}.zig/build.zig.zon
         env:
