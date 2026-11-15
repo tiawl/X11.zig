@@ -10,7 +10,7 @@ on:
 
 jobs:
   linter:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -26,13 +26,15 @@ jobs:
         uses: mlugg/setup-zig@v2
         with:
           version: 'master'
-          cache-key: "${{ github.job }}_${{ runner.os }}_zig_${{ matrix.repo || '' }}_${{ steps.lastcommit.outputs.sha }}"
+          use-cache: false
       - name: Check zig is canonical
         shell: 'bash'
-        run: zig fmt --check .
+        run: |
+          rm -rf .zig-* zig-* ~/.cache/zig
+          zig fmt --check .
 
   maintainance:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -48,18 +50,20 @@ jobs:
         uses: mlugg/setup-zig@v2
         with:
           version: 'master'
-          cache-key: "${{ github.job }}_${{ runner.os }}_zig_${{ matrix.repo || '' }}_${{ steps.lastcommit.outputs.sha }}"
+          use-cache: false
 
       - name: Test updating
         shell: 'bash'
-        run: zig build -Dupdate -Dverbose -freference-trace --verbose
+        run: |
+          rm -rf .zig-* zig-* ~/.cache/zig
+          zig build -Dupdate -Dverbose -freference-trace --verbose
 
   user:
     strategy:
       matrix:
         repo:
           - glfw
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -76,14 +80,18 @@ jobs:
         uses: mlugg/setup-zig@v2
         with:
           version: 'master'
-          cache-key: "${{ github.job }}_${{ runner.os }}_zig_${{ matrix.repo || '' }}_${{ steps.lastcommit.outputs.sha }}"
+          use-cache: false
 
       - name: Prepare ${{ matrix.repo }}.zig/build.zig.zon
         env:
           URL: "git+${{ github.server_url }}/${{ github.event.pull_request.head.repo.full_name }}#${{ github.event.pull_request.head.sha }}"
         shell: 'bash'
-        run: zig fetch --save "${URL}"
+        run: |
+          rm -rf .zig-* zig-* ~/.cache/zig
+          zig fetch --save "${URL}"
 
       - name: Test building ${{ matrix.repo }}.zig
         shell: 'bash'
-        run: zig build -Dverbose -freference-trace --verbose
+        run: |
+          rm -rf .zig-* zig-* ~/.cache/zig
+          zig build -Dverbose -freference-trace --verbose
